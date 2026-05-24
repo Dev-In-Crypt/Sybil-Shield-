@@ -16,8 +16,8 @@ export default function PricingPage() {
         <div className="text-center">
           <h1 className="text-4xl font-bold">Simple pricing, public methodology</h1>
           <p className="mt-3 text-zinc-400">
-            Free tier today. Paid plans launch with crypto checkout (NowPayments) — card
-            payments after incorporation.
+            Free tier today. Paid plans accept crypto via Atlos (USDT / USDC / ETH / BTC) —
+            card payments and wire transfers after incorporation.
           </p>
         </div>
 
@@ -149,17 +149,17 @@ export default function PricingPage() {
           <div className="mt-6 grid gap-6 md:grid-cols-3">
             <PaymentMethod
               name="Crypto (USDT/USDC/ETH/BTC)"
-              desc="Pay from your treasury wallet via NowPayments. Lowest fees, no KYC."
-              status="coming-soon"
+              desc="Pay from your treasury wallet via Atlos. Non-custodial, 0% fees, no KYC. Settles to our merchant wallet directly."
+              status="available"
             />
             <PaymentMethod
               name="Bank wire (USD/EUR)"
-              desc="For Enterprise contracts. After incorporation."
-              status="roadmap"
+              desc="For Enterprise contracts. Request via Contact sales — invoice issued manually until incorporation."
+              status="coming-soon"
             />
             <PaymentMethod
               name="Card (Stripe)"
-              desc="Standard recurring billing. After incorporation."
+              desc="Standard recurring billing. After incorporation (Q4 2026)."
               status="roadmap"
             />
           </div>
