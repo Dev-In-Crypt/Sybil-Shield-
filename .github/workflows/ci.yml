@@ -10,7 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Run test stack
-        run: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from api-test
+      - name: Run API suite (with postgres + redis)
+        run: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from api-test postgres-test redis-test api-test
       - name: Run ML suite
-        run: docker compose -f docker-compose.test.yml run --rm ml-test
+        run: docker compose -f docker-compose.test.yml up --build --abort-on-container-exit --exit-code-from ml-test ml-test
+      - name: Tear down
+        if: always()
+        run: docker compose -f docker-compose.test.yml down -v
