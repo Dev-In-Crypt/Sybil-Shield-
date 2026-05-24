@@ -10,7 +10,7 @@
 
 services:
   postgres:
-    ports: []        # remove the host:5432 binding
+    ports: !reset []        # drop the host:5432 binding from base
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-sybilshield}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
@@ -18,7 +18,7 @@ services:
     restart: unless-stopped
 
   redis:
-    ports: []
+    ports: !reset []
     restart: unless-stopped
 
   ml:
@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
 
   api:
-    ports:
+    ports: !reset
       - "127.0.0.1:3001:3001"        # only nginx (localhost) can reach it
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-sybilshield}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sybilshield}
