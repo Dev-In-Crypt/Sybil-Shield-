@@ -126,7 +126,7 @@ export default function DocsPage() {
         </Section>
 
         <p className="mt-12 text-sm text-zinc-500">
-          Questions? Email <a className="underline" href="mailto:hello@sybilshield.com">hello@sybilshield.com</a> or
+          Questions? Email <a className="underline" href="mailto:support@sybilshield.org">support@sybilshield.org</a> or
           open an issue on GitHub.
         </p>
       </main>

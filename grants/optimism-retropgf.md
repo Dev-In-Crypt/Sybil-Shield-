@@ -52,7 +52,7 @@ Open-source Sybil-detection engine for token distributions on Optimism Superchai
 ## Open source
 
 - GitHub: https://github.com/USER/sybilshield (MIT)
-- Methodology docs: https://sybilshield.com/methodology.html
+- Methodology docs: https://sybilshield.org/methodology.html
 - Detection-algorithm changelog (PRs from external contributors): /CHANGELOG.md
 
 ## Sustainability post-RetroPGF
@@ -73,7 +73,7 @@ Every quantitative claim above is verifiable through:
 - Public retrospectives (linkable URLs)
 - Customer testimonials (with their permission)
 
-If you (RetroPGF reviewer) want raw data to verify, contact grants@sybilshield.com.
+If you (RetroPGF reviewer) want raw data to verify, contact support@sybilshield.org.
 
 ## Team / identity
 
@@ -83,9 +83,9 @@ If you (RetroPGF reviewer) want raw data to verify, contact grants@sybilshield.c
 ## Links
 
 - https://github.com/USER/sybilshield
-- https://sybilshield.com
-- https://sybilshield.com/methodology.html
-- https://sybilshield.com/status.html
+- https://sybilshield.org
+- https://sybilshield.org/methodology.html
+- https://sybilshield.org/status.html
 
 ## Honest caveats
 

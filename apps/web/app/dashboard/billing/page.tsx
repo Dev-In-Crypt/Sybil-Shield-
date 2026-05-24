@@ -67,8 +67,8 @@ export default function BillingPage() {
           </p>
           <p className="mt-2 text-xs text-zinc-400">
             Want to pre-commit at today's pricing? Email{" "}
-            <a className="underline" href="mailto:hello@sybilshield.com">
-              hello@sybilshield.com
+            <a className="underline" href="mailto:support@sybilshield.org">
+              support@sybilshield.org
             </a>{" "}
             with your expected volume.
           </p>

@@ -35,7 +35,7 @@ Cross-chain identity linking — what bridge events imply about wallet ownership
 - 6 detection methods including basic cross-chain linker
 - Stargate, Hop, Synapse, Across bridge contract correlation
 - Union-find aggregation for entity components
-- Public methodology at https://sybilshield.com/methodology.html
+- Public methodology at https://sybilshield.org/methodology.html
 - 63 tests green
 
 GitHub: https://github.com/USER/sybilshield (MIT)
@@ -103,5 +103,5 @@ If SybilShield as a company fails, the LayerZero-specific code lives on GitHub a
 ## Links
 
 - https://github.com/USER/sybilshield
-- https://sybilshield.com
-- https://sybilshield.com/methodology.html (see "Cross-chain identity linking" section)
+- https://sybilshield.org
+- https://sybilshield.org/methodology.html (see "Cross-chain identity linking" section)

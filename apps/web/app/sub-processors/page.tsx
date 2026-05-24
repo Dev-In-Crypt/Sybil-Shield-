@@ -30,7 +30,7 @@ export default function SubProcessorsPage() {
           <h1 className="mt-2 text-5xl font-bold">Sub-processors</h1>
           <p className="mt-3 max-w-2xl text-zinc-400">
             Third-party services we use to operate SybilShield. Each is bound by a written DPA. Subscribe to{" "}
-            <a href="mailto:legal@sybilshield.com" className="text-emerald-400 hover:underline">change notifications</a>{" "}
+            <a href="mailto:support@sybilshield.org" className="text-emerald-400 hover:underline">change notifications</a>{" "}
             (30-day advance notice).
           </p>
         </header>

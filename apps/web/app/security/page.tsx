@@ -66,7 +66,7 @@ function verify(body, signature, secret) {
 
         <Section title="Reporting a vulnerability">
           <p className="text-zinc-300">
-            Email <a className="underline" href="mailto:security@sybilshield.com">security@sybilshield.com</a> with a description and reproduction. We
+            Email <a className="underline" href="mailto:security@sybilshield.org">security@sybilshield.org</a> with a description and reproduction. We
             commit to:
           </p>
           <ul className="mt-3 space-y-1 text-zinc-400">

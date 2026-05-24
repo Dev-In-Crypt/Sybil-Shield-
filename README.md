@@ -139,9 +139,9 @@ MIT. See [LICENSE](LICENSE).
 
 ## Contact
 
-- Email: hello@sybilshield.com
-- Security: security@sybilshield.com
-- Appeals: appeals@sybilshield.com
+- Email: support@sybilshield.org
+- Security: security@sybilshield.org
+- Appeals: support@sybilshield.org
 
 ## Layout
 
@@ -251,7 +251,7 @@ This repo is opinionated about evaluation: precision/recall are measured on **T1
 
 ## Appeals
 
-Customers may publish their own filter results using SybilShield scores. Per the Risks section in the project description, customers **must** include disclaimers and provide an appeal address. Internal appeals: `appeals@sybilshield.com` (48hr response policy).
+Customers may publish their own filter results using SybilShield scores. Per the Risks section in the project description, customers **must** include disclaimers and provide an appeal address. Internal appeals: `support@sybilshield.org` (48hr response policy).
 
 ## Frontend pages
 

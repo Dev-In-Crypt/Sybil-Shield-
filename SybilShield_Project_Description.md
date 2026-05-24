@@ -184,7 +184,7 @@ This establishes credibility without any customers. When a project googles "aird
 - **Frame as agreement/disagreement with the project's own filter**, not as ground-truth verdicts: "Our detector agrees with Linea on 478K/517K of their flagged addresses, and identifies 45K addresses Linea missed" — not "these wallets are Sybil farmers."
 - **Disclaimers on every public post**: results are probabilistic, do not constitute accusations, and may contain false positives. No individual claims.
 - **No screenshots of individual addresses, ENS names, or transactions** that could be tied to a real person.
-- **Have a takedown/appeal address** (`appeals@sybilshield.com`) listed in every public post. Document policy: 48hr response, free re-analysis, public correction if we were wrong.
+- **Have a takedown/appeal address** (`support@sybilshield.org`) listed in every public post. Document policy: 48hr response, free re-analysis, public correction if we were wrong.
 - **Defamation insurance** ($2K–5K/yr for early stage): cheap relative to one frivolous suit.
 
 The same principles apply when customers publish their own filter results using our scores: contractually require disclaimers + appeal flow in the Standard and Enterprise SLAs.

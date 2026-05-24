@@ -49,7 +49,7 @@ export default function NewAnalysisPage() {
             Read API docs →
           </Link>
           <a
-            href="mailto:hello@sybilshield.com?subject=First%20analysis"
+            href="mailto:support@sybilshield.org?subject=First%20analysis"
             className="rounded border border-zinc-800 px-4 py-2 text-sm hover:bg-zinc-900"
           >
             Email us

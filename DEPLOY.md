@@ -6,13 +6,13 @@ How to take SybilShield from local Docker to live production. Target stack: Verc
 
 ```
                    ┌─────────────────────┐
-   Users ───────→  │  Vercel (frontend)  │  https://sybilshield.com
+   Users ───────→  │  Vercel (frontend)  │  https://sybilshield.org
                    │   Next.js apps/web  │
                    └──────────┬──────────┘
                               │ HTTPS
                               ▼
                    ┌─────────────────────┐
-                   │  Railway (api)      │  https://api.sybilshield.com
+                   │  Railway (api)      │  https://api.sybilshield.org
                    │   Fastify           │
                    └────┬───────────┬────┘
                         │           │
@@ -37,7 +37,7 @@ How to take SybilShield from local Docker to live production. Target stack: Verc
 | Supabase | Pro | $25 |
 | Upstash | Pay-as-you-go | ~$10 |
 | Alchemy | Scale | $199 |
-| Domain (Namecheap) | sybilshield.com | $15/year |
+| Domain (Namecheap) | sybilshield.org | $15/year |
 | Google Workspace | hello@/appeals@/security@ | $6 |
 | **Subtotal** | | **~$310/mo** |
 
@@ -47,7 +47,7 @@ How to take SybilShield from local Docker to live production. Target stack: Verc
 
 ```bash
 # Buy domain
-namecheap.com → sybilshield.com → checkout (~$15)
+namecheap.com → sybilshield.org → checkout (~$15)
 
 # Google Workspace
 workspace.google.com → buy "Business Starter" → verify domain via DNS TXT
@@ -78,7 +78,7 @@ workspace.google.com → buy "Business Starter" → verify domain via DNS TXT
 1. https://account.nowpayments.io → Sign up
 2. Submit merchant verification (24–48h approval)
 3. Settings → API Keys → create one → save as `NOWPAYMENTS_API_KEY`
-4. Settings → IPN → set callback URL to `https://api.sybilshield.com/v1/billing/ipn`
+4. Settings → IPN → set callback URL to `https://api.sybilshield.org/v1/billing/ipn`
 5. Set IPN secret → save as `NOWPAYMENTS_IPN_SECRET`
 
 ### 6. Vercel (frontend)
@@ -87,11 +87,11 @@ workspace.google.com → buy "Business Starter" → verify domain via DNS TXT
 npm i -g vercel
 cd apps/web
 vercel link
-vercel env add NEXT_PUBLIC_API_URL  # https://api.sybilshield.com
+vercel env add NEXT_PUBLIC_API_URL  # https://api.sybilshield.org
 vercel --prod
 ```
 
-Custom domain: Vercel → Settings → Domains → add `sybilshield.com`.
+Custom domain: Vercel → Settings → Domains → add `sybilshield.org`.
 
 ### 7. Railway (backend services)
 
@@ -107,8 +107,8 @@ Add env vars in Railway dashboard for all services (api, ml, worker):
 - `ALCHEMY_API_KEY`
 - `USE_MOCK_PROVIDERS=false`
 - `ML_SERVICE_URL=http://ml.railway.internal:PORT` (Railway service discovery)
-- `API_PUBLIC_URL=https://api.sybilshield.com`
-- `WEB_PUBLIC_URL=https://sybilshield.com`
+- `API_PUBLIC_URL=https://api.sybilshield.org`
+- `WEB_PUBLIC_URL=https://sybilshield.org`
 - `NOWPAYMENTS_API_KEY`
 - `NOWPAYMENTS_IPN_SECRET`
 
@@ -117,7 +117,7 @@ Deploy:
 railway up
 ```
 
-Custom domain in Railway → api service → Settings → Domains → `api.sybilshield.com`.
+Custom domain in Railway → api service → Settings → Domains → `api.sybilshield.org`.
 
 Run migrations once:
 ```bash
@@ -127,10 +127,10 @@ railway run --service=migrate npx tsx src/db/migrate.ts
 ### 8. Verify
 
 ```bash
-curl https://api.sybilshield.com/health
+curl https://api.sybilshield.org/health
 # {"status":"ok",...}
 
-curl https://sybilshield.com
+curl https://sybilshield.org
 # Genesis landing
 ```
 
@@ -176,7 +176,7 @@ aws s3 cp /tmp/db.sql.gz s3://sybilshield-backups/$(date +%F).sql.gz
 - Defamation insurance ($2-5K/yr — Hiscox / Embroker)
 - SOC 2 starter (Vanta or Drata) once revenue justifies
 - Bug bounty program (Immunefi for Web3-flavor)
-- WAF in front of api.sybilshield.com (Cloudflare free)
+- WAF in front of api.sybilshield.org (Cloudflare free)
 
 ## Killing the stack
 

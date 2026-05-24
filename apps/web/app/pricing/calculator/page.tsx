@@ -82,7 +82,7 @@ export default function CalculatorPage() {
           <div><div className="font-mono text-xs uppercase text-zinc-500">// year-1 estimate</div><div className="mt-2 font-mono text-3xl font-bold text-lime-300">{money(quote.annual)}</div></div>
         </div>
 
-        <p className="mt-6 font-mono text-xs text-zinc-500">// non-binding estimates · email hello@sybilshield.com to lock</p>
+        <p className="mt-6 font-mono text-xs text-zinc-500">// non-binding estimates · email support@sybilshield.org to lock</p>
       </main>
       <SiteFooter />
     </>

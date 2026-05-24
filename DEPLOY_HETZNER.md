@@ -152,7 +152,7 @@ sudo nginx -t && sudo systemctl reload nginx
 
 # Issue TLS cert (Let's Encrypt will modify nginx config to add 443 + redirect)
 sudo certbot --nginx -d api.sybilshield.org \
-  --non-interactive --agree-tos -m hello@sybilshield.org
+  --non-interactive --agree-tos -m support@sybilshield.org
 
 # Verify
 curl https://api.sybilshield.org/health

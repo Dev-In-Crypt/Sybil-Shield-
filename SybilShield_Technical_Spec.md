@@ -1269,7 +1269,7 @@ POST   /v1/account/api-keys           # Generate new API key
   "status": "pending",
   "address_count": 150000,
   "estimated_time_minutes": 35,
-  "webhook_url": "https://api.sybilshield.com/v1/analyses/an_abc123"
+  "webhook_url": "https://api.sybilshield.org/v1/analyses/an_abc123"
 }
 
 // GET /v1/analyses/an_abc123 (when complete)
@@ -1528,4 +1528,4 @@ Realistic estimate for a 2-person team (1 ML, 1 full-stack). Original 8-week pla
 | 14 | Stripe billing activates plan correctly | Test checkout flow |
 | 15 | Rate limiting enforced per plan | 429 after limit exceeded |
 | 16 | 69+ tests pass in CI | GitHub Actions green |
-| 17 | Production API responds at https://api.sybilshield.com | HTTP 200 |
+| 17 | Production API responds at https://api.sybilshield.org | HTTP 200 |

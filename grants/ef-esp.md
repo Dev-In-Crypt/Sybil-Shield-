@@ -41,7 +41,7 @@ Three things existing tools don't combine:
 Public beta. 63 automated tests green in Docker. Full API + dashboard live in sandbox mode. Six detection methods implemented and unit-tested. Real ENS-veteran data (100 addresses) curated; synthetic T1-T4 placeholders for sybil seed. Baseline LightGBM model trained — AUC=1.0 on synthetic holdout, calibration pending real corpus.
 
 GitHub: https://github.com/USER/sybilshield (MIT)
-Live demo: https://sybilshield.com (sandbox)
+Live demo: https://sybilshield.org (sandbox)
 First retro-analysis (Linea): publishing Q3 2026
 
 ## What does the funding cover?
@@ -117,7 +117,7 @@ We're not asking EF to validate any specific filtering decision, endorse our sco
 ## References
 
 - https://github.com/USER/sybilshield — MIT
-- https://sybilshield.com — live sandbox
-- https://sybilshield.com/methodology.html — public detection methodology
-- https://sybilshield.com/security.html — security & vulnerability disclosure
+- https://sybilshield.org — live sandbox
+- https://sybilshield.org/methodology.html — public detection methodology
+- https://sybilshield.org/security.html — security & vulnerability disclosure
 - (Linea retro post URL once published)

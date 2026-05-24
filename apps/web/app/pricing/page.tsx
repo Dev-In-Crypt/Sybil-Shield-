@@ -176,7 +176,7 @@ export default function PricingPage() {
           <h2 className="text-2xl font-semibold">Billing FAQ</h2>
           <div className="mt-6 space-y-4">
             <Faq q="When will paid plans go live?" a="After we secure either grant funding or first paid analysis. The crypto checkout flow is the next infra task on the roadmap — see /roadmap." />
-            <Faq q="Can I pre-commit?" a="Yes - email hello@sybilshield.com with your expected volume. We honour pre-commit pricing locked at today's tiers." />
+            <Faq q="Can I pre-commit?" a="Yes - email support@sybilshield.org with your expected volume. We honour pre-commit pricing locked at today's tiers." />
             <Faq q="Refunds?" a="Per-analysis: no refunds once ingestion starts (compute is sunk cost). Subscriptions: prorated refund within 14 days, no questions." />
             <Faq q="Custom contracts / DPA / MSA?" a="Enterprise tier includes. We'll have a templates package after incorporation." />
           </div>

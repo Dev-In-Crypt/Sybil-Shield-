@@ -105,7 +105,7 @@ export default function TrustPage() {
               ["/security", "Security policy"],
               ["/privacy", "Privacy notice"],
               ["/sub-processors", "Sub-processors"],
-              ["mailto:security@sybilshield.com", "Report a vulnerability"],
+              ["mailto:security@sybilshield.org", "Report a vulnerability"],
             ].map(([href, label]) => (
               <a key={href} href={href} className="rounded border border-zinc-800 bg-zinc-900 p-4 hover:border-emerald-500">
                 <h3 className="font-mono text-sm text-emerald-400">{label} →</h3>

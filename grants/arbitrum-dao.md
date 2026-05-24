@@ -34,7 +34,7 @@ This is infrastructure that benefits:
 - 6 detection methods, full pipeline, 63 automated tests green
 - Public methodology, MIT-licensed
 - Audit log + public appeal endpoint
-- Live sandbox at https://sybilshield.com
+- Live sandbox at https://sybilshield.org
 
 GitHub: https://github.com/USER/sybilshield
 

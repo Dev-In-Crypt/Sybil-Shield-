@@ -169,7 +169,7 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
               ))}
             </ul>
             <p className="mt-8 text-xs text-zinc-500">
-              Disagree? Submit an appeal at <span className="font-mono">/appeal</span> or email appeals@sybilshield.com.
+              Disagree? Submit an appeal at <span className="font-mono">/appeal</span> or email support@sybilshield.org.
             </p>
           </div>
         </div>

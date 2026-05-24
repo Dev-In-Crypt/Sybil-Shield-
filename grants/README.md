@@ -35,5 +35,5 @@ All grants reference:
 - [ ] Live demo URL (deploy to Vercel before first submission)
 - [ ] Founder identity attached (real name + LinkedIn or Twitter)
 - [ ] Treasury wallet address (multi-sig recommended; can be Gnosis Safe)
-- [ ] Email at sybilshield.com domain (hello@, grants@)
+- [ ] Email at sybilshield.org domain (hello@, grants@)
 - [ ] One published retro-analysis (Linea draft is here, needs to be live)

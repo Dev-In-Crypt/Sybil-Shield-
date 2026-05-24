@@ -48,7 +48,7 @@ If you submit labeled data:
 
 ## Security disclosures
 
-Don't open public issues for security holes. Email security@sybilshield.com.
+Don't open public issues for security holes. Email security@sybilshield.org.
 See [SECURITY.md](./SECURITY.md) for details.
 
 ## Code of conduct

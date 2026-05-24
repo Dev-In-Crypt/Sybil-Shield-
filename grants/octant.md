@@ -26,7 +26,7 @@ We open-source the detection methodology, audit-log schema, and appeal protocol.
 - 63 automated tests, full Docker stack
 - Public appeal endpoint with 48h SLA + immutable audit log
 - Methodology documentation
-- Static preview at https://sybilshield.com (sandbox)
+- Static preview at https://sybilshield.org (sandbox)
 
 ## What public-good components Octant funding supports
 
@@ -71,5 +71,5 @@ If we ever raise venture funding, the public-good components stay funded by gran
 ## Links
 
 - https://github.com/USER/sybilshield
-- https://sybilshield.com
-- https://sybilshield.com/methodology.html
+- https://sybilshield.org
+- https://sybilshield.org/methodology.html

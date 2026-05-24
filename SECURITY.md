@@ -6,7 +6,7 @@ Pre-1.0 — only the latest commit on `main` is supported.
 
 ## Reporting a vulnerability
 
-**Do not open a public issue.** Email **security@sybilshield.com** with:
+**Do not open a public issue.** Email **security@sybilshield.org** with:
 
 - A description of the issue
 - Reproduction steps

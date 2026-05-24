@@ -18,7 +18,7 @@ export function SiteFooter() {
           {[
             { t: "/product", l: [["pricing", "/pricing"], ["docs", "/docs"], ["roadmap", "/roadmap"], ["status", "/status"]] },
             { t: "/public", l: [["methods", "/methodology"], ["appeal", "/appeal"], ["security", "/security"]] },
-            { t: "/co", l: [["about", "/about"], ["blog", "/blog"], ["contact", "mailto:hello@sybilshield.com"]] },
+            { t: "/co", l: [["about", "/about"], ["blog", "/blog"], ["contact", "mailto:support@sybilshield.org"]] },
           ].map((c) => (
             <div key={c.t}>
               <div className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500">{c.t}</div>

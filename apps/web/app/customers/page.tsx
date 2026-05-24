@@ -34,7 +34,7 @@ export default function CustomersPage() {
               </div>
             ))}
             <a
-              href="mailto:hello@sybilshield.com?subject=Add%20our%20logo"
+              href="mailto:support@sybilshield.org?subject=Add%20our%20logo"
               className="flex h-28 items-center justify-center rounded border border-dashed border-emerald-700 bg-transparent font-mono text-xs uppercase tracking-widest text-emerald-400 hover:bg-emerald-900/10"
             >
               + Your logo
@@ -66,7 +66,7 @@ export default function CustomersPage() {
           <p className="mt-3 text-zinc-400">
             If we've protected one of your distributions, we'd love to feature you — anonymized or named, your call.
           </p>
-          <a href="mailto:hello@sybilshield.com?subject=Case%20study" className="mt-6 inline-block rounded bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+          <a href="mailto:support@sybilshield.org?subject=Case%20study" className="mt-6 inline-block rounded bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-500">
             Contact us
           </a>
         </section>

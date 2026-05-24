@@ -135,7 +135,7 @@ export default function AppealPage() {
           </ul>
           <p className="mt-6 text-xs text-zinc-500">
             Spammed appeals get rate-limited (10/hour per IP). For complex cases, email{" "}
-            <a className="underline" href="mailto:appeals@sybilshield.com">appeals@sybilshield.com</a> with evidence attached.
+            <a className="underline" href="mailto:support@sybilshield.org">support@sybilshield.org</a> with evidence attached.
           </p>
         </section>
       </main>

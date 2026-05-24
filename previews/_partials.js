@@ -14,7 +14,7 @@
   ];
   const FOOT_PRODUCT = [["pricing","pricing.html"],["calculator","pricing-calculator.html"],["compare","compare.html"],["docs","docs.html"],["roadmap","roadmap.html"],["status","status.html"],["changelog","changelog.html"]];
   const FOOT_PUBLIC = [["methods","methodology.html"],["lookup","lookup.html"],["appeal","appeal.html"],["security","security.html"],["trust","trust.html"]];
-  const FOOT_CO = [["about","about.html"],["customers","customers.html"],["blog","blog.html"],["contact","mailto:hello@sybilshield.com"]];
+  const FOOT_CO = [["about","about.html"],["customers","customers.html"],["blog","blog.html"],["contact","mailto:support@sybilshield.org"]];
   const FOOT_LEGAL = [["privacy","privacy.html"],["terms","terms.html"],["cookies","cookies.html"],["sub-processors","sub-processors.html"]];
 
   const page = document.body.dataset.page || "";

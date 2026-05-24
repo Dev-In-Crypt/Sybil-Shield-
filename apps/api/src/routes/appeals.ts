@@ -99,7 +99,7 @@ export async function appealsRoutes(app: FastifyInstance): Promise<void> {
     return reply.send({
       policy: "SybilShield appeals policy",
       response_time_hours: 48,
-      contact: "appeals@sybilshield.com",
+      contact: "support@sybilshield.org",
       what_we_review: [
         "Evidence of legitimate use of the flagged address",
         "Proof of identity (Gitcoin Passport, ENS, KYC) on request",

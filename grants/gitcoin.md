@@ -33,7 +33,7 @@ We're applying to Gitcoin because the methodology, the appeal protocol, and the 
 3. **Open methodology maintenance** — keeping documentation current, accepting community PRs
 4. **Adversarial test set** — public benchmarks so other detectors can validate against the same evasion techniques
 
-Per-quarter public-good budget transparently published at https://sybilshield.com/budget (will go live).
+Per-quarter public-good budget transparently published at https://sybilshield.org/budget (will go live).
 
 ## What contributors get
 
@@ -52,7 +52,7 @@ Plus we want to dogfood: SybilShield should be used to verify Gitcoin Passport s
 - 63 automated tests green: `docker compose -f docker-compose.test.yml up`
 - 6 detection methods, each unit-tested with synthetic ground truth
 - MIT license: `LICENSE` at repo root
-- Public retrospectives: published at https://sybilshield.com/blog
+- Public retrospectives: published at https://sybilshield.org/blog
 - Open-source contributors welcome: `CONTRIBUTING.md`
 
 ## Team identity
@@ -60,7 +60,7 @@ Plus we want to dogfood: SybilShield should be used to verify Gitcoin Passport s
 [REAL NAME] · solo founder · pre-incorporation
 GitHub: https://github.com/USER
 Twitter: @[HANDLE]
-Email: hello@sybilshield.com
+Email: support@sybilshield.org
 
 ## Treasury
 
@@ -69,7 +69,7 @@ Email: hello@sybilshield.com
 ## Links
 
 - https://github.com/USER/sybilshield
-- https://sybilshield.com
-- https://sybilshield.com/methodology.html
-- https://sybilshield.com/status.html
+- https://sybilshield.org
+- https://sybilshield.org/methodology.html
+- https://sybilshield.org/status.html
 - (Linea retro URL when published)

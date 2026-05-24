@@ -106,10 +106,10 @@ We do not publish individual address lists from this analysis. Projects that wan
 - Arbitrum Foundation 2023 filter (Q3)
 - Starknet Phase 1 distribution (Q4)
 
-If you ran an airdrop and want a private retro on your data, contact hello@sybilshield.com.
+If you ran an airdrop and want a private retro on your data, contact support@sybilshield.org.
 
 ---
 
 *— SybilShield team*
 *Published: 2026-06-15 · Aggregate analysis only · No individual addresses disclosed*
-*Appeals: appeals@sybilshield.com · 48h response policy*
+*Appeals: support@sybilshield.org · 48h response policy*
