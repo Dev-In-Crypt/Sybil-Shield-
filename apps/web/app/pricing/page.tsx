@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CryptoPayButton } from "../../components/CryptoPayButton";
 import { SandboxBanner } from "../../components/SandboxBanner";
 import { SiteFooter } from "../../components/SiteFooter";
 import { SiteHeader } from "../../components/SiteHeader";
@@ -44,7 +45,7 @@ export default function PricingPage() {
               name="Developer"
               price="$499"
               suffix="/mo"
-              status="coming-soon"
+              status="available"
               features={[
                 "50K API calls / month",
                 "Batch scoring (up to 100 / req)",
@@ -52,12 +53,13 @@ export default function PricingPage() {
                 "All clustering methods",
                 "Email support",
               ]}
+              payable={{ plan: "developer", priceUsd: 499 }}
             />
             <Plan
               name="Growth"
               price="$1,499"
               suffix="/mo"
-              status="coming-soon"
+              status="available"
               highlight
               features={[
                 "250K API calls / month",
@@ -67,12 +69,13 @@ export default function PricingPage() {
                 "SLA: 99.5%",
                 "Slack support",
               ]}
+              payable={{ plan: "growth", priceUsd: 1499 }}
             />
             <Plan
               name="Enterprise"
               price="$4,999"
               suffix="/mo"
-              status="coming-soon"
+              status="available"
               features={[
                 "Unlimited API calls",
                 "Custom-trained models",
@@ -81,6 +84,7 @@ export default function PricingPage() {
                 "On-call engineering",
                 "Custom contract / DPA",
               ]}
+              payable={{ plan: "enterprise", priceUsd: 4999 }}
             />
           </div>
         </section>
@@ -195,6 +199,7 @@ function Plan({
   status,
   highlight,
   cta,
+  payable,
 }: {
   name: string;
   price: string;
@@ -203,6 +208,7 @@ function Plan({
   status: "available" | "coming-soon" | "beta";
   highlight?: boolean;
   cta?: { href: string; label: string };
+  payable?: { plan: "developer" | "growth" | "enterprise"; priceUsd: number };
 }) {
   return (
     <div
@@ -230,6 +236,16 @@ function Plan({
         >
           {cta.label}
         </Link>
+      ) : payable ? (
+        <>
+          <CryptoPayButton plan={payable.plan} priceUsd={payable.priceUsd} />
+          <a
+            href={`mailto:support@sybilshield.org?subject=${encodeURIComponent(`${name} plan — wire / card`)}&body=${encodeURIComponent(`Hi — I'd like to pay for the ${name} plan (${price}${suffix}) via wire transfer or card.\n\nCompany:\nVAT/EIN:\n\nThanks`)}`}
+            className="mt-2 block text-center text-xs text-zinc-500 hover:text-emerald-400"
+          >
+            or pay by wire / card →
+          </a>
+        </>
       ) : (
         <a
           href={`mailto:support@sybilshield.org?subject=${encodeURIComponent(`${name} plan inquiry`)}&body=${encodeURIComponent(`Hi — I'd like to start on the ${name} plan (${price}${suffix}).\n\nUse case:\nMonthly volume:\nPreferred payment (card / crypto / wire):\n\nThanks`)}`}
