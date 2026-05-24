@@ -14,13 +14,14 @@ import Stripe from "stripe";
 import { z } from "zod";
 import { customers, db } from "../db/index.js";
 import {
+  type AtlosPostback,
   createInvoice,
-  isConfigured as isNpConfigured,
+  isConfigured as isAtlosConfigured,
   isTerminalSuccess,
   parseOrderId,
   PLAN_PRICES,
-  verifyIpnSignature,
-} from "../services/nowpayments.js";
+  verifyPostbackSignature,
+} from "../services/atlos.js";
 
 const PLAN_PRICE_IDS: Record<string, string | undefined> = {
   developer: process.env.STRIPE_PRICE_DEVELOPER,
@@ -115,7 +116,7 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
 
   app.post<{ Body: { plan?: string } }>("/v1/billing/checkout", async (request, reply) => {
     if (!request.customer) return reply.code(401).send({ error: "auth_required" });
-    if (!isNpConfigured()) return reply.code(503).send({ error: "crypto_checkout_not_configured" });
+    if (!isAtlosConfigured()) return reply.code(503).send({ error: "crypto_checkout_not_configured" });
     const plan = (request.body?.plan ?? "").toLowerCase();
     if (!PLAN_PRICES[plan]) return reply.code(400).send({ error: "invalid_plan", available: Object.keys(PLAN_PRICES) });
     try {
@@ -124,9 +125,10 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
         plan: plan as "developer" | "growth" | "enterprise",
         successUrl: `${process.env.WEB_PUBLIC_URL ?? "http://localhost:3000"}/dashboard/billing?status=success`,
         cancelUrl: `${process.env.WEB_PUBLIC_URL ?? "http://localhost:3000"}/pricing`,
+        userEmail: request.customer.email,
       });
       return reply.send({
-        provider: "nowpayments",
+        provider: "atlos",
         checkout_url: invoice.invoice_url,
         invoice_id: invoice.invoice_id,
         amount_usd: invoice.amount_usd,
@@ -137,24 +139,25 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
   });
 
   app.post(
-    "/v1/billing/ipn",
+    "/v1/billing/atlos-ipn",
     { config: { rawBody: true } } as never,
     async (request, reply) => {
-      if (!isNpConfigured()) return reply.code(503).send({ error: "crypto_checkout_not_configured" });
-      const sig = request.headers["x-nowpayments-sig"];
-      if (!sig || Array.isArray(sig)) return reply.code(400).send({ error: "missing_signature" });
+      if (!isAtlosConfigured()) return reply.code(503).send({ error: "crypto_checkout_not_configured" });
+      const sigHeader = request.headers["signature"];
+      const sig = Array.isArray(sigHeader) ? sigHeader[0] : sigHeader;
+      if (!sig) return reply.code(400).send({ error: "missing_signature" });
       const raw = (request as unknown as { rawBody?: Buffer | string }).rawBody;
       if (!raw) return reply.code(400).send({ error: "raw_body_missing" });
-      const rawStr = typeof raw === "string" ? raw : raw.toString("utf8");
-      if (!verifyIpnSignature(rawStr, sig)) {
+      if (!verifyPostbackSignature(raw, sig)) {
         return reply.code(400).send({ error: "invalid_signature" });
       }
 
-      const payload = JSON.parse(rawStr);
-      if (!isTerminalSuccess(payload.payment_status)) {
-        return reply.send({ received: true, ignored: payload.payment_status });
+      const rawStr = typeof raw === "string" ? raw : raw.toString("utf8");
+      const payload = JSON.parse(rawStr) as AtlosPostback;
+      if (!isTerminalSuccess(payload.Status)) {
+        return reply.send({ received: true, ignored: payload.Status });
       }
-      const order = parseOrderId(payload.order_id);
+      const order = parseOrderId(payload.OrderId);
       if (!order) return reply.code(400).send({ error: "invalid_order_id" });
       if (!PLAN_CALL_LIMITS[order.plan]) return reply.code(400).send({ error: "unknown_plan" });
 
@@ -166,6 +169,10 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
         })
         .where(eq(customers.id, order.customerId));
 
+      request.log.info(
+        { customerId: order.customerId, plan: order.plan, tx: payload.BlockchainHash, asset: payload.Asset },
+        "atlos payment confirmed → plan upgraded",
+      );
       return reply.send({ received: true, upgraded: order.plan });
     },
   );
@@ -177,7 +184,8 @@ export async function billingRoutes(app: FastifyInstance): Promise<void> {
         price_usd: cfg.amount_usd,
         description: cfg.description,
       })),
-      crypto_available: isNpConfigured(),
+      crypto_available: isAtlosConfigured(),
+      crypto_provider: "atlos",
       cards_available: Boolean(process.env.STRIPE_SECRET_KEY),
     });
   });
