@@ -1,0 +1,106 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sybilshield
+      POSTGRES_PASSWORD: sybilshield
+      POSTGRES_DB: sybilshield
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sybilshield"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+
+  ml:
+    build:
+      context: .
+      dockerfile: apps/ml/Dockerfile
+      target: service
+    environment:
+      USE_MOCK_PROVIDERS: "true"
+    ports:
+      - "8001:8001"
+    volumes:
+      - ml_data:/app/apps/ml/sybilshield/data/labeled/raw
+      - ml_models:/app/apps/ml/sybilshield/data/models
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: runtime
+    environment:
+      DATABASE_URL: postgres://sybilshield:sybilshield@postgres:5432/sybilshield
+      REDIS_URL: redis://redis:6379
+      ML_SERVICE_URL: http://ml:8001
+      API_PORT: "3001"
+      API_HOST: "0.0.0.0"
+    ports:
+      - "3001:3001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ml:
+        condition: service_started
+
+  migrate:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: deps
+    working_dir: /app/apps/api
+    environment:
+      DATABASE_URL: postgres://sybilshield:sybilshield@postgres:5432/sybilshield
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+    command: ["npx", "tsx", "src/db/migrate.ts"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: deps
+    working_dir: /app/apps/api
+    environment:
+      DATABASE_URL: postgres://sybilshield:sybilshield@postgres:5432/sybilshield
+      REDIS_URL: redis://redis:6379
+      ML_SERVICE_URL: http://ml:8001
+    volumes:
+      - ./apps/api/src:/app/apps/api/src
+    command: ["npx", "tsx", "src/workers/analyze.worker.ts"]
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ml:
+        condition: service_started
+      migrate:
+        condition: service_completed_successfully
+
+volumes:
+  pg_data:
+  ml_data:
+  ml_models:

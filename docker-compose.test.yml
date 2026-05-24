@@ -1,0 +1,44 @@
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: sybilshield
+      POSTGRES_PASSWORD: sybilshield
+      POSTGRES_DB: sybilshield_test
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sybilshield -d sybilshield_test"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  redis-test:
+    image: redis:7-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  api-test:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+      target: test
+    depends_on:
+      postgres-test:
+        condition: service_healthy
+      redis-test:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgres://sybilshield:sybilshield@postgres-test:5432/sybilshield_test
+      REDIS_URL: redis://redis-test:6379
+      NODE_ENV: test
+      USE_MOCK_PROVIDERS: "true"
+
+  ml-test:
+    build:
+      context: .
+      dockerfile: apps/ml/Dockerfile
+      target: test
+    environment:
+      USE_MOCK_PROVIDERS: "true"
