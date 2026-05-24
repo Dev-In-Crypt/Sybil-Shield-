@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import type { FastifyReply, FastifyRequest } from "fastify";
 import { customers, db } from "../db/index.js";
 import { hashApiKey } from "../lib/api-keys.js";
@@ -33,11 +33,40 @@ export async function requireApiKey(request: FastifyRequest, reply: FastifyReply
   // Monthly quota check
   const plan = PLAN_LIMITS[customer.plan] ?? PLAN_LIMITS.free!;
   if (customer.apiCallsThisMonth >= plan.monthlyCalls) {
-    return reply.code(429).send({ error: "monthly_quota_exceeded", limit: plan.monthlyCalls });
+    return reply.code(429).send({
+      error: "monthly_quota_exceeded",
+      limit: plan.monthlyCalls,
+      used: customer.apiCallsThisMonth,
+      plan: customer.plan,
+      upgrade_url: `${process.env.WEB_PUBLIC_URL ?? ""}/pricing`,
+    });
   }
   request.customer = customer;
+}
+
+/**
+ * onResponse hook: increment the monthly call counter for any authed request.
+ * Skips counting if response was a 401/429 (failed auth or already-blocked quota
+ * — we don't punish the customer twice for the same event).
+ *
+ * Register inside the authed scope:
+ *   instance.addHook("onResponse", countAuthedCall);
+ */
+export async function countAuthedCall(request: FastifyRequest, reply: FastifyReply): Promise<void> {
+  if (!request.customer) return;
+  if (reply.statusCode === 401 || reply.statusCode === 429) return;
+  try {
+    await db
+      .update(customers)
+      .set({ apiCallsThisMonth: sql`${customers.apiCallsThisMonth} + 1` })
+      .where(eq(customers.id, request.customer.id));
+  } catch (err) {
+    request.log.warn({ err, customerId: request.customer.id }, "failed to increment api_calls_this_month");
+  }
 }
 
 export function planLimits(plan: string): { rpm: number; monthlyCalls: number } {
   return PLAN_LIMITS[plan] ?? PLAN_LIMITS.free!;
 }
+
+export { PLAN_LIMITS };

@@ -2,7 +2,7 @@ import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import Fastify from "fastify";
 import rawBody from "fastify-raw-body";
-import { requireApiKey } from "./middleware/auth.js";
+import { countAuthedCall, planLimits, requireApiKey } from "./middleware/auth.js";
 import { analysesRoutes } from "./routes/analyses.js";
 import { appealsRoutes } from "./routes/appeals.js";
 import { authedAccountRoutes, publicAuthRoutes } from "./routes/auth.js";
@@ -29,6 +29,8 @@ export async function buildServer() {
     runFirst: true,
   });
   await app.register(cors, { origin: true });
+  // Baseline DDoS rate-limit (unauthed + fallback). Authed scope below adds
+  // per-customer dynamic limits on top.
   await app.register(rateLimit, {
     global: false,
     max: 100,
@@ -48,7 +50,21 @@ export async function buildServer() {
 
   // Authenticated routes
   await app.register(async (instance) => {
+    // Hook order matters: requireApiKey runs first and populates request.customer,
+    // then the per-customer rate-limit (registered after) reads it.
     instance.addHook("preHandler", requireApiKey);
+    await instance.register(rateLimit, {
+      hook: "preHandler",
+      keyGenerator: (req) => req.customer?.id ?? req.ip,
+      max: (req) => (req.customer ? planLimits(req.customer.plan).rpm : 30),
+      timeWindow: "1 minute",
+      errorResponseBuilder: (_req, ctx) => ({
+        error: "rate_limit_exceeded",
+        limit: ctx.max,
+        retry_after_seconds: Math.ceil(ctx.ttl / 1000),
+      }),
+    });
+    instance.addHook("onResponse", countAuthedCall);
     await instance.register(authedAccountRoutes);
     await instance.register(analysesRoutes);
     await instance.register(scoringRoutes);

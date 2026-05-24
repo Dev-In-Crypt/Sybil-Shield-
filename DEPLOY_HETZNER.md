@@ -188,6 +188,22 @@ sudo chmod +x /usr/local/bin/sybil-pg-backup.sh
 Later: push backups to S3-compatible storage (Hetzner Storage Box €4/mo or
 Backblaze B2 ~$0.50/mo). For now local copy is enough.
 
+### 5a. Monthly billing quota reset
+
+The API increments `customers.api_calls_this_month` on every authed request and
+returns `429 monthly_quota_exceeded` when the per-plan limit is hit. To zero
+the counter on the 1st of each month, add a cron:
+
+```bash
+( sudo crontab -l 2>/dev/null
+  echo '5 0 1 * * cd /home/sybil/sybilshield && docker compose exec -T api npx tsx src/scripts/reset-monthly-quota.ts >> /var/log/sybilshield-quota-reset.log 2>&1'
+) | sudo crontab -
+
+sudo crontab -l   # verify both backup and reset crons are present
+```
+
+Runs at 00:05 on day 1 of every month. Idempotent — safe to re-run.
+
 ---
 
 ## 6. Wire frontend to the live API
