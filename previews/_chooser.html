@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SybilShield · Landing previews</title>
+<style>
+  :root{
+    --bg:#0a0b10;--card:#13151c;--border:#1f222b;--text:#e6e9ef;--muted:#7a818f;--accent:#34d399;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5;min-height:100vh}
+  .wrap{max-width:1100px;margin:0 auto;padding:64px 24px}
+  h1{font-size:48px;line-height:1.05;letter-spacing:-.02em;font-weight:800}
+  .eyebrow{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;text-transform:uppercase;letter-spacing:.25em;color:var(--accent)}
+  p{color:var(--muted);max-width:640px;margin-top:16px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:24px;margin-top:48px}
+  .card{display:flex;flex-direction:column;border:1px solid var(--border);background:var(--card);border-radius:16px;overflow:hidden;text-decoration:none;color:inherit;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+  .card:hover{transform:translateY(-4px);border-color:#34d39955;box-shadow:0 30px 60px rgba(0,0,0,.3),0 0 0 1px rgba(52,211,153,.1)}
+  .swatch{position:relative;height:160px;overflow:hidden}
+  .swatch .b1,.swatch .b2{position:absolute;border-radius:50%;filter:blur(60px);opacity:.5}
+  .swatch .b1{top:-40px;right:-40px;width:180px;height:180px}
+  .swatch .b2{bottom:-40px;left:-40px;width:180px;height:180px;opacity:.4}
+  .palette{position:absolute;left:24px;bottom:16px;display:flex;gap:8px}
+  .palette span{width:24px;height:24px;border:1px solid rgba(255,255,255,.2);border-radius:6px}
+  .body{padding:24px;flex:1;display:flex;flex-direction:column}
+  .id{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted)}
+  .name{font-size:24px;font-weight:800;margin-top:4px;letter-spacing:-.02em}
+  .tag{color:var(--accent);font-weight:500;margin-top:4px;font-size:14px}
+  .vibe{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:11px;color:var(--muted);margin-top:6px}
+  .desc{margin-top:16px;font-size:14px;color:#a8aebc}
+  .best{margin-top:auto;padding-top:16px;border-top:1px solid var(--border)}
+  .best .lab{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--muted)}
+  .best .txt{font-size:13px;color:#cdd2dc;margin-top:4px}
+  .cta{display:inline-flex;align-items:center;gap:8px;margin-top:18px;color:var(--accent);font-size:14px;font-weight:600}
+  .note{margin-top:48px;padding:24px;border:1px solid var(--border);border-radius:12px;background:var(--card)}
+  .note h3{font-size:16px}
+  .note p{margin-top:8px;font-size:14px}
+  .legend{margin-top:12px;font-size:12px;color:var(--muted)}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;background:#1f222b;padding:2px 6px;border-radius:4px;font-size:12px;color:#cdd2dc}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">choose a direction</p>
+  <h1 style="margin-top:8px">Three landing concepts</h1>
+  <p>Each is a fully designed landing — hero, problem, six methods, evidence, comparison, pricing, CTA. Open each, scroll through, then tell me which one to make the production landing.</p>
+  <p style="margin-top:12px;font-size:13px">Open files directly — no install. Each file is self-contained HTML.</p>
+
+  <div class="grid">
+    <a class="card" href="v1.html">
+      <div class="swatch" style="background:#070b14">
+        <div class="b1" style="background:#34d399"></div>
+        <div class="b2" style="background:#22d3ee"></div>
+        <div class="palette"><span style="background:#070b14"></span><span style="background:#34d399"></span><span style="background:#22d3ee"></span></div>
+      </div>
+      <div class="body">
+        <span class="id">V1</span>
+        <div class="name">Quantum</div>
+        <div class="tag">Institutional dark</div>
+        <div class="vibe">vibe: Stripe + Linear</div>
+        <p class="desc">Deep navy backdrop with emerald/cyan gradient text. Premium sans typography, scroll-triggered fade-ups, subtle grid pattern. Sells trust + competence.</p>
+        <div class="best">
+          <div class="lab">Best for</div>
+          <div class="txt">Enterprise sales, foundation procurement, investors who buy from "serious-looking" sites.</div>
+        </div>
+        <div class="cta">Open preview →</div>
+      </div>
+    </a>
+
+    <a class="card" href="v2.html">
+      <div class="swatch" style="background:#000">
+        <div class="b1" style="background:#c0ff00"></div>
+        <div class="b2" style="background:#a855f7"></div>
+        <div class="palette"><span style="background:#000"></span><span style="background:#c0ff00"></span><span style="background:#a855f7"></span></div>
+      </div>
+      <div class="body">
+        <span class="id">V2</span>
+        <div class="name">Genesis</div>
+        <div class="tag">Cyber neon</div>
+        <div class="vibe">vibe: Vercel + Solana + Linear</div>
+        <p class="desc">Pure black + neon lime + electric purple. Animated gradient orbs, glitch hero text, monospace display, scrolling marquee. Sells edge + native web3 energy.</p>
+        <div class="best">
+          <div class="lab">Best for</div>
+          <div class="txt">Degen-adjacent projects, crypto-native foundations, dev-tool buyers who appreciate aggressive design.</div>
+        </div>
+        <div class="cta">Open preview →</div>
+      </div>
+    </a>
+
+    <a class="card" href="v3.html">
+      <div class="swatch" style="background:#f8f5ef">
+        <div class="b1" style="background:#b91c2c"></div>
+        <div class="b2" style="background:#d97706"></div>
+        <div class="palette"><span style="background:#f8f5ef;border:1px solid #ccc"></span><span style="background:#b91c2c"></span><span style="background:#0d1530"></span></div>
+      </div>
+      <div class="body">
+        <span class="id">V3</span>
+        <div class="name">Sentinel</div>
+        <div class="tag">Editorial</div>
+        <div class="vibe">vibe: Notion + NYT + Stripe</div>
+        <p class="desc">Cream background, crimson + deep navy. Serif headlines, magazine-grid layout, hand-crafted shadows, illustrated case file. Sells gravitas + integrity.</p>
+        <div class="best">
+          <div class="lab">Best for</div>
+          <div class="txt">Mature foundations, compliance-conscious buyers, anyone allergic to "crypto bro" aesthetics.</div>
+        </div>
+        <div class="cta">Open preview →</div>
+      </div>
+    </a>
+  </div>
+
+  <div class="note">
+    <h3>When you've chosen</h3>
+    <p>Tell me <code>V1</code>, <code>V2</code>, or <code>V3</code> — I'll move the chosen variant to the production landing. We can also mix elements ("V3 layout + V1 palette" works).</p>
+    <p class="legend">These are static HTML mockups — animations work, links to internal pages don't. The full app lives in <code>apps/web/</code> for when you want to deploy.</p>
+  </div>
+</div>
+</body>
+</html>

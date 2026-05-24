@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API Keys · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html">analyses</a>
+    <a href="notifications.html">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html" class="active">api keys</a>
+    <a href="webhooks.html">webhooks</a>
+    <a href="team.html">team</a>
+    <a href="scoring.html">scoring</a>
+    <a href="watchlist.html">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <h1>// API KEYS</h1>
+    <p class="lead">Generate, rotate, and revoke API keys. Set a webhook URL to receive signed completion events.</p>
+
+    <h4 class="mt-12">// current_key</h4>
+    <div class="card mt-6">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+        <div>
+          <div class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">prefix</div>
+          <div class="mono lime mt-2" style="font-size:18px">sk_live_wquj•••••••••••••••••••••</div>
+          <div class="mono dim mt-2" style="font-size:11px">created 2026-05-21 · last used 4m ago · plan: FREE</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn">rotate</button>
+          <button class="btn-dis" style="width:auto;display:inline-flex;padding:8px 16px">revoke</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-6" style="border-color:rgba(245,158,11,.3);background:rgba(245,158,11,.05)">
+      <h4 style="color:var(--amber)">// key_handling_rules</h4>
+      <ul class="mt-4" style="list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px">
+        <li class="muted">› Never share the key. Never commit to git.</li>
+        <li class="muted">› Treat it as a password — anyone with the key can run analyses on your behalf.</li>
+        <li class="muted">› Rotate immediately if exposed — old key revoked atomically.</li>
+        <li class="muted">› Use a separate key per environment (dev / staging / prod).</li>
+      </ul>
+    </div>
+
+    <h4 class="mt-12">// webhook</h4>
+    <div class="card mt-6">
+      <p class="muted">We POST <span class="code">analysis.completed</span> events to your URL with HMAC-SHA256 signature in <span class="code">x-sybilshield-signature</span>.</p>
+      <div class="field"><label>webhook_url</label><input type="url" value="https://your.app/sybilshield-webhook"></div>
+      <div class="field"><label>secret (shown once at save)</label><input value="whsec_••••••••••••••••" readonly></div>
+      <div class="mt-6" style="display:flex;gap:8px"><button class="btn">save</button><button class="btn-dis" style="width:auto;display:inline-flex;padding:8px 16px">test webhook</button></div>
+    </div>
+
+    <h4 class="mt-12">// scopes</h4>
+    <div class="grid-3 mt-6">
+      <div class="card"><h3 class="lime">read:analyses</h3><p class="mt-2">List analyses, fetch scores and clusters.</p><div class="badge b-live mt-4" style="display:inline-flex">ENABLED</div></div>
+      <div class="card"><h3 class="lime">write:analyses</h3><p class="mt-2">Create new analyses, cancel running ones.</p><div class="badge b-live mt-4" style="display:inline-flex">ENABLED</div></div>
+      <div class="card"><h3 class="lime">admin:account</h3><p class="mt-2">Rotate keys, change billing, delete account.</p><div class="badge b-road mt-4" style="display:inline-flex">SCOPE PICKER · SOON</div></div>
+    </div>
+  </section>
+</div>
+
+<script src="_partials.js"></script>
+</body>
+</html>

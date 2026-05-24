@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>New analysis · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html">analyses</a>
+    <a href="notifications.html">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html" class="active">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="webhooks.html">webhooks</a>
+    <a href="team.html">team</a>
+    <a href="scoring.html">scoring</a>
+    <a href="watchlist.html">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <div style="display:flex;align-items:center;gap:12px">
+      <h1>// NEW ANALYSIS</h1>
+      <span class="badge b-road">ROADMAP</span>
+    </div>
+    <p class="lead">The visual CSV-upload form ships next. Until then, create analyses programmatically through the API.</p>
+
+    <div class="grid-3 mt-12">
+      <div class="card"><h3 class="lime">UPLOAD</h3><p class="mt-2">A CSV of wallet addresses (one per row, header optional) or a JSON array. Up to 1M per request.</p></div>
+      <div class="card"><h3 class="lime">CHOOSE</h3><p class="mt-2">Chains (any of eth / arb / op / base / polygon / bsc / avax / linea), sensitivity (strict / balanced / lenient), evidence on/off.</p></div>
+      <div class="card"><h3 class="lime">GET</h3><p class="mt-2">An analysis ID immediately. Webhook (signed) when complete. Scored results + clusters + CSV.</p></div>
+    </div>
+
+    <div class="card mt-12" style="border-color:rgba(192,255,0,.3);background:linear-gradient(180deg,rgba(192,255,0,.04),transparent);padding:32px">
+      <h4 class="lime">// start_via_api</h4>
+      <p class="mt-4">Read the <a class="lime" href="docs.html">documentation</a> for the full <span class="code">POST /v1/analyses</span> spec. Or email an account manager to walk you through your first analysis.</p>
+      <div class="mt-6" style="display:flex;flex-wrap:wrap;gap:12px">
+        <a class="btn" href="docs.html">read api docs →</a>
+        <a class="btn-dis" style="width:auto;display:inline-flex;padding:14px 24px" href="mailto:hello@sybilshield.com">email us</a>
+      </div>
+    </div>
+
+    <div class="card mt-12">
+      <h4>// want_this_form_sooner</h4>
+      <p class="mt-4">Tracked on the public <a class="lime" href="roadmap.html">roadmap</a> under "next-analysis-dashboard-form". Upvote or comment.</p>
+    </div>
+  </section>
+</div>
+
+<script src="_partials.js"></script>
+</body>
+</html>

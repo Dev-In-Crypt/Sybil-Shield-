@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Governance · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="product">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// for dao operators</p>
+    <h1>// ONE_VOTE_PER_ENTITY</h1>
+    <p class="lead">Pre-vote Sybil scans on Snapshot or on-chain proposals. We score every voting wallet and tell you how many unique entities are actually behind them. Use the scores as input to your weighting algorithm.</p>
+    <div class="mt-8" style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn btn-l" href="dashboard.html">START FREE</a>
+      <a class="btn-dis" style="display:inline-flex;padding:12px 24px" href="lookup.html">try lookup</a>
+    </div>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <h2>// problem</h2>
+    <div class="grid-4 mt-8">
+      <div class="card"><div class="lime mono" style="font-size:32px;font-weight:700">~33%</div><p class="dim mt-2">median wallet-to-entity ratio in DAO votes</p></div>
+      <div class="card"><div class="lime mono" style="font-size:32px;font-weight:700">4h</div><p class="dim mt-2">turnaround on typical proposal voter set</p></div>
+      <div class="card"><div class="lime mono" style="font-size:32px;font-weight:700">$0</div><p class="dim mt-2">free tier covers most DAO votes</p></div>
+      <div class="card"><div class="lime mono" style="font-size:32px;font-weight:700">open</div><p class="dim mt-2">scores publishable for community review</p></div>
+    </div>
+
+    <h2 class="mt-12">// which_methods_matter</h2>
+    <div class="grid-2 mt-6">
+      <div class="card"><h3 class="lime">FUNDING_CLUSTERING</h3><p class="mt-2">DAO sybil attacks often use freshly-funded wallets from a single source — the highest-signal method here.</p></div>
+      <div class="card"><h3 class="lime">BEHAVIORAL_FINGERPRINT</h3><p class="mt-2">Voting wallets created days before a contentious vote with no other activity = strong signal.</p></div>
+      <div class="card"><h3 class="lime">CROSS_CHAIN_LINKING</h3><p class="mt-2">Entities holding voting tokens on multiple chains get linked back to one identity.</p></div>
+      <div class="card"><h3 class="lime">TEMPORAL_CORRELATION</h3><p class="mt-2">Wallets voting within seconds of each other across many proposals are flagged as a coordinated bloc.</p></div>
+    </div>
+
+    <h2 class="mt-12">// mini_case</h2>
+    <div class="card mt-6">
+      <p class="dim mono" style="font-size:11px">// dao-x · anon</p>
+      <h3 class="lime mt-2">614 WALLETS → 412 ENTITIES</h3>
+      <p class="mt-4">A treasury proposal was passing 53/47. We scored the voter set; two clusters of 78 and 53 wallets were aligned YES. Removing their weight flipped the result to 49/51. The DAO re-ran with one-entity-one-vote — proposal failed by 18 points.</p>
+      <a class="mono lime mt-6" href="customers.html" style="font-size:11px;display:inline-block">SEE MORE CASE STUDIES →</a>
+    </div>
+
+    <h2 class="mt-12">// suggested_plan</h2>
+    <div class="card mt-6" style="border-color:var(--lime)">
+      <h3 class="lime">FREE → STARTER · $0 → $99/mo</h3>
+      <p class="mt-3">Most DAO votes fit in the free tier (100 calls/month). Starter when you need webhook delivery into Snapshot.</p>
+      <a class="btn mt-6" href="pricing.html">SEE PRICING →</a>
+    </div>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

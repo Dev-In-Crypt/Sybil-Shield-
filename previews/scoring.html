@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Scoring · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html">analyses</a>
+    <a href="notifications.html">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="webhooks.html">webhooks</a>
+    <a href="team.html">team</a>
+    <a href="scoring.html" class="active">scoring</a>
+    <a href="watchlist.html">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <h1>// SCORING</h1>
+    <p class="lead">Look up a single address against our cached scores. Results draw from the most recent analysis that included it, or trigger a fresh score if none exists.</p>
+
+    <h4 class="mt-12">// lookup</h4>
+    <div class="card mt-6">
+      <form id="lookForm" style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">
+        <div style="flex:1;min-width:280px">
+          <label class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">address</label>
+          <input id="addr" type="text" placeholder="0x..." required style="width:100%;background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:10px 12px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:13px">
+        </div>
+        <div>
+          <label class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">chain</label>
+          <select id="chain" style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:10px 12px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:13px">
+            <option>ethereum</option><option>arbitrum</option><option>optimism</option><option>base</option><option>polygon</option>
+          </select>
+        </div>
+        <button type="submit" class="btn">SCORE →</button>
+      </form>
+      <div class="mt-4 mono dim" style="font-size:11px">// try one: 0xa12b00000000000000000000000000000000c4d7</div>
+    </div>
+
+    <div id="result" class="mt-8" style="display:none">
+      <h4>// result · <span id="rAddr" class="mono lime"></span></h4>
+      <div class="grid-3 mt-6">
+        <div class="card">
+          <h4>// sybil_score</h4>
+          <div class="mt-2" id="rScore" style="font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace">—</div>
+        </div>
+        <div class="card">
+          <h4>// label</h4>
+          <div class="mt-2" id="rLabel" style="font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace">—</div>
+        </div>
+        <div class="card">
+          <h4>// confidence</h4>
+          <div class="mt-2" id="rConf" style="font-size:36px;font-weight:700;font-family:'JetBrains Mono',monospace">—</div>
+        </div>
+      </div>
+      <h4 class="mt-8">// evidence</h4>
+      <pre class="mt-2" id="rEvidence" style="background:#0a0a0a;border:1px solid var(--border);color:#cdd2dc;padding:12px;font-family:'JetBrains Mono',monospace;font-size:12px;overflow:auto;white-space:pre-wrap"></pre>
+      <div class="mt-6" style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" id="watchBtn">+ ADD TO WATCHLIST</button>
+        <a class="btn-dis" style="display:inline-flex;padding:8px 16px" href="appeal.html">submit appeal</a>
+      </div>
+    </div>
+
+    <h4 class="mt-12">// recent_lookups</h4>
+    <div class="tablewrap mt-6">
+      <table>
+        <thead><tr><th>address</th><th>chain</th><th>score</th><th>label</th><th>checked</th><th></th></tr></thead>
+        <tbody id="recentTbody">
+          <tr><td class="k">0xa12b...c4d7</td><td>ethereum</td><td style="color:var(--rose)">87</td><td style="color:var(--rose)">sybil</td><td class="dim">2h ago</td><td><a class="lime" href="#">re-score</a></td></tr>
+          <tr><td class="k">0x3f81...9b22</td><td>arbitrum</td><td style="color:var(--amber)">52</td><td style="color:var(--amber)">suspicious</td><td class="dim">5h ago</td><td><a class="lime" href="#">re-score</a></td></tr>
+          <tr><td class="k">0xd449...0a17</td><td>ethereum</td><td style="color:var(--lime)">12</td><td style="color:var(--lime)">genuine</td><td class="dim">yesterday</td><td><a class="lime" href="#">re-score</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<script>
+  const API=localStorage.getItem('sybilshield_api_base')||'http://localhost:3001';
+  const KEY=localStorage.getItem('sybilshield_api_key')||'';
+  const form=document.getElementById('lookForm');
+  let lastAddr='', lastChain='';
+
+  form.addEventListener('submit',async e=>{
+    e.preventDefault();
+    const addr=document.getElementById('addr').value.trim().toLowerCase();
+    const chain=document.getElementById('chain').value;
+    lastAddr=addr;lastChain=chain;
+    const r=document.getElementById('result');
+    r.style.display='block';
+    document.getElementById('rAddr').textContent=addr;
+    document.getElementById('rScore').textContent='...';
+    document.getElementById('rLabel').textContent='...';
+    document.getElementById('rConf').textContent='...';
+    document.getElementById('rEvidence').textContent='loading...';
+    try{
+      const res=await fetch(`${API}/v1/score/${addr}?chain=${chain}`,{
+        headers:KEY?{'Authorization':'Bearer '+KEY}:{},
+      });
+      if(!res.ok){
+        document.getElementById('rEvidence').textContent='// '+res.status+' '+res.statusText+' — has this address been scored yet? Try creating an analysis first.';
+        document.getElementById('rScore').textContent='—';
+        document.getElementById('rLabel').textContent='—';
+        document.getElementById('rConf').textContent='—';
+        return;
+      }
+      const j=await res.json();
+      const s=j.sybil_score??j.score??0;
+      document.getElementById('rScore').textContent=s;
+      document.getElementById('rScore').style.color=s>=70?'var(--rose)':s>=40?'var(--amber)':'var(--lime)';
+      document.getElementById('rLabel').textContent=j.label||'—';
+      document.getElementById('rConf').textContent=j.confidence?(Number(j.confidence)*100).toFixed(0)+'%':'—';
+      document.getElementById('rEvidence').textContent=JSON.stringify(j.evidence||j,null,2);
+    }catch(err){
+      document.getElementById('rEvidence').textContent='// network error: '+err.message+'\n// is the API up? curl '+API+'/health';
+    }
+  });
+
+  document.getElementById('watchBtn').addEventListener('click',async()=>{
+    if(!lastAddr)return;
+    try{
+      const r=await fetch(`${API}/v1/watchlist`,{
+        method:'POST',
+        headers:{'content-type':'application/json',...(KEY?{'Authorization':'Bearer '+KEY}:{})},
+        body:JSON.stringify({address:lastAddr,chain:lastChain}),
+      });
+      alert(r.ok?'added to watchlist':'failed ('+r.status+')');
+    }catch(e){alert('network error: '+e.message)}
+  });
+</script>
+<script src="_partials.js"></script>
+</body>
+</html>

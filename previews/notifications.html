@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Notifications · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+<style>
+  .notif{display:flex;align-items:flex-start;gap:16px;padding:16px;border:1px solid var(--border);background:rgba(10,10,10,.5);transition:background .15s}
+  .notif.unread{border-left:3px solid var(--lime);background:rgba(192,255,0,.04)}
+  .notif:hover{background:rgba(255,255,255,.04)}
+  .notif .kind{padding:3px 8px;font-family:'JetBrains Mono',monospace;font-size:9px;text-transform:uppercase;letter-spacing:.15em;background:rgba(168,85,247,.15);color:var(--purp);border:1px solid rgba(168,85,247,.3)}
+  .notif.k-analysis_complete .kind{background:rgba(192,255,0,.15);color:var(--lime);border-color:rgba(192,255,0,.3)}
+  .notif.k-appeal_received .kind{background:rgba(245,158,11,.15);color:var(--amber);border-color:rgba(245,158,11,.3)}
+</style>
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html">analyses</a>
+    <a href="notifications.html" class="active">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="webhooks.html">webhooks</a>
+    <a href="team.html">team</a>
+    <a href="scoring.html">scoring</a>
+    <a href="watchlist.html">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:16px">
+      <h1>// NOTIFICATIONS</h1>
+      <button class="btn-dis" style="display:inline-flex;width:auto;padding:8px 16px">mark all read</button>
+    </div>
+    <p class="lead">Inbox of system events. Analysis completions, appeals, drift alerts, payments.</p>
+
+    <div class="mt-8" style="display:flex;flex-direction:column;gap:8px">
+      <div class="notif unread k-analysis_complete">
+        <span class="kind">analysis_complete</span>
+        <div style="flex:1">
+          <div style="font-weight:600">Analysis complete — 42,300 sybils flagged</div>
+          <div class="mt-1 muted" style="font-size:13px">150,000 addresses scored across ethereum, arbitrum.</div>
+          <div class="mt-2 mono dim" style="font-size:11px">// 4 minutes ago · <a class="lime" href="analysis-detail.html">open analysis →</a></div>
+        </div>
+      </div>
+      <div class="notif unread k-appeal_received">
+        <span class="kind">appeal_received</span>
+        <div style="flex:1">
+          <div style="font-weight:600">New appeal on Mainnet airdrop Q3</div>
+          <div class="mt-1 muted" style="font-size:13px">Address 0xA12b…c4d7 disputed (score was 87)</div>
+          <div class="mt-2 mono dim" style="font-size:11px">// 18 minutes ago · <a class="lime" href="analysis-detail.html">review →</a></div>
+        </div>
+      </div>
+      <div class="notif unread">
+        <span class="kind">drift_alert</span>
+        <div style="flex:1">
+          <div style="font-weight:600">PSI alert on funding_source_is_exchange</div>
+          <div class="mt-1 muted" style="font-size:13px">PSI 0.28 (threshold 0.25). Recommend reviewing recent ingest data.</div>
+          <div class="mt-2 mono dim" style="font-size:11px">// 2 hours ago · weekly drift check</div>
+        </div>
+      </div>
+      <div class="notif">
+        <span class="kind">analysis_complete</span>
+        <div style="flex:1">
+          <div style="font-weight:600">Analysis complete — DeFi farming detection</div>
+          <div class="mt-1 muted" style="font-size:13px">23,481 addresses · 5,202 sybil, 15,161 genuine</div>
+          <div class="mt-2 mono dim" style="font-size:11px">// 5 days ago · <a class="lime" href="analyses.html">open →</a></div>
+        </div>
+      </div>
+      <div class="notif">
+        <span class="kind">payment_processed</span>
+        <div style="flex:1">
+          <div style="font-weight:600">Payment received — Growth plan renewed</div>
+          <div class="mt-1 muted" style="font-size:13px">$1,499 USDC via NowPayments. Quota reset.</div>
+          <div class="mt-2 mono dim" style="font-size:11px">// 7 days ago · <a class="lime" href="billing.html">view invoice →</a></div>
+        </div>
+      </div>
+    </div>
+
+    <p class="dim mono mt-8" style="font-size:11px">// showing 5 of 5 · filter dropdown coming with email digest support</p>
+  </section>
+</div>
+
+<script src="_partials.js"></script>
+</body>
+</html>

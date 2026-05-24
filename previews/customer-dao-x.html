@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DAO-X governance scan · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="customers">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <a class="mono dim" href="customers.html" style="font-size:11px">← all customers</a>
+    <p class="eyebrow mt-4">// dao · governance</p>
+    <h1>// DAO-X GOVERNANCE SCAN</h1>
+    <p class="lead">Pre-vote analysis of a contentious treasury proposal. 614 voting wallets reduced to 412 estimated unique entities; the proposal's outcome reversed when sybil-weight excluded.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:880px">
+    <div class="grid-4">
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Voting wallets</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">614</div></div>
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Unique entities</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">412</div></div>
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Sybil weight</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">$2.1M</div></div>
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Turnaround</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">4 hours</div></div>
+    </div>
+
+    <h2 class="mt-12">// context</h2>
+    <p class="mt-4">A treasury allocation proposal was passing 53/47. The DAO operator suspected coordinated voting from a small number of actors with many wallets each.</p>
+
+    <h2 class="mt-12">// finding</h2>
+    <p class="mt-4">Two clusters of 78 and 53 wallets respectively, both with high confidence ≥0.91, were aligned to vote YES. Removing their weight flipped the result to 49/51.</p>
+
+    <h2 class="mt-12">// outcome</h2>
+    <p class="mt-4">The DAO ran a second binding vote with one-entity-one-vote weighting (using our scores as input). The reversed proposal failed by 18 points.</p>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

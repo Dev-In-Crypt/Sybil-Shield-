@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Analyses · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+<style>
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 16px;align-items:center}
+  .chip{padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.15em;background:#0a0a0a;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s}
+  .chip:hover{border-color:var(--lime);color:var(--lime)}
+  .chip.on{background:var(--lime);color:#000;border-color:var(--lime)}
+  .search{flex:1;min-width:200px;background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .search:focus{outline:none;border-color:var(--lime)}
+</style>
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html" class="active">analyses</a>
+    <a href="notifications.html">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="webhooks.html">webhooks</a>
+    <a href="team.html">team</a>
+    <a href="scoring.html">scoring</a>
+    <a href="watchlist.html">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:16px">
+      <h1>// ANALYSES</h1>
+      <a class="btn" href="new.html">+ new</a>
+    </div>
+
+    <div class="filters">
+      <input class="search" placeholder="// search by name or analysis id...">
+      <span class="chip on">all <span style="opacity:.6">15</span></span>
+      <span class="chip">complete <span style="opacity:.6">12</span></span>
+      <span class="chip">running <span style="opacity:.6">2</span></span>
+      <span class="chip">failed <span style="opacity:.6">1</span></span>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>name</th><th>id</th><th>status</th><th>chains</th><th>addresses</th><th>sybil</th><th>genuine</th><th>created</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="k lime">Mainnet airdrop Q3</td><td class="dim">an_8f3a…12cd</td><td class="lime">complete</td><td>eth, arb</td><td>150,000</td><td style="color:var(--rose)">42,300</td><td class="em">89,000</td><td>2d ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">DeFi farming detection</td><td class="dim">an_b21c…77af</td><td class="lime">complete</td><td>eth</td><td>23,481</td><td style="color:var(--rose)">5,202</td><td class="em">15,161</td><td>5d ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">Governance Sybil scan</td><td class="dim">an_0f4e…3a01</td><td class="lime">complete</td><td>arb</td><td>8,201</td><td style="color:var(--rose)">617</td><td class="em">7,152</td><td>1w ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">Pre-TGE test batch</td><td class="dim">an_c5d3…9180</td><td style="color:var(--amber)">analyzing</td><td>eth, base</td><td>5,000</td><td>—</td><td>—</td><td>today</td><td class="dim">—</td></tr>
+          <tr><td class="k lime">Cross-chain entity scan</td><td class="dim">an_77ed…b412</td><td class="lime">complete</td><td>eth, arb, op, base</td><td>1,847</td><td style="color:var(--rose)">203</td><td class="em">1,556</td><td>2w ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">Snapshot voter audit</td><td class="dim">an_a8b1…ee32</td><td class="lime">complete</td><td>eth</td><td>12,401</td><td style="color:var(--rose)">880</td><td class="em">10,932</td><td>3w ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">LP-farming detection</td><td class="dim">an_2c41…d7b5</td><td class="lime">complete</td><td>arb, op</td><td>4,801</td><td style="color:var(--rose)">1,234</td><td class="em">3,201</td><td>3w ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">TGE allowlist filter</td><td class="dim">an_98d2…aacf</td><td class="lime">complete</td><td>eth, arb, op, base, polygon</td><td>320,481</td><td style="color:var(--rose)">94,201</td><td class="em">198,401</td><td>1mo ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">Mid-cap DEX scan</td><td class="dim">an_7da0…3b91</td><td style="color:var(--amber)">scoring</td><td>eth</td><td>22,400</td><td>—</td><td>—</td><td>1h ago</td><td class="dim">—</td></tr>
+          <tr><td class="k lime">Q1 retro analysis</td><td class="dim">an_fe9c…1102</td><td class="lime">complete</td><td>eth, linea</td><td>87,401</td><td style="color:var(--rose)">12,300</td><td class="em">68,221</td><td>1mo ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">Tier-3 launchpad scan</td><td class="dim">an_3a17…cd44</td><td style="color:var(--rose)">failed</td><td>bsc</td><td>4,201</td><td>—</td><td>—</td><td>1mo ago</td><td><a class="lime dim" href="dashboard.html">retry</a></td></tr>
+          <tr><td class="k lime">Custom enterprise batch</td><td class="dim">an_b0c4…7821</td><td class="lime">complete</td><td>eth, arb, op</td><td>512,000</td><td style="color:var(--rose)">182,400</td><td class="em">298,001</td><td>2mo ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">Governance committee audit</td><td class="dim">an_44d8…99e1</td><td class="lime">complete</td><td>eth</td><td>881</td><td style="color:var(--rose)">42</td><td class="em">812</td><td>2mo ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">Beta tester whitelist</td><td class="dim">an_5e2b…f001</td><td class="lime">complete</td><td>arb</td><td>3,200</td><td style="color:var(--rose)">180</td><td class="em">2,910</td><td>2mo ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+          <tr><td class="k lime">Smoke test</td><td class="dim">an_0001…0000</td><td class="lime">complete</td><td>eth</td><td>20</td><td style="color:var(--rose)">0</td><td class="em">20</td><td>3mo ago</td><td><a class="lime" href="analysis-detail.html">view →</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="dim mt-6 mono" style="font-size:11px">// 15 of 15 shown · paginate at 50 per page</p>
+  </section>
+</div>
+
+<script src="_partials.js"></script>
+</body>
+</html>

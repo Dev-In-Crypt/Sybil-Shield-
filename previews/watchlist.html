@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Watchlist · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html">analyses</a>
+    <a href="notifications.html">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="webhooks.html">webhooks</a>
+    <a href="team.html">team</a>
+    <a href="scoring.html">scoring</a>
+    <a href="watchlist.html" class="active">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <h1>// WATCHLIST</h1>
+    <p class="lead">Pin addresses you want to track. When their score changes, get a notification (optional webhook fire too).</p>
+
+    <h4 class="mt-12">// add</h4>
+    <div class="card mt-6">
+      <form onsubmit="event.preventDefault();alert('Demo: would POST /v1/watchlist')" style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">
+        <div style="flex:1;min-width:280px">
+          <label class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">address</label>
+          <input type="text" placeholder="0x..." required style="width:100%;background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:10px 12px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:13px">
+        </div>
+        <div>
+          <label class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">chain</label>
+          <select style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:10px 12px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:13px"><option>ethereum</option><option>arbitrum</option><option>optimism</option><option>base</option></select>
+        </div>
+        <div style="flex:1;min-width:200px">
+          <label class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">label (optional)</label>
+          <input type="text" placeholder="my treasury wallet" style="width:100%;background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:10px 12px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:13px">
+        </div>
+        <label class="mono dim" style="font-size:11px;display:flex;align-items:center;gap:6px;padding-bottom:10px"><input type="checkbox" checked> alert on change</label>
+        <button type="submit" class="btn">+ ADD</button>
+      </form>
+    </div>
+
+    <h4 class="mt-12">// watching · <span class="dim">5</span></h4>
+    <div class="tablewrap mt-6">
+      <table>
+        <thead><tr><th>address</th><th>chain</th><th>label</th><th>score</th><th>change</th><th>alerts</th><th>added</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="k lime">0xa12b...c4d7</td><td>ethereum</td><td>suspected_farm_op</td><td style="color:var(--rose)">87</td><td class="em" style="color:var(--rose)">+12</td><td class="em" style="color:var(--lime)">on</td><td class="dim">3d ago</td><td><a class="dim" href="#">remove</a></td></tr>
+          <tr><td class="k lime">0x3f81...9b22</td><td>arbitrum</td><td>governance_voter</td><td style="color:var(--amber)">52</td><td class="em" style="color:var(--amber)">+3</td><td class="em" style="color:var(--lime)">on</td><td class="dim">1w ago</td><td><a class="dim" href="#">remove</a></td></tr>
+          <tr><td class="k lime">0xd449...0a17</td><td>ethereum</td><td>known_genuine</td><td style="color:var(--lime)">12</td><td class="dim">—</td><td class="dim">off</td><td class="dim">2w ago</td><td><a class="dim" href="#">remove</a></td></tr>
+          <tr><td class="k lime">0x77c1...88ee</td><td>base</td><td>—</td><td style="color:var(--amber)">61</td><td class="em" style="color:var(--lime)">-4</td><td class="em" style="color:var(--lime)">on</td><td class="dim">2w ago</td><td><a class="dim" href="#">remove</a></td></tr>
+          <tr><td class="k lime">0x9a02...11ff</td><td>optimism</td><td>airdrop_candidate</td><td style="color:var(--lime)">22</td><td class="dim">—</td><td class="em" style="color:var(--lime)">on</td><td class="dim">3w ago</td><td><a class="dim" href="#">remove</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="mt-12">// how_it_works</h4>
+    <div class="grid-3 mt-6">
+      <div class="card"><h3 class="lime">PIN_ADDR</h3><p class="mt-2">Add any address to your watchlist. Optional label, optional alert toggle.</p></div>
+      <div class="card"><h3 class="lime">DAILY_RECHECK</h3><p class="mt-2">A nightly cron re-scores every watched address. Free on every plan.</p></div>
+      <div class="card"><h3 class="lime">NOTIFY</h3><p class="mt-2">If the score changes by ≥5 points, you get a notification + optional webhook fire.</p></div>
+    </div>
+  </section>
+</div>
+
+<script src="_partials.js"></script>
+</body>
+</html>

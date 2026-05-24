@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Compare · SybilShield vs Trusta / Nansen / Chainalysis</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="compare">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// vs the world</p>
+    <h1>// COMPARE</h1>
+    <p class="lead">Side-by-side with Trusta Labs, Nansen, Chainalysis, and DIY Dune queries. Honest scoring — we mark a "—" where we can't yet match what they offer.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap-grid">
+    <div class="tablewrap reveal">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Trusta Labs</th>
+            <th>Nansen</th>
+            <th>Chainalysis</th>
+            <th>DIY Dune</th>
+            <th class="em">SybilShield</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td class="k">api_first</td><td>✓</td><td>—</td><td>—</td><td>—</td><td class="em">✓</td></tr>
+          <tr><td class="k">price_per_analysis</td><td>$1-3K</td><td>$50-150K</td><td>$80-200K</td><td>4 weeks DS time</td><td class="em">$2.5-15K</td></tr>
+          <tr><td class="k">turnaround</td><td>hours</td><td>4-8 weeks</td><td>4-8 weeks</td><td>2-4 weeks</td><td class="em">hours</td></tr>
+          <tr><td class="k">open_methodology</td><td>—</td><td>—</td><td>—</td><td>(your own)</td><td class="em">MIT</td></tr>
+          <tr><td class="k">evidence_per_address</td><td>—</td><td>manual PDF</td><td>manual PDF</td><td>—</td><td class="em">structured JSON</td></tr>
+          <tr><td class="k">immutable_audit_log</td><td>—</td><td>—</td><td>compliance grade</td><td>—</td><td class="em">on every event</td></tr>
+          <tr><td class="k">public_appeal_flow</td><td>—</td><td>—</td><td>—</td><td>—</td><td class="em">48h SLA</td></tr>
+          <tr><td class="k">cross_chain_linking</td><td>limited</td><td>partial</td><td>strong</td><td>manual</td><td class="em">8 chains, bridge events</td></tr>
+          <tr><td class="k">behavioral_clustering</td><td>basic</td><td>strong</td><td>strong</td><td>varies</td><td class="em">HDBSCAN</td></tr>
+          <tr><td class="k">graph_community</td><td>—</td><td>strong</td><td>strong</td><td>—</td><td class="em">Leiden</td></tr>
+          <tr><td class="k">ml_ensemble</td><td>✓</td><td>—</td><td>✓</td><td>—</td><td class="em">LightGBM, tier-weighted</td></tr>
+          <tr><td class="k">webhook_notifications</td><td>—</td><td>—</td><td>enterprise only</td><td>—</td><td class="em">HMAC-signed, native</td></tr>
+          <tr><td class="k">batch_scoring_api</td><td>100/req</td><td>—</td><td>enterprise only</td><td>—</td><td class="em">100/req</td></tr>
+          <tr><td class="k">free_tier</td><td>limited</td><td>—</td><td>—</td><td>free (your time)</td><td class="em">100 calls/mo + free lookup</td></tr>
+          <tr><td class="k">multi_seat_team</td><td>enterprise</td><td>✓</td><td>✓</td><td>n/a</td><td class="em">all plans</td></tr>
+          <tr><td class="k">soc2_iso27001</td><td>—</td><td>SOC2 Type 2</td><td>SOC2 + ISO</td><td>—</td><td class="b-road" style="font-family:'JetBrains Mono',monospace;padding:2px 8px;font-size:11px">in progress</td></tr>
+          <tr><td class="k">enterprise_dpa_msa</td><td>✓</td><td>✓</td><td>✓</td><td>—</td><td class="b-road" style="font-family:'JetBrains Mono',monospace;padding:2px 8px;font-size:11px">post-incorp</td></tr>
+          <tr><td class="k">on_call_engineering</td><td>email</td><td>slack</td><td>dedicated</td><td>—</td><td class="em">enterprise plan</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="dim mono mt-6" style="font-size:11px">// data current as of 2026-05-24. Spotted an error? Email <a class="lime" href="mailto:hello@sybilshield.com">hello@sybilshield.com</a></p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// when_to_choose_what</h4>
+    <div class="grid-3 mt-6">
+      <div class="card reveal" data-d="1">
+        <h3 class="lime">CHOOSE TRUSTA IF</h3>
+        <p class="mt-2">You need a single-number score and don't care about evidence. Best for high-volume single-address API lookups.</p>
+      </div>
+      <div class="card reveal" data-d="2">
+        <h3 class="lime">CHOOSE NANSEN IF</h3>
+        <p class="mt-2">Budget is no object and you want a curated analyst report. Better for one-off bespoke investigations than recurring API.</p>
+      </div>
+      <div class="card reveal" data-d="3">
+        <h3 class="lime">CHOOSE CHAINALYSIS IF</h3>
+        <p class="mt-2">You're a TradFi institution that needs SOC2 + AML compliance from day one. Heavy enterprise contract, long sales cycle.</p>
+      </div>
+      <div class="card reveal" data-d="4">
+        <h3 class="lime">CHOOSE DIY DUNE IF</h3>
+        <p class="mt-2">You have a senior data scientist with 2-4 weeks free and don't mind one-off, unauditable output. Lowest cost, highest variance.</p>
+      </div>
+      <div class="card reveal" data-d="5" style="border-color:rgba(192,255,0,.4);background:linear-gradient(180deg,rgba(192,255,0,.05),transparent)">
+        <h3 class="lime">CHOOSE SYBILSHIELD IF</h3>
+        <p class="mt-2">You want hours-not-weeks turnaround, evidence per address, public appeal flow, and open methodology — at a price between Trusta and Nansen.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// migrate_from</h4>
+    <p class="reveal mt-4 muted">If you're moving from another tool, contact us for a free side-by-side analysis of your last 1,000 addresses with both systems. We'll publish only aggregate accuracy stats (no addresses).</p>
+    <div class="mt-6"><a class="btn" href="mailto:hello@sybilshield.com?subject=Side-by-side%20migration">request side-by-side</a></div>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

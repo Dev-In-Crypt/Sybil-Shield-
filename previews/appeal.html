@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Appeal · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="appeal">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// dispute_a_score</p>
+    <h1>// APPEAL</h1>
+    <p class="lead">Anyone can dispute a score on a wallet. No authentication required. 48-hour response policy.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:760px">
+    <form class="card reveal" style="padding:32px" onsubmit="event.preventDefault();alert('Demo only. In production this submits to POST /v1/appeals')">
+      <div class="field">
+        <label>Wallet address</label>
+        <input required placeholder="0x..." pattern="^0x[0-9a-fA-F]{40}$">
+        <div class="hint">// 0x followed by 40 hex chars</div>
+      </div>
+      <div class="field">
+        <label>Chain</label>
+        <select><option>ethereum</option><option>arbitrum</option><option>optimism</option><option>base</option><option>polygon</option><option>bsc</option><option>avalanche</option><option>linea</option></select>
+      </div>
+      <div class="field">
+        <label>Why is this address legitimate?</label>
+        <textarea required minlength="20" maxlength="2000" rows="6" placeholder="Owned this wallet since 2019. ENS: yourname.eth. Voted on 30+ Snapshot proposals, donated to Gitcoin Grants 5 rounds, hold blue-chip NFTs from 2021. Happy to provide additional KYC."></textarea>
+        <div class="hint">// minimum 20 characters. Be specific. Mention ENS, on-chain history, Gitcoin Passport, etc.</div>
+      </div>
+      <div class="field">
+        <label>Contact email (optional)</label>
+        <input type="email" placeholder="you@example.com">
+        <div class="hint">// so a reviewer can follow up. Never published.</div>
+      </div>
+      <button type="submit" class="btn btn-l mt-8" style="width:100%;justify-content:center">SUBMIT APPEAL</button>
+    </form>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap" style="max-width:760px">
+    <h4 class="reveal">// our_policy</h4>
+    <ul class="mt-6 reveal" data-d="1" style="list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px">
+      <li class="muted">› <span class="lime">48 hours</span> — we acknowledge every appeal within this window</li>
+      <li class="muted">› <span class="lime">Public methodology</span> — see <a class="lime" href="methodology.html">/methodology</a> for how each flag is generated</li>
+      <li class="muted">› <span class="lime">Decision outcomes</span> — <span class="code">reversed</span>, <span class="code">confirmed</span>, or <span class="code">no_change</span></li>
+      <li class="muted">› <span class="lime">Immutable audit log</span> — every step recorded for legal defensibility</li>
+      <li class="muted">› <span class="lime">No retaliation</span> — submitting can't increase your score, only decrease or leave unchanged</li>
+    </ul>
+    <p class="mt-8 dim" style="font-size:12px">// Spammed appeals get rate-limited (10/hour per IP). For complex cases, email <a class="lime" href="mailto:appeals@sybilshield.com">appeals@sybilshield.com</a> with evidence attached.</p>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dashboard · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html" class="active">overview</a>
+    <a href="analyses.html">analyses</a>
+    <a href="notifications.html">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="webhooks.html">webhooks</a>
+    <a href="team.html">team</a>
+    <a href="scoring.html">scoring</a>
+    <a href="watchlist.html">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:16px">
+      <h1>// OVERVIEW</h1>
+      <a class="mono lime" href="analyses.html" style="font-size:13px">all analyses →</a>
+    </div>
+
+    <div class="grid-3 mt-8">
+      <div class="card">
+        <h4>// plan</h4>
+        <div class="mt-2 lime" style="font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace">FREE</div>
+        <div class="mt-1 mono dim" style="font-size:12px">sk_live_wquj...</div>
+      </div>
+      <div class="card">
+        <h4>// usage_this_month</h4>
+        <div class="mt-2" style="font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace">23 / 100</div>
+        <div class="mt-3" style="height:4px;background:rgba(255,255,255,.1)"><div style="height:100%;width:23%;background:var(--lime);box-shadow:0 0 8px var(--lime)"></div></div>
+      </div>
+      <div class="card">
+        <h4>// webhook</h4>
+        <div class="mt-2 lime" style="font-size:24px;font-weight:700;font-family:'JetBrains Mono',monospace">CONFIGURED</div>
+        <a class="mono lime mt-1" href="api-keys.html" style="font-size:12px;display:inline-block">manage →</a>
+      </div>
+    </div>
+
+    <h4 class="mt-12">// recent_analyses</h4>
+    <div class="tablewrap mt-6">
+      <table>
+        <thead><tr><th>name</th><th>status</th><th>addresses</th><th>sybil</th><th>suspicious</th><th>genuine</th><th>created</th></tr></thead>
+        <tbody>
+          <tr><td class="k lime">Mainnet airdrop Q3</td><td>complete</td><td>150,000</td><td style="color:var(--rose)">42,300</td><td style="color:var(--amber)">18,700</td><td class="em">89,000</td><td>2 days ago</td></tr>
+          <tr><td class="k lime">DeFi farming detection</td><td>complete</td><td>23,481</td><td style="color:var(--rose)">5,202</td><td style="color:var(--amber)">3,118</td><td class="em">15,161</td><td>5 days ago</td></tr>
+          <tr><td class="k lime">Governance Sybil scan</td><td>complete</td><td>8,201</td><td style="color:var(--rose)">617</td><td style="color:var(--amber)">432</td><td class="em">7,152</td><td>1 week ago</td></tr>
+          <tr><td class="k lime">Pre-TGE test batch</td><td style="color:var(--amber)">analyzing</td><td>5,000</td><td>—</td><td>—</td><td>—</td><td>today</td></tr>
+          <tr><td class="k lime">Cross-chain entity scan</td><td>complete</td><td>1,847</td><td style="color:var(--rose)">203</td><td style="color:var(--amber)">88</td><td class="em">1,556</td><td>2 weeks ago</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="mt-12">// quick_actions</h4>
+    <div class="grid-3 mt-6">
+      <div class="card"><h3 class="lime">SCORE_ADDRESS</h3><p class="mt-2">Look up a single wallet in our cached scores.</p><a class="btn mt-6" href="docs.html" style="width:fit-content">RUN</a></div>
+      <div class="card"><h3 class="lime">NEW_ANALYSIS</h3><p class="mt-2">Upload a CSV of addresses for batch scoring.</p><a class="btn-dis mt-6" style="display:inline-flex;width:fit-content;padding:8px 16px" href="new.html">use api</a></div>
+      <div class="card"><h3 class="lime">VIEW_EVIDENCE</h3><p class="mt-2">Browse per-address evidence for any past analysis.</p><a class="btn mt-6" href="analyses.html" style="width:fit-content">OPEN</a></div>
+    </div>
+  </section>
+</div>
+
+<script src="_partials.js"></script>
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Docs · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="docs">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// api_reference</p>
+    <h1>// DOCUMENTATION</h1>
+    <p class="lead">What the SybilShield API does, how analyses flow, how to integrate. OpenAPI spec and Postman collection ship with the next release.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// how_it_works</h4>
+    <p class="mt-4 reveal muted">Submit an address list. We ingest on-chain history, run six independent detection methods, produce a per-address risk score with evidence, and return both a queryable result set and a downloadable CSV. The whole pipeline takes hours, not weeks.</p>
+
+    <div class="mt-8" style="display:flex;flex-direction:column;gap:16px">
+      <div class="reveal" data-d="1" style="display:flex;gap:20px"><div style="flex-shrink:0;width:32px;height:32px;border:1px solid rgba(192,255,0,.5);background:rgba(192,255,0,.1);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--lime);font-weight:700">1</div><div><h3>REGISTER</h3><p class="mt-2">Create a free account, receive an API key shown once. Free tier covers 100 calls/month.</p></div></div>
+      <div class="reveal" data-d="2" style="display:flex;gap:20px"><div style="flex-shrink:0;width:32px;height:32px;border:1px solid rgba(192,255,0,.5);background:rgba(192,255,0,.1);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--lime);font-weight:700">2</div><div><h3>CREATE_ANALYSIS</h3><p class="mt-2">Submit a list of wallet addresses (up to 1M per request) with chains and sensitivity. The platform queues the job and returns an analysis ID.</p></div></div>
+      <div class="reveal" data-d="3" style="display:flex;gap:20px"><div style="flex-shrink:0;width:32px;height:32px;border:1px solid rgba(192,255,0,.5);background:rgba(192,255,0,.1);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--lime);font-weight:700">3</div><div><h3>TRACK_PROGRESS</h3><p class="mt-2">Poll the analysis endpoint or subscribe to a webhook. Status transitions: <em>ingesting → analyzing → scoring → complete</em>.</p></div></div>
+      <div class="reveal" data-d="4" style="display:flex;gap:20px"><div style="flex-shrink:0;width:32px;height:32px;border:1px solid rgba(192,255,0,.5);background:rgba(192,255,0,.1);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--lime);font-weight:700">4</div><div><h3>READ_RESULTS</h3><p class="mt-2">Fetch scored addresses (filterable by label), detected clusters, and per-address evidence. Export as CSV.</p></div></div>
+      <div class="reveal" data-d="5" style="display:flex;gap:20px"><div style="flex-shrink:0;width:32px;height:32px;border:1px solid rgba(192,255,0,.5);background:rgba(192,255,0,.1);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--lime);font-weight:700">5</div><div><h3>HANDLE_APPEALS</h3><p class="mt-2">Flagged users submit appeals directly via the public endpoint. Every submission is logged immutably and routed to a reviewer.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// what_you_get_back</h4>
+    <div class="grid-2 mt-6">
+      <div class="card reveal" data-d="1"><h3 class="lime">SYBIL_SCORE</h3><p class="mt-2">0-100 confidence the address is part of a Sybil farm. Three bucket labels: genuine, suspicious, sybil.</p></div>
+      <div class="card reveal" data-d="2"><h3 class="lime">CLUSTER_ID</h3><p class="mt-2">Which other wallets in the analysis it groups with, plus cluster size and detection method.</p></div>
+      <div class="card reveal" data-d="3"><h3 class="lime">EVIDENCE_LIST</h3><p class="mt-2">Per-address human-readable evidence items pointing at specific features or cluster memberships.</p></div>
+      <div class="card reveal" data-d="4"><h3 class="lime">CONFIDENCE</h3><p class="mt-2">Calibrated probability output from the ML ensemble alongside per-evidence-item confidence.</p></div>
+      <div class="card reveal" data-d="5"><h3 class="lime">CSV_EXPORT</h3><p class="mt-2">Full results table for compliance archiving or distribution-list filtering.</p></div>
+      <div class="card reveal" data-d="6"><h3 class="lime">WEBHOOK_NOTIFICATION</h3><p class="mt-2">Signed POST to your URL on analysis completion with summary statistics.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// endpoints_overview</h4>
+    <div class="mt-6" style="display:flex;flex-direction:column;gap:16px">
+      <div class="card reveal" data-d="1">
+        <h4 class="lime">/account</h4>
+        <ul class="mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">register</span><span class="muted">Returns an API key shown once</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">rotate_key</span><span class="muted">Invalidates old key immediately</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">view_usage</span><span class="muted">Plan, monthly call count, webhook config</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">webhook_subscribe</span><span class="muted">Set URL, receive signing secret</span></li>
+        </ul>
+      </div>
+      <div class="card reveal" data-d="2">
+        <h4 class="lime">/analyses</h4>
+        <ul class="mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">create_analysis</span><span class="muted">Submit address list, chains, sensitivity</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">list_analyses</span><span class="muted">Paginated history</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">get_status</span><span class="muted">Includes summary when complete</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">get_results</span><span class="muted">Paginated, filter by label</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">export_csv</span><span class="muted">Stream the full results table</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">get_clusters</span><span class="muted">Cluster metadata with detection method</span></li>
+        </ul>
+      </div>
+      <div class="card reveal" data-d="3">
+        <h4 class="lime">/scoring</h4>
+        <ul class="mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">single_score</span><span class="muted">Cached lookup for any address previously seen</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">batch_score</span><span class="muted">Bulk lookup endpoint (up to 100)</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">entity_check</span><span class="muted">Cross-analysis intelligence — flagged anywhere?</span></li>
+        </ul>
+      </div>
+      <div class="card reveal" data-d="4">
+        <h4 class="lime">/trust</h4>
+        <ul class="mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">feedback</span><span class="muted">Customer-side FP/FN reporting</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">public_appeal</span><span class="muted">Open, unauthenticated — dispute your score</span></li>
+          <li style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;font-size:14px"><span class="mono">appeals_policy</span><span class="muted">Public JSON describing review SLA</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// webhook_signature</h4>
+    <div class="card reveal mt-6">
+      <p>Every webhook payload is signed with HMAC-SHA256 using a secret you receive when you configure the webhook URL. The signature arrives in <span class="code">x-sybilshield-signature</span> as <em>sha256=&lt;hex&gt;</em>. Recompute the HMAC over the raw request body and compare with constant-time equality. Reject mismatches.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// rate_limits</h4>
+    <div class="tablewrap mt-6 reveal">
+      <table>
+        <thead><tr><th>plan</th><th>calls/month</th><th>per-minute rate</th><th>concurrent analyses</th></tr></thead>
+        <tbody>
+          <tr><td class="k">Free</td><td>100</td><td>30 / min</td><td>1</td></tr>
+          <tr><td class="k">Developer</td><td>50,000</td><td>100 / min</td><td>3</td></tr>
+          <tr><td class="k">Growth</td><td>250,000</td><td>300 / min</td><td>10</td></tr>
+          <tr><td class="k">Enterprise</td><td>Unlimited</td><td>1,000 / min</td><td>Unlimited</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="mt-4 dim" style="font-size:12px">// Exceeding a limit returns HTTP 429 with a retry-after header. We never silently drop data.</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// coming_next</h4>
+    <ul class="mt-6 reveal" style="list-style:none;display:flex;flex-direction:column;gap:10px">
+      <li class="muted">› Interactive OpenAPI explorer (Stoplight / Redoc)</li>
+      <li class="muted">› Ready-to-import Postman collection</li>
+      <li class="muted">› Official SDKs — TypeScript and Python</li>
+      <li class="muted">› Streaming results endpoint for &gt;500K-address jobs</li>
+      <li class="muted">› GraphQL gateway for advanced filtering</li>
+    </ul>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

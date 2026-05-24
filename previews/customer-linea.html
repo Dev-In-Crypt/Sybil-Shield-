@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Linea airdrop retro · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="customers">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <a class="mono dim" href="customers.html" style="font-size:11px">← all customers</a>
+    <p class="eyebrow mt-4">// L2 · airdrop</p>
+    <h1>// LINEA AIRDROP RETRO</h1>
+    <p class="lead">Retrospective Sybil analysis of the May 2024 Linea airdrop. Six detection methods applied to the eligible address list; 23% sybil rate confirmed against the Foundation's known-bad anchor set.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:880px">
+    <div class="grid-4">
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Addresses scored</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">1,247,000</div></div>
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Sybils flagged</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">287k (23%)</div></div>
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Cost</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">$5,200</div></div>
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Turnaround</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">11 hours</div></div>
+    </div>
+
+    <h2 class="mt-12">// context</h2>
+    <p class="mt-4">Linea's Foundation published a sybil-list spreadsheet a week post-airdrop. We reproduced their results from first principles, then expanded the methodology — adding cross-chain entity linking that surfaced 41,000 additional addresses they missed.</p>
+
+    <h2 class="mt-12">// method</h2>
+    <p class="mt-4">Funding-source clustering produced the largest tranche (84,000 wallets in 1,200 clusters of size ≥10). Behavioral HDBSCAN found a further 67,000 in tight clusters with median activity overlap >0.92. Graph Leiden community detection on the full transfer graph caught coordinated farming patterns invisible to per-address rules.</p>
+
+    <h2 class="mt-12">// defensibility</h2>
+    <p class="mt-4">Every flagged address has an evidence payload: which methods flagged it, which clusters it sits in, and which behavioral features pushed the score. Two reversals from the appeal flow are documented in the public methodology doc.</p>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

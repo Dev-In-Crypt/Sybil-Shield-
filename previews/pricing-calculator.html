@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pricing Calculator · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+<style>
+  .calc-panel{border:1px solid var(--border);background:rgba(10,10,10,.5);padding:32px;margin-top:24px}
+  .slider-row{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px}
+  .slider-row .label{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:var(--dim)}
+  .slider-row .value{font-family:'JetBrains Mono',monospace;font-size:28px;font-weight:700;color:var(--lime)}
+  input[type=range]{width:100%;-webkit-appearance:none;background:transparent;height:28px}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:rgba(255,255,255,.1);border-radius:2px}
+  input[type=range]::-moz-range-track{height:4px;background:rgba(255,255,255,.1);border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;background:var(--lime);border-radius:50%;margin-top:-8px;box-shadow:0 0 12px rgba(192,255,0,.6);cursor:pointer}
+  input[type=range]::-moz-range-thumb{width:20px;height:20px;background:var(--lime);border:none;border-radius:50%;box-shadow:0 0 12px rgba(192,255,0,.6);cursor:pointer}
+  .toggle-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:24px}
+  .toggle{padding:8px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.15em;background:#0a0a0a;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s}
+  .toggle.on{background:var(--lime);color:#000;border-color:var(--lime)}
+  .toggle:hover:not(.on){border-color:var(--lime);color:var(--lime)}
+  .quote{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:rgba(255,255,255,.1);margin-top:32px}
+  .quote-card{background:#000;padding:24px}
+  .quote-card .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:var(--dim)}
+  .quote-card .v{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;margin-top:8px}
+  .quote-card.best{background:linear-gradient(180deg,rgba(192,255,0,.08),transparent);border:1px solid rgba(192,255,0,.3)}
+  .quote-card.best .v{color:var(--lime)}
+</style>
+</head>
+<body data-page="pricing">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// estimate</p>
+    <h1>// CALCULATOR</h1>
+    <p class="lead">Slide to your expected volume. We recommend the cheapest tier that covers it. All numbers refresh live, no submit needed.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:980px">
+    <div class="calc-panel reveal">
+
+      <div class="slider-row">
+        <span class="label">// monthly_api_calls</span>
+        <span class="value" id="v-calls">10,000</span>
+      </div>
+      <input id="s-calls" type="range" min="0" max="6" step="1" value="2">
+      <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);margin-top:6px">
+        <span>100</span><span>1K</span><span>10K</span><span>50K</span><span>250K</span><span>1M</span><span>10M</span>
+      </div>
+
+      <div class="slider-row mt-8">
+        <span class="label">// per-analysis_batches / month</span>
+        <span class="value" id="v-analyses">2</span>
+      </div>
+      <input id="s-analyses" type="range" min="0" max="10" step="1" value="2">
+
+      <div class="slider-row mt-8">
+        <span class="label">// addresses_per_analysis</span>
+        <span class="value" id="v-addrs">100,000</span>
+      </div>
+      <input id="s-addrs" type="range" min="0" max="6" step="1" value="3">
+      <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);margin-top:6px">
+        <span>1K</span><span>10K</span><span>50K</span><span>100K</span><span>250K</span><span>500K</span><span>1M+</span>
+      </div>
+
+      <div class="toggle-row">
+        <button class="toggle on" data-flag="evidence">evidence per address</button>
+        <button class="toggle on" data-flag="multichain">multi-chain (4+)</button>
+        <button class="toggle" data-flag="sla">SLA 99.9%</button>
+        <button class="toggle" data-flag="custom_model">custom-trained model</button>
+        <button class="toggle" data-flag="dedicated">dedicated instance</button>
+      </div>
+    </div>
+
+    <h4 class="reveal mt-12">// recommended_plan</h4>
+    <div class="quote">
+      <div class="quote-card" id="q-free"><div class="lbl">// free</div><div class="v">$0</div><div class="mono dim mt-2" style="font-size:11px" id="q-free-note">good fit</div></div>
+      <div class="quote-card" id="q-dev"><div class="lbl">// developer</div><div class="v">$499/mo</div><div class="mono dim mt-2" style="font-size:11px" id="q-dev-note">—</div></div>
+      <div class="quote-card" id="q-growth"><div class="lbl">// growth</div><div class="v">$1,499/mo</div><div class="mono dim mt-2" style="font-size:11px" id="q-growth-note">—</div></div>
+      <div class="quote-card" id="q-ent"><div class="lbl">// enterprise</div><div class="v">$4,999+/mo</div><div class="mono dim mt-2" style="font-size:11px" id="q-ent-note">—</div></div>
+    </div>
+
+    <h4 class="reveal mt-12">// per_analysis_cost</h4>
+    <div class="card reveal mt-6" style="padding:24px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:16px">
+        <div>
+          <div class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">// estimated total</div>
+          <div class="mono lime mt-2" style="font-size:42px;font-weight:700" id="q-perAnalysis">$0</div>
+        </div>
+        <div>
+          <div class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">// monthly subscriptions</div>
+          <div class="mono lime mt-2" style="font-size:42px;font-weight:700" id="q-monthly">$0</div>
+        </div>
+        <div>
+          <div class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">// year-1 estimate</div>
+          <div class="mono lime mt-2" style="font-size:42px;font-weight:700" id="q-annual">$0</div>
+        </div>
+      </div>
+    </div>
+
+    <p class="mt-8 dim mono" style="font-size:11px">// quotes are non-binding estimates · contact <a class="lime" href="mailto:hello@sybilshield.com">hello@sybilshield.com</a> to lock pricing</p>
+  </div>
+</section>
+
+<script>
+  const callsSteps=[100,1000,10000,50000,250000,1000000,10000000];
+  const addrSteps=[1000,10000,50000,100000,250000,500000,1000000];
+  const fmt=n=>n>=1e6?(n/1e6).toFixed(n%1e6?1:0)+'M':n>=1000?(n/1000).toFixed(n%1000?1:0)+'K':String(n);
+  const money=n=>'$'+Math.round(n).toLocaleString();
+
+  const flags={evidence:true,multichain:true,sla:false,custom_model:false,dedicated:false};
+  document.querySelectorAll('.toggle').forEach(b=>b.addEventListener('click',()=>{
+    flags[b.dataset.flag]=!flags[b.dataset.flag];
+    b.classList.toggle('on');recompute();
+  }));
+  ['s-calls','s-analyses','s-addrs'].forEach(id=>document.getElementById(id).addEventListener('input',recompute));
+
+  function recompute(){
+    const calls=callsSteps[+document.getElementById('s-calls').value];
+    const analyses=+document.getElementById('s-analyses').value;
+    const addrs=addrSteps[+document.getElementById('s-addrs').value];
+    document.getElementById('v-calls').textContent=fmt(calls);
+    document.getElementById('v-analyses').textContent=analyses;
+    document.getElementById('v-addrs').textContent=fmt(addrs);
+
+    // subscription tier fit
+    const freeFit=calls<=100;
+    const devFit=calls<=50000&&!flags.sla&&!flags.custom_model&&!flags.dedicated;
+    const growthFit=calls<=250000&&!flags.custom_model&&!flags.dedicated;
+    const entFit=true;
+
+    setFit('q-free',freeFit,calls<=100?'covers your volume':`exceeds by ${fmt(calls-100)} calls`);
+    setFit('q-dev',devFit,devFit?'covers volume':calls>50000?'volume exceeds':'feature exceeds');
+    setFit('q-growth',growthFit,growthFit?'covers volume':calls>250000?'volume exceeds':'needs custom model/dedicated');
+    setFit('q-ent',entFit,'always fits');
+
+    // recommend cheapest fitting plan
+    const recs=[['q-free',freeFit],['q-dev',devFit],['q-growth',growthFit],['q-ent',entFit]];
+    document.querySelectorAll('.quote-card').forEach(c=>c.classList.remove('best'));
+    const rec=recs.find(([,f])=>f);
+    if(rec)document.getElementById(rec[0]).classList.add('best');
+
+    // per-analysis cost (rough: starter $2.5K up to 100K, standard $7.5K to 500K, enterprise $15K+ above)
+    let perA=0;
+    if(addrs<=100000)perA=2500;
+    else if(addrs<=500000)perA=7500;
+    else perA=15000+Math.ceil((addrs-500000)/100000)*2000;
+    if(flags.evidence)perA*=1.0; // included
+    if(flags.multichain)perA*=1.15;
+    if(flags.sla)perA*=1.1;
+    const perATotal=perA*analyses;
+    document.getElementById('q-perAnalysis').textContent=money(perATotal);
+
+    // monthly subscription cost (cheapest fitting plan)
+    let sub=0;
+    if(rec){const m={'q-free':0,'q-dev':499,'q-growth':1499,'q-ent':4999};sub=m[rec[0]]||0}
+    document.getElementById('q-monthly').textContent=money(sub);
+
+    // annual
+    document.getElementById('q-annual').textContent=money(perATotal*12+sub*12);
+  }
+  function setFit(id,fit,note){
+    const el=document.getElementById(id);
+    const noteEl=document.getElementById(id+'-note');
+    if(noteEl)noteEl.textContent=note;
+    el.style.opacity=fit?1:.4;
+  }
+  recompute();
+</script>
+<script src="_partials.js"></script>
+</body>
+</html>

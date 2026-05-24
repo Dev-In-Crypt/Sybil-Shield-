@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>API Playground · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+<style>
+  .pgrid{display:grid;gap:24px;grid-template-columns:1fr;margin-top:24px}
+  @media(min-width:900px){.pgrid{grid-template-columns:1fr 1fr}}
+  .panel{border:1px solid var(--border);background:rgba(10,10,10,.5);padding:24px;display:flex;flex-direction:column}
+  .panel h4{margin-bottom:8px}
+  .field-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .field-row select,.field-row input{background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:13px}
+  .field-row select{flex:0 0 80px}
+  .field-row input{flex:1;min-width:0}
+  textarea{flex:1;min-height:320px;background:#0a0a0a;border:1px solid var(--border);color:#cdd2dc;padding:12px;font-family:'JetBrains Mono',monospace;font-size:12px;resize:vertical}
+  textarea:focus{outline:none;border-color:var(--lime)}
+  pre.response{flex:1;min-height:320px;background:#0a0a0a;border:1px solid var(--border);color:#cdd2dc;padding:12px;font-family:'JetBrains Mono',monospace;font-size:12px;overflow:auto;white-space:pre-wrap;margin:0}
+  .status-ok{color:var(--lime)}.status-err{color:var(--rose)}
+  .preset{display:inline-block;padding:4px 10px;background:#0a0a0a;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--lime);cursor:pointer;margin-right:6px;margin-top:8px}
+  .preset:hover{border-color:var(--lime)}
+</style>
+</head>
+<body data-page="docs">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// interactive</p>
+    <h1>// API PLAYGROUND</h1>
+    <p class="lead">Send real requests to a localhost SybilShield API and see the response. Your API key is read from localStorage (set it once on the dashboard).</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:1280px">
+    <div class="field-row">
+      <span class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">// presets:</span>
+      <span class="preset" data-preset="register">register account</span>
+      <span class="preset" data-preset="score">score address</span>
+      <span class="preset" data-preset="create">create analysis</span>
+      <span class="preset" data-preset="list">list analyses</span>
+      <span class="preset" data-preset="appeal">submit appeal</span>
+      <span class="preset" data-preset="watchlist">add to watchlist</span>
+      <span class="preset" data-preset="notifications">list notifications</span>
+    </div>
+
+    <div class="pgrid">
+      <div class="panel">
+        <h4>// request</h4>
+        <div class="field-row">
+          <select id="method"><option>GET</option><option>POST</option><option>PATCH</option><option>DELETE</option></select>
+          <input id="path" value="/v1/account" placeholder="/v1/...">
+        </div>
+        <div class="field-row mt-4">
+          <input id="apiBase" value="http://localhost:3001" placeholder="API base URL">
+          <input id="apiKey" type="password" placeholder="API key (sk_live_...)">
+        </div>
+        <h4 class="mt-8">// body</h4>
+        <textarea id="body" placeholder='{}'></textarea>
+        <button class="btn btn-l mt-6" id="send" style="width:fit-content">SEND →</button>
+      </div>
+
+      <div class="panel">
+        <h4>// response · <span id="status" class="dim">—</span></h4>
+        <pre class="response" id="resp">// waiting for first request...</pre>
+      </div>
+    </div>
+
+    <p class="mt-8 dim mono" style="font-size:11px">// requests fire from your browser → API base URL above. Default is http://localhost:3001 — start your local stack with <code class="code">docker compose up -d</code>.</p>
+  </div>
+</section>
+
+<script>
+  const PRESETS={
+    register:{m:'POST',p:'/v1/account/register',b:'{\n  "email": "demo@example.com"\n}',needsKey:false},
+    score:{m:'GET',p:'/v1/score/0xa12b00000000000000000000000000000000c4d7',b:'',needsKey:true},
+    create:{m:'POST',p:'/v1/analyses',b:'{\n  "name": "test analysis",\n  "chains": ["ethereum"],\n  "addresses": ["0x0000000000000000000000000000000000000001", "0x0000000000000000000000000000000000000002"]\n}',needsKey:true},
+    list:{m:'GET',p:'/v1/analyses',b:'',needsKey:true},
+    appeal:{m:'POST',p:'/v1/appeals',b:'{\n  "address": "0xa12b00000000000000000000000000000000c4d7",\n  "chain": "ethereum",\n  "reason": "I am a real user with verified ENS since 2019. Long history of Snapshot voting."\n}',needsKey:false},
+    watchlist:{m:'POST',p:'/v1/watchlist',b:'{\n  "address": "0x0000000000000000000000000000000000000001",\n  "chain": "ethereum",\n  "label": "test wallet"\n}',needsKey:true},
+    notifications:{m:'GET',p:'/v1/notifications?unread=true',b:'',needsKey:true},
+  };
+  // restore api key + base url
+  document.getElementById('apiKey').value=localStorage.getItem('sybilshield_api_key')||'';
+  document.getElementById('apiKey').addEventListener('change',e=>localStorage.setItem('sybilshield_api_key',e.target.value));
+  const savedBase=localStorage.getItem('sybilshield_api_base');
+  if(savedBase)document.getElementById('apiBase').value=savedBase;
+  document.getElementById('apiBase').addEventListener('change',e=>localStorage.setItem('sybilshield_api_base',e.target.value));
+
+  document.querySelectorAll('.preset').forEach(p=>p.addEventListener('click',()=>{
+    const def=PRESETS[p.dataset.preset];
+    document.getElementById('method').value=def.m;
+    document.getElementById('path').value=def.p;
+    document.getElementById('body').value=def.b;
+  }));
+
+  document.getElementById('send').addEventListener('click',async()=>{
+    const m=document.getElementById('method').value;
+    const path=document.getElementById('path').value.trim();
+    const base=document.getElementById('apiBase').value.replace(/\/$/,'');
+    const key=document.getElementById('apiKey').value.trim();
+    const body=document.getElementById('body').value.trim();
+    const headers={'content-type':'application/json'};
+    if(key)headers['Authorization']='Bearer '+key;
+    const statusEl=document.getElementById('status');
+    const respEl=document.getElementById('resp');
+    statusEl.textContent='sending...';statusEl.className='dim';respEl.textContent='';
+    try{
+      const opts={method:m,headers};
+      if(m!=='GET'&&body)opts.body=body;
+      const t0=performance.now();
+      const r=await fetch(base+path,opts);
+      const t1=performance.now();
+      const txt=await r.text();
+      let pretty=txt;try{pretty=JSON.stringify(JSON.parse(txt),null,2)}catch{}
+      statusEl.textContent=`${r.status} ${r.statusText} · ${Math.round(t1-t0)}ms`;
+      statusEl.className=r.ok?'status-ok':'status-err';
+      respEl.textContent=pretty||'(empty body)';
+    }catch(e){
+      statusEl.textContent='network error';statusEl.className='status-err';
+      respEl.textContent='// '+e.message+'\n// is the API up? curl '+base+'/health';
+    }
+  });
+</script>
+<script src="_partials.js"></script>
+</body>
+</html>

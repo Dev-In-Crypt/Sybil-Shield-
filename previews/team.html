@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Team · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html">analyses</a>
+    <a href="notifications.html">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="webhooks.html">webhooks</a>
+    <a href="team.html" class="active">team</a>
+    <a href="scoring.html">scoring</a>
+    <a href="watchlist.html">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <h1>// TEAM</h1>
+    <p class="lead">Invite colleagues with scoped roles. Owner, admin, member, viewer.</p>
+
+    <h4 class="mt-12">// invite</h4>
+    <div class="card mt-6">
+      <form onsubmit="event.preventDefault();alert('Demo: would POST /v1/team/invites')" style="display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end">
+        <div style="flex:1;min-width:240px"><label class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">email</label><input type="email" placeholder="colleague@example.com" required style="width:100%;background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:10px 12px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:13px"></div>
+        <div><label class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">role</label><select style="background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:10px 12px;margin-top:6px;font-family:'JetBrains Mono',monospace;font-size:13px"><option>member</option><option>admin</option><option>viewer</option></select></div>
+        <button type="submit" class="btn">send invite</button>
+      </form>
+    </div>
+
+    <h4 class="mt-12">// members</h4>
+    <div class="tablewrap mt-6">
+      <table>
+        <thead><tr><th>email</th><th>role</th><th>status</th><th>joined</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="k lime">you@example.com</td><td>owner</td><td class="em" style="color:var(--lime)">active</td><td>2026-05-21</td><td class="dim">—</td></tr>
+          <tr><td class="k">alice@example.com</td><td>admin</td><td class="em" style="color:var(--lime)">active</td><td>2026-05-22</td><td><a class="lime" href="#">change role</a> · <a class="dim" href="#">remove</a></td></tr>
+          <tr><td class="k">bob@example.com</td><td>member</td><td class="em" style="color:var(--lime)">active</td><td>2026-05-23</td><td><a class="lime" href="#">change role</a> · <a class="dim" href="#">remove</a></td></tr>
+          <tr><td class="k">carol@example.com</td><td>viewer</td><td class="em" style="color:var(--amber)">invited</td><td class="dim">—</td><td><a class="lime" href="#">resend invite</a> · <a class="dim" href="#">cancel</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h4 class="mt-12">// roles</h4>
+    <div class="grid-2 mt-6">
+      <div class="card"><h3 class="lime">OWNER</h3><p class="mt-2">Full access. Manages billing, deletes account, transfers ownership.</p></div>
+      <div class="card"><h3 class="lime">ADMIN</h3><p class="mt-2">All analyses + team invites + API keys. Cannot delete account or change billing.</p></div>
+      <div class="card"><h3 class="lime">MEMBER</h3><p class="mt-2">Create & view analyses. Read-only on team + billing.</p></div>
+      <div class="card"><h3 class="lime">VIEWER</h3><p class="mt-2">Read-only on analyses. Cannot create or modify.</p></div>
+    </div>
+  </section>
+</div>
+
+<script src="_partials.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Settings · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+<style>.dis-row{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border:1px solid var(--border);background:rgba(10,10,10,.5);color:var(--dim);font-size:14px}</style>
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html">analyses</a>
+    <a href="notifications.html">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="webhooks.html">webhooks</a>
+    <a href="team.html">team</a>
+    <a href="scoring.html">scoring</a>
+    <a href="watchlist.html">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html" class="active">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section style="max-width:640px">
+    <div style="display:flex;align-items:center;gap:12px">
+      <h1>// SETTINGS</h1>
+      <span class="badge b-road">ROADMAP</span>
+    </div>
+    <p class="lead">Account-level settings (display name, company, default chains, notification preferences) are on the roadmap.</p>
+    <p class="muted mt-4">For now, the things you can manage live on <a class="lime" href="api-keys.html">api keys</a> (API key + webhook URL).</p>
+
+    <div class="mt-12" style="display:flex;flex-direction:column;gap:8px">
+      <div class="dis-row"><span>Display name</span><span class="badge b-road">ROADMAP</span></div>
+      <div class="dis-row"><span>Company</span><span class="badge b-road">ROADMAP</span></div>
+      <div class="dis-row"><span>Default chains</span><span class="badge b-road">ROADMAP</span></div>
+      <div class="dis-row"><span>Email notifications: weekly digest</span><span class="badge b-road">ROADMAP</span></div>
+      <div class="dis-row"><span>Email notifications: analysis complete</span><span class="dim" style="font-size:11px">use webhook for now</span></div>
+      <div class="dis-row" style="border-color:rgba(244,63,94,.2);color:rgba(244,63,94,.6)"><span>Delete account</span><span class="badge b-road">ROADMAP</span></div>
+    </div>
+  </section>
+</div>
+
+<script src="_partials.js"></script>
+</body>
+</html>

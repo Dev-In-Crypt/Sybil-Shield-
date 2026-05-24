@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Webhooks · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html">analyses</a>
+    <a href="notifications.html">notifications <span class="badge b-live" style="font-size:8px;padding:1px 6px">3</span></a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="webhooks.html" class="active">webhooks</a>
+    <a href="team.html">team</a>
+    <a href="scoring.html">scoring</a>
+    <a href="watchlist.html">watchlist</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <h1>// WEBHOOKS</h1>
+    <p class="lead">Configure URL + secret on api-keys page. Below: every delivery attempt logged, with retry button on failures.</p>
+
+    <h4 class="mt-12">// configuration</h4>
+    <div class="card mt-6">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px">
+        <div>
+          <div class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">// active url</div>
+          <div class="mono lime mt-2" style="font-size:14px">https://your.app/sybilshield-webhook</div>
+          <div class="mono dim mt-2" style="font-size:11px">signing: HMAC-SHA256 · header: x-sybilshield-signature</div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <a href="api-keys.html" class="btn-dis" style="display:inline-flex;width:auto;padding:8px 16px">edit url</a>
+          <button class="btn">send test event</button>
+        </div>
+      </div>
+    </div>
+
+    <h4 class="mt-12">// delivery_log</h4>
+    <div class="tablewrap mt-6">
+      <table>
+        <thead><tr><th>id</th><th>event</th><th>analysis</th><th>status</th><th>attempts</th><th>sent</th><th></th></tr></thead>
+        <tbody>
+          <tr><td class="mono dim">whd_8f3a…12</td><td>analysis.completed</td><td class="lime mono">an_8f3a…12cd</td><td class="em" style="color:var(--lime)">200 OK</td><td>1</td><td>4m ago</td><td><a class="lime" href="#">view payload</a></td></tr>
+          <tr><td class="mono dim">whd_b21c…77</td><td>analysis.completed</td><td class="lime mono">an_b21c…77af</td><td class="em" style="color:var(--lime)">200 OK</td><td>1</td><td>5d ago</td><td><a class="lime" href="#">view payload</a></td></tr>
+          <tr><td class="mono dim">whd_0f4e…3a</td><td>analysis.completed</td><td class="lime mono">an_0f4e…3a01</td><td class="em" style="color:var(--rose)">500</td><td>3</td><td>1w ago</td><td><a class="lime" href="#">retry</a></td></tr>
+          <tr><td class="mono dim">whd_c5d3…91</td><td>webhook.test</td><td class="dim">—</td><td class="em" style="color:var(--lime)">200 OK</td><td>1</td><td>1w ago</td><td><a class="lime" href="#">view payload</a></td></tr>
+          <tr><td class="mono dim">whd_77ed…b4</td><td>analysis.completed</td><td class="lime mono">an_77ed…b412</td><td class="em" style="color:var(--rose)">timeout</td><td>5</td><td>2w ago</td><td><a class="lime" href="#">retry</a></td></tr>
+          <tr><td class="mono dim">whd_a8b1…ee</td><td>analysis.completed</td><td class="lime mono">an_a8b1…ee32</td><td class="em" style="color:var(--lime)">200 OK</td><td>1</td><td>3w ago</td><td><a class="lime" href="#">view payload</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card mt-12" style="border-color:rgba(192,255,0,.3);background:linear-gradient(180deg,rgba(192,255,0,.05),transparent);padding:24px">
+      <h4 class="lime">// retry_policy</h4>
+      <ul class="mt-4" style="list-style:none;display:flex;flex-direction:column;gap:6px;font-size:13px">
+        <li class="muted">› Manual retry available on every failed delivery (above)</li>
+        <li class="muted">› Automatic retry with exponential backoff coming Q4 (on the <a class="lime" href="roadmap.html">roadmap</a>)</li>
+        <li class="muted">› We retain delivery logs for 90 days; longer on Enterprise plan</li>
+      </ul>
+    </div>
+  </section>
+</div>
+
+<script src="_partials.js"></script>
+</body>
+</html>

@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Quickstart · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+<style>
+  .step{display:flex;gap:24px;align-items:flex-start;margin-top:32px}
+  .step .num{flex-shrink:0;width:48px;height:48px;border:1px solid rgba(192,255,0,.5);background:rgba(192,255,0,.1);display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:18px;font-weight:700;color:var(--lime)}
+  .step .body{flex:1}
+  .step h3{font-size:20px}
+  .cmd{position:relative;background:#0a0a0a;border:1px solid var(--border);padding:16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:#cdd2dc;margin-top:12px;overflow-x:auto}
+  .cmd .copy{position:absolute;top:8px;right:8px;background:transparent;border:1px solid var(--border);color:var(--dim);padding:4px 10px;font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.15em;cursor:pointer}
+  .cmd .copy:hover{border-color:var(--lime);color:var(--lime)}
+  .cmd .copy.copied{color:var(--lime);border-color:var(--lime)}
+</style>
+</head>
+<body data-page="docs">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// 5 min from zero</p>
+    <h1>// QUICKSTART</h1>
+    <p class="lead">Register, get a key, run your first analysis. All commands are copy-button-ready.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:980px">
+
+    <div class="step reveal" data-d="1">
+      <div class="num">1</div>
+      <div class="body">
+        <h3>register an account</h3>
+        <p class="muted mt-2">No card. Free tier covers 100 calls/month.</p>
+        <div class="cmd"><button class="copy">copy</button><pre>curl -X POST http://localhost:3001/v1/account/register \
+  -H 'content-type: application/json' \
+  -d '{"email":"you@example.com"}'</pre></div>
+        <p class="dim mt-2 mono" style="font-size:11px">// response includes api_key shown ONCE — save it now</p>
+      </div>
+    </div>
+
+    <div class="step reveal" data-d="2">
+      <div class="num">2</div>
+      <div class="body">
+        <h3>score a single address</h3>
+        <p class="muted mt-2">Cached lookup against any address SybilShield has scored before.</p>
+        <div class="cmd"><button class="copy">copy</button><pre>curl http://localhost:3001/v1/score/0xa12b00000000000000000000000000000000c4d7 \
+  -H "Authorization: Bearer $YOUR_KEY"</pre></div>
+      </div>
+    </div>
+
+    <div class="step reveal" data-d="3">
+      <div class="num">3</div>
+      <div class="body">
+        <h3>create a batch analysis</h3>
+        <p class="muted mt-2">Submit 10K-1M addresses, get back per-address scores + clusters + evidence.</p>
+        <div class="cmd"><button class="copy">copy</button><pre>curl -X POST http://localhost:3001/v1/analyses \
+  -H "Authorization: Bearer $YOUR_KEY" \
+  -H 'content-type: application/json' \
+  -d '{
+    "name":"first analysis",
+    "chains":["ethereum"],
+    "addresses":["0x...", "0x...", "0x..."]
+  }'</pre></div>
+        <p class="dim mt-2 mono" style="font-size:11px">// returns analysis ID. Status transitions: pending → ingesting → analyzing → scoring → complete</p>
+      </div>
+    </div>
+
+    <div class="step reveal" data-d="4">
+      <div class="num">4</div>
+      <div class="body">
+        <h3>poll for completion (or use webhooks)</h3>
+        <p class="muted mt-2">For longer analyses configure a webhook URL at /dashboard/api-keys.</p>
+        <div class="cmd"><button class="copy">copy</button><pre>curl http://localhost:3001/v1/analyses/$ANALYSIS_ID \
+  -H "Authorization: Bearer $YOUR_KEY"</pre></div>
+      </div>
+    </div>
+
+    <div class="step reveal" data-d="5">
+      <div class="num">5</div>
+      <div class="body">
+        <h3>fetch scored results</h3>
+        <p class="muted mt-2">Paginated. Filter by label = sybil / suspicious / genuine.</p>
+        <div class="cmd"><button class="copy">copy</button><pre>curl "http://localhost:3001/v1/analyses/$ANALYSIS_ID/results?label=sybil&limit=100" \
+  -H "Authorization: Bearer $YOUR_KEY"</pre></div>
+        <p class="dim mt-2 mono" style="font-size:11px">// or export full CSV: GET /v1/analyses/:id/results/export</p>
+      </div>
+    </div>
+
+    <div class="card reveal mt-12" style="border-color:rgba(192,255,0,.3);background:linear-gradient(180deg,rgba(192,255,0,.05),transparent);padding:24px">
+      <h4 class="lime">// next_steps</h4>
+      <ul class="mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px">
+        <li class="muted">› <a class="lime" href="api-playground.html">API playground</a> — try every endpoint in your browser</li>
+        <li class="muted">› <a class="lime" href="docs.html">Full API reference</a> — every endpoint documented</li>
+        <li class="muted">› <a class="lime" href="methodology.html">Methodology</a> — how the 6 detection methods work</li>
+        <li class="muted">› <a class="lime" href="dashboard.html">Dashboard</a> — visual interface for everything</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll('.copy').forEach(b=>b.addEventListener('click',()=>{
+    const code=b.nextElementSibling.textContent;
+    navigator.clipboard.writeText(code).then(()=>{
+      b.textContent='copied';b.classList.add('copied');
+      setTimeout(()=>{b.textContent='copy';b.classList.remove('copied')},1500);
+    });
+  }));
+</script>
+<script src="_partials.js"></script>
+</body>
+</html>

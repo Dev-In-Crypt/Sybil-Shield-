@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Roadmap · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="roadmap">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// shipping_log</p>
+    <h1>// ROADMAP</h1>
+    <p class="lead">What's shipped, what's next, and what we're committing to publicly. Honest about gaps. Per-feature flags at <a class="lime" href="status.html">/status</a>.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="card reveal" style="border-color:rgba(192,255,0,.3);background:linear-gradient(180deg,rgba(192,255,0,.05),transparent);padding:32px">
+      <div style="display:flex;align-items:baseline;gap:16px"><h2 class="lime">NOW</h2><span class="dim mono" style="font-size:11px">// public beta — shipped</span></div>
+      <div class="grid-2 mt-6">
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Full API surface</h3><span class="badge b-live">LIVE</span></div><p class="mt-2">11 endpoints: analyses, scoring, evidence, appeals, feedback, account</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Six detection methods</h3><span class="badge b-live">LIVE</span></div><p class="mt-2">Funding / behavior / graph / temporal / cross-chain / ML ensemble</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Public appeal flow</h3><span class="badge b-live">LIVE</span></div><p class="mt-2">Anyone disputes a score. 48h SLA. Immutable audit log per event.</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Webhook delivery</h3><span class="badge b-live">LIVE</span></div><p class="mt-2">HMAC-SHA256 signed on analysis.completed</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Open-source clustering</h3><span class="badge b-live">LIVE</span></div><p class="mt-2">MIT license. Reproducible from manifest hashes.</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>63 automated tests</h3><span class="badge b-live">LIVE</span></div><p class="mt-2">47 ML + 16 API including 4 real-DB integration. CI green every PR.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="card reveal" style="border-color:rgba(245,158,11,.3);background:linear-gradient(180deg,rgba(245,158,11,.05),transparent);padding:32px">
+      <div style="display:flex;align-items:baseline;gap:16px"><h2 style="color:var(--amber)">NEXT</h2><span class="dim mono" style="font-size:11px">// Q3 2026 — depends on grant or first paid analysis</span></div>
+      <div class="grid-2 mt-6">
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Real on-chain data</h3><span class="badge b-soon">COMING</span></div><p class="mt-2">Switch from MockProvider to AlchemyProvider. Needs paid Alchemy key.</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Crypto checkout (NowPayments)</h3><span class="badge b-soon">COMING</span></div><p class="mt-2">Pay in USDT/USDC/ETH/BTC. No KYC for buyer.</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Calibrated production model</h3><span class="badge b-soon">COMING</span></div><p class="mt-2">Train on 10K+ real labeled corpus. Calibrate so threshold 70 is meaningful.</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Free public-good API</h3><span class="badge b-soon">COMING</span></div><p class="mt-2">Rate-limited single-address scoring for any project to test.</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Public retro-analyses</h3><span class="badge b-soon">COMING</span></div><p class="mt-2">Aggregate-only posts on Linea / LayerZero. Methodology peer-review.</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Real T1/T2 labeled sources</h3><span class="badge b-soon">COMING</span></div><p class="mt-2">Replace placeholders with LayerZero amnesty, Hop investigations, etc.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="card reveal" style="padding:32px">
+      <div style="display:flex;align-items:baseline;gap:16px"><h2 class="dim">LATER</h2><span class="dim mono" style="font-size:11px">// Q4 2026+ — after legal entity</span></div>
+      <div class="grid-2 mt-6">
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Stripe card payments</h3><span class="badge b-road">ROADMAP</span></div><p class="mt-2">After incorporation</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Enterprise contracts + DPA/MSA</h3><span class="badge b-road">ROADMAP</span></div><p class="mt-2">Template package after legal entity</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Self-hosted Erigon/Reth node</h3><span class="badge b-road">ROADMAP</span></div><p class="mt-2">For 100K+ address analyses. Removes Alchemy quota dependency.</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Custom-model training</h3><span class="badge b-road">ROADMAP</span></div><p class="mt-2">Per-customer model on their own labeled examples</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Auto-retrain on drift</h3><span class="badge b-road">ROADMAP</span></div><p class="mt-2">PSI &gt; 0.25 kicks off retrain. Manual today.</p></div>
+        <div class="card-lime"><div style="display:flex;justify-content:space-between"><h3>Galxe / Gitcoin integrations</h3><span class="badge b-road">ROADMAP</span></div><p class="mt-2">Score as a credential in major airdrop platforms</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="card reveal" style="padding:32px">
+      <h4>// NOT_on_roadmap</h4>
+      <ul class="mt-6" style="list-style:none;display:flex;flex-direction:column;gap:10px">
+        <li class="muted">› KYC / identity verification — that's Worldcoin/Civic's job</li>
+        <li class="muted">› Sybil-resistant social graph — out of scope</li>
+        <li class="muted">› Token of our own — no plans, treat any "$SHIELD" rumour as a scam</li>
+        <li class="muted">› Confidential detection rules — everything is open-source by design</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

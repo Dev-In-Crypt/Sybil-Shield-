@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Methodology · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="methods">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// detection_stack.md</p>
+    <h1>// METHODOLOGY</h1>
+    <p class="lead">Six detection methods, each with rules anyone can audit and replicate. Source code MIT-licensed on GitHub.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <div style="display:flex;flex-direction:column;gap:32px">
+      <div class="card reveal">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <div><span class="mono lime" style="font-size:12px">#01</span> <h3 style="display:inline">FUNDING_SOURCE_CLUSTERING</h3></div>
+          <span class="mono dim" style="font-size:11px">clustering/funding_cluster.py</span>
+        </div>
+        <ul class="mt-6" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li class="muted">› Group addresses by their first incoming non-CEX funder</li>
+          <li class="muted">› Filter out groups with &lt;3 members</li>
+          <li class="muted">› Confidence scales by time spread: &lt;24h → 0.95, &lt;7d → 0.80, else 0.60</li>
+          <li class="muted">› CEX hot wallets (Binance, Coinbase, Huobi) explicitly excluded</li>
+        </ul>
+      </div>
+
+      <div class="card reveal" data-d="1">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <div><span class="mono lime" style="font-size:12px">#02</span> <h3 style="display:inline">BEHAVIORAL_CLUSTERING</h3></div>
+          <span class="mono dim" style="font-size:11px">clustering/behavior_cluster.py</span>
+        </div>
+        <ul class="mt-6" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li class="muted">› Build 10-feature vector per address (timing, entropy, protocol diversity, etc.)</li>
+          <li class="muted">› Drop zero-variance columns (σ &lt; 1e-12) to prevent uniform-input failure</li>
+          <li class="muted">› z-score normalize → HDBSCAN with min_cluster_size=5, leaf cluster selection</li>
+          <li class="muted">› Fallback: if all-noise AND ≥3 features zero-variance, treat batch as one Sybil cohort</li>
+          <li class="muted">› Intra-cluster spread → confidence (lower = higher)</li>
+        </ul>
+      </div>
+
+      <div class="card reveal" data-d="2">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <div><span class="mono lime" style="font-size:12px">#03</span> <h3 style="display:inline">GRAPH_COMMUNITY_DETECTION</h3></div>
+          <span class="mono dim" style="font-size:11px">clustering/graph_community.py</span>
+        </div>
+        <ul class="mt-6" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li class="muted">› Build directed weighted graph from in-batch transactions (igraph, 500K+ nodes)</li>
+          <li class="muted">› Leiden algorithm via leidenalg (RBConfigurationVertexPartition, resolution=1.0, seed=42)</li>
+          <li class="muted">› Filter communities by size (5 ≤ n ≤ 500) and density (≥ 0.3)</li>
+          <li class="muted">› Density threshold cuts legitimate DEX-using groups while keeping farms</li>
+        </ul>
+      </div>
+
+      <div class="card reveal" data-d="3">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <div><span class="mono lime" style="font-size:12px">#04</span> <h3 style="display:inline">CROSS_CHAIN_IDENTITY_LINKING</h3></div>
+          <span class="mono dim" style="font-size:11px">clustering/cross_chain.py</span>
+        </div>
+        <ul class="mt-6" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li class="muted">› Deterministic: bridge tx A→B across chains = same entity (Stargate, Hop, Across, Wormhole)</li>
+          <li class="muted">› Probabilistic: same funder + same timestamp window (±10min) across chains</li>
+          <li class="muted">› Union-find aggregates into entity components</li>
+          <li class="muted">› Cluster fires when ≥3 chain-nodes belong to one entity</li>
+        </ul>
+      </div>
+
+      <div class="card reveal" data-d="4">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <div><span class="mono lime" style="font-size:12px">#05</span> <h3 style="display:inline">TEMPORAL_ANOMALY_FEATURES</h3></div>
+          <span class="mono dim" style="font-size:11px">features/temporal.py</span>
+        </div>
+        <ul class="mt-6" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li class="muted">› Hour-of-day entropy (humans &gt; 2.5, bots &lt; 1.5)</li>
+          <li class="muted">› Day-of-week entropy</li>
+          <li class="muted">› Min inter-tx seconds (humans rarely &lt; 60s)</li>
+          <li class="muted">› Burst score (% of txs in 10% of activity window)</li>
+          <li class="muted">› Lag-1 autocorrelation of inter-tx gaps</li>
+          <li class="muted">› Activity ratio (active days / account age)</li>
+        </ul>
+      </div>
+
+      <div class="card reveal" data-d="5">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <div><span class="mono lime" style="font-size:12px">#06</span> <h3 style="display:inline">ML_ENSEMBLE_SCORING</h3></div>
+          <span class="mono dim" style="font-size:11px">scoring/train.py</span>
+        </div>
+        <ul class="mt-6" style="list-style:none;display:flex;flex-direction:column;gap:8px">
+          <li class="muted">› LightGBM binary classifier with class_weight='balanced'</li>
+          <li class="muted">› Sample-weighted by confidence tier (T1=4.0, T4=0.8, G1=4.0, G2=2.0)</li>
+          <li class="muted">› Trained on ALL tiers (T1-T5 + G1-G2 with weights)</li>
+          <li class="muted">› Evaluated on T1+T2+G1 holdout ONLY — never against T4 outputs</li>
+          <li class="muted">› Honest metrics: P@70, R@70, FPR-on-G1, ROC-AUC, adversarial recall</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// label_tier_system</h4>
+    <p class="reveal mt-4 muted">We don't pretend our labels are perfect. Each labelled address has a tier.</p>
+    <div class="tablewrap mt-6 reveal">
+      <table>
+        <thead><tr><th>tier</th><th>confidence</th><th>source_example</th></tr></thead>
+        <tbody>
+          <tr><td class="em">T1</td><td>0.98</td><td>Confessed via amnesty (LayerZero, Optimism)</td></tr>
+          <tr><td class="em">T2</td><td>0.95</td><td>Manually investigated (Hop, security researchers)</td></tr>
+          <tr><td class="em">T3</td><td>0.85</td><td>Multiple detectors agree</td></tr>
+          <tr><td class="em">T4</td><td>0.65</td><td>Single detector output (raw Arbitrum / Linea lists)</td></tr>
+          <tr><td class="em">T5</td><td>0.75</td><td>Self-derived heuristic (shared funder same block)</td></tr>
+          <tr><td class="em">G1</td><td>0.95</td><td>Verified human (Gitcoin Passport ≥20 stamps)</td></tr>
+          <tr><td class="em">G2</td><td>0.80</td><td>Likely human (ENS pre-2021 + active history)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="card reveal" style="padding:32px">
+      <h4>// what_we_DONT_do</h4>
+      <ul class="mt-6" style="list-style:none;display:flex;flex-direction:column;gap:10px">
+        <li class="muted">› Score based on token holdings or wealth</li>
+        <li class="muted">› Penalise mixer / privacy-tool usage per se</li>
+        <li class="muted">› Flag addresses just because they hold a Worldcoin orb or any other "humanness" credential</li>
+        <li class="muted">› Publicly list any individual address as Sybil — only aggregates</li>
+        <li class="muted">› Train on labels from other commercial detectors</li>
+        <li class="muted">› Charge for the appeal process</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="card reveal" style="padding:32px;border-color:rgba(192,255,0,.3);background:linear-gradient(180deg,rgba(192,255,0,.04),transparent)">
+      <h4 class="lime">// reproducibility</h4>
+      <p class="mt-4">Every model artifact stores its <span class="code">feature_schema_hash</span> and <span class="code">training_manifest_hash</span>. If you can't reproduce a score from the published artifact + manifest hashes, the score is invalid.</p>
+    </div>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

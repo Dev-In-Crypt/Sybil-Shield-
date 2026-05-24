@@ -1,0 +1,406 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SybilShield · Sentinel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700;9..144,800;9..144,900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --cream:#f8f5ef;--cream2:#f0ebe0;--ink:#0d1530;--crimson:#b91c2c;--amber:#d97706;--muted:rgba(13,21,48,.7);--dim:rgba(13,21,48,.5);--line:rgba(13,21,48,.1);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-font-smoothing:antialiased}
+  html{scroll-behavior:smooth}
+  body{background:var(--cream);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.5}
+  a{color:inherit;text-decoration:none}
+  .serif{font-family:'Fraunces',Georgia,serif;font-variation-settings:'opsz' 144,'SOFT' 0}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+
+  .wrap{max-width:1140px;margin:0 auto;padding:0 24px}
+
+  /* nav */
+  nav{border-bottom:2px solid var(--line);background:rgba(248,245,239,.85);backdrop-filter:blur(20px);position:sticky;top:0;z-index:40}
+  .nav-inner{display:flex;align-items:center;justify-content:space-between;padding:20px 0}
+  .logo{display:flex;align-items:center;gap:12px}
+  .logo .l-text{display:flex;flex-direction:column}
+  .logo .l-text b{font-family:'Fraunces',serif;font-weight:700;font-size:18px;letter-spacing:-.02em;font-variation-settings:'opsz' 144}
+  .logo .l-text small{font-family:ui-monospace,monospace;font-size:9px;text-transform:uppercase;letter-spacing:.25em;color:var(--dim)}
+  .links{display:none;gap:32px;font-size:14px;font-weight:500}
+  .links a{padding:2px 0;border-bottom:2px solid transparent;transition:border-color .15s}
+  .links a:hover{border-color:var(--crimson)}
+  @media(min-width:768px){.links{display:flex}}
+  .pill{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--cream);padding:9px 18px;border-radius:999px;font-size:14px;font-weight:600;transition:background .2s}
+  .pill:hover{background:var(--crimson)}
+  .appeal{color:var(--muted);font-size:14px;margin-right:8px}
+  .appeal:hover{color:var(--crimson)}
+
+  /* hero */
+  .hero{position:relative;overflow:hidden;border-bottom:2px solid var(--line)}
+  .hero-deco{position:absolute;inset:0;pointer-events:none;z-index:-1}
+  .hero-deco .b1{position:absolute;right:-80px;top:80px;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle,rgba(217,119,6,.13),transparent 70%)}
+  .hero-deco .b2{position:absolute;left:-128px;bottom:0;width:400px;height:400px;border-radius:50%;background:radial-gradient(circle,rgba(185,28,44,.08),transparent 70%)}
+  .hero-deco .dots{position:absolute;inset:0;opacity:.04;background-image:radial-gradient(circle,#0d1530 1.5px,transparent 1.5px);background-size:32px 32px;mask-image:radial-gradient(ellipse 70% 80% at 50% 50%,black,transparent)}
+  .hero-inner{padding:96px 0 128px;display:grid;gap:48px}
+  @media(min-width:1024px){.hero-inner{grid-template-columns:1.4fr 1fr;align-items:center}}
+  .vol{display:inline-flex;align-items:center;gap:12px;border-block:2px solid var(--crimson);padding:4px 4px}
+  .vol .mono{font-size:10px;text-transform:uppercase;letter-spacing:.25em;color:var(--crimson)}
+  h1{margin-top:32px;font-family:'Fraunces',serif;font-size:clamp(56px,8vw,100px);line-height:.95;letter-spacing:-.025em;font-weight:700;font-variation-settings:'opsz' 144}
+  h1 em{font-style:italic;color:var(--crimson)}
+  h1 em.plain{color:inherit}
+  .lead{margin-top:32px;max-width:600px;font-size:18px;color:var(--muted);line-height:1.6}
+  .ctas{margin-top:40px;display:flex;flex-wrap:wrap;gap:24px;align-items:center}
+  .ctas .second{display:inline-flex;align-items:center;gap:8px;border-bottom:2px solid rgba(13,21,48,.3);padding:2px 4px 4px;font-size:14px;font-weight:500;transition:border-color .15s,color .15s}
+  .ctas .second:hover{border-color:var(--crimson);color:var(--crimson)}
+
+  /* hero card */
+  .casefile{position:relative}
+  .casefile .backstroke{position:absolute;inset:0;transform:translate(-16px,-16px);border:2px solid var(--crimson)}
+  .casefile .face{position:relative;border:2px solid var(--ink);background:#fff;padding:32px;box-shadow:8px 8px 0 rgba(13,21,48,.08)}
+  .cf-head{display:flex;justify-content:space-between;align-items:center;padding-bottom:16px;border-bottom:1px solid var(--line)}
+  .cf-head span{font-family:ui-monospace,monospace;font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:var(--dim)}
+  .cf-score{margin-top:24px;display:flex;align-items:baseline;gap:12px}
+  .cf-score b{font-family:'Fraunces',serif;font-size:84px;font-weight:700;color:var(--crimson);line-height:1;letter-spacing:-.02em}
+  .cf-score span{font-size:14px;color:var(--dim)}
+  .cf-verdict{margin-top:4px;display:inline-flex;align-items:center;border:1px solid rgba(185,28,44,.3);background:rgba(185,28,44,.05);padding:2px 10px;font-size:12px;font-weight:500;color:var(--crimson)}
+  .cf-list{margin-top:24px;border-top:1px solid var(--line);padding-top:16px;display:flex;flex-direction:column;gap:12px;font-size:14px}
+  .cf-list li{display:flex;gap:12px;list-style:none}
+  .cf-list li .n{font-family:ui-monospace,monospace;font-size:12px;color:var(--crimson)}
+  .cf-foot{margin-top:24px;border-top:1px solid var(--line);padding-top:16px;font-size:12px;color:var(--dim)}
+
+  /* stats band */
+  .band{background:var(--ink);color:var(--cream);border-bottom:2px solid var(--line)}
+  .band-inner{display:flex;flex-wrap:wrap;gap:48px;justify-content:space-between;padding:40px 0}
+  .band .b-v{font-family:'Fraunces',serif;font-size:36px;font-weight:700;letter-spacing:-.02em}
+  .band .b-l{margin-top:4px;font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:rgba(248,245,239,.6)}
+
+  /* sections */
+  section{border-bottom:2px solid var(--line)}
+  .sec-head{padding-top:96px}
+  .eyebrow{font-family:ui-monospace,monospace;font-size:11px;text-transform:uppercase;letter-spacing:.25em;color:var(--crimson)}
+  h2{font-family:'Fraunces',serif;font-size:clamp(40px,5vw,64px);line-height:1.05;letter-spacing:-.025em;font-weight:700;margin-top:12px;font-variation-settings:'opsz' 144}
+  .sec-lead{margin-top:16px;font-size:18px;color:var(--muted);max-width:640px}
+  .sec-body{margin-top:48px;padding-bottom:96px}
+
+  /* problem articles */
+  .agrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:32px}
+  .art{cursor:pointer;border-left:4px solid var(--ink);padding-left:24px;transition:border-color .2s}
+  .art:hover{border-color:var(--crimson)}
+  .art .h{display:flex;align-items:baseline;gap:12px}
+  .art .h h3{font-family:'Fraunces',serif;font-size:28px;font-weight:600;letter-spacing:-.02em}
+  .art .h .y{font-family:ui-monospace,monospace;font-size:11px;color:var(--dim)}
+  .art .n{margin-top:12px;font-family:'Fraunces',serif;font-size:52px;font-weight:700;color:var(--crimson);letter-spacing:-.025em;line-height:1}
+  .art .d{margin-top:12px;color:var(--muted);line-height:1.6}
+
+  /* methods (split) */
+  .methods-sec{background:var(--cream2)}
+  .methods-grid{display:grid;gap:48px}
+  @media(min-width:1024px){.methods-grid{grid-template-columns:1fr 2fr}}
+  .methods-list{display:grid;gap:1px;background:rgba(13,21,48,.1)}
+  .mrow{background:var(--cream2);padding:24px;transition:background .2s}
+  .mrow:hover{background:#fff}
+  .mrow .top{display:flex;align-items:baseline;gap:16px}
+  .mrow .top .nn{font-family:ui-monospace,monospace;font-size:11px;color:var(--crimson)}
+  .mrow .top h3{font-family:'Fraunces',serif;font-size:20px;font-weight:600;letter-spacing:-.01em}
+  .mrow p{margin-top:8px;padding-left:36px;font-size:14px;color:var(--muted);line-height:1.6}
+
+  /* principles */
+  .prin{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px}
+  .prin .p{border-top:2px solid var(--crimson);padding-top:24px}
+  .prin .p h3{font-family:'Fraunces',serif;font-size:26px;font-weight:600;letter-spacing:-.02em}
+  .prin .p p{margin-top:12px;color:var(--muted);line-height:1.65}
+
+  /* compare */
+  .tablewrap{overflow:hidden;border:2px solid var(--ink)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  thead{border-bottom:2px solid var(--ink);background:var(--ink);color:var(--cream)}
+  th{padding:16px 24px;text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.15em;font-weight:500}
+  th.em{background:var(--crimson)}
+  td{padding:16px 24px;border-top:1px solid var(--line);color:var(--muted)}
+  td.k{color:var(--ink);font-weight:500}
+  td.em{background:rgba(185,28,44,.05);color:var(--crimson);font-weight:500}
+  tbody tr{background:var(--cream);transition:background .15s}
+  tbody tr:hover{background:#fff}
+
+  /* pricing */
+  .pricing{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px}
+  .plan{position:relative;border:2px solid rgba(13,21,48,.15);background:#fff;padding:32px}
+  .plan.hi{border-color:var(--crimson);box-shadow:8px 8px 0 rgba(185,28,44,.12)}
+  .plan .badge{position:absolute;top:-16px;left:50%;transform:translateX(-50%);background:var(--crimson);color:var(--cream);padding:4px 12px;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.15em}
+  .plan .desc{font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:var(--dim)}
+  .plan h3{margin-top:8px;font-family:'Fraunces',serif;font-size:28px;font-weight:700;letter-spacing:-.02em}
+  .plan .price{margin-top:24px;display:flex;align-items:baseline;gap:8px}
+  .plan .price b{font-family:'Fraunces',serif;font-size:48px;font-weight:700;letter-spacing:-.025em}
+  .plan .price span{font-size:14px;color:var(--muted)}
+  .plan ul{margin-top:32px;list-style:none;display:flex;flex-direction:column;gap:12px;font-size:14px}
+  .plan li{display:flex;gap:12px}
+  .plan li::before{content:"●";color:var(--crimson);font-size:10px;line-height:1.5}
+  .plan .cta-btn{margin-top:32px;display:block;text-align:center;background:var(--ink);color:var(--cream);padding:14px;border-radius:999px;font-size:14px;font-weight:600;transition:background .2s}
+  .plan .cta-btn:hover{background:var(--crimson)}
+  .plan .cta-dis{margin-top:32px;display:block;text-align:center;border:2px solid rgba(13,21,48,.15);padding:14px;border-radius:999px;font-size:14px;color:rgba(13,21,48,.4);cursor:not-allowed}
+
+  /* quote */
+  .quote{background:var(--cream2)}
+  .quote .inner{max-width:760px;margin:0 auto;padding:96px 24px;text-align:center}
+  .quote blockquote{margin-top:24px;font-family:'Fraunces',serif;font-style:italic;font-size:clamp(28px,4.5vw,52px);font-weight:500;line-height:1.15;letter-spacing:-.02em;font-variation-settings:'opsz' 144}
+  .quote cite{display:block;margin-top:24px;font-style:normal;font-size:14px;color:var(--muted)}
+
+  /* final cta */
+  .finalcta{padding:96px 0;text-align:center}
+  .finalcta h2{font-family:'Fraunces',serif;font-size:clamp(48px,7vw,84px);line-height:1.05;letter-spacing:-.025em}
+  .finalcta p{margin-top:24px;font-size:18px;color:var(--muted);max-width:540px;margin-left:auto;margin-right:auto}
+  .finalcta .pill-l{margin-top:40px;padding:18px 40px;font-size:16px}
+
+  /* footer */
+  footer{background:var(--ink);color:var(--cream)}
+  .fgrid{display:grid;gap:32px;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));padding:64px 0 32px}
+  .fmain{grid-column:span 2}
+  .fmain .logo .l-text b{color:var(--cream)}
+  .fmain p{margin-top:24px;font-size:14px;color:rgba(248,245,239,.6);max-width:300px;line-height:1.65}
+  .fgrid h4{font-size:11px;text-transform:uppercase;letter-spacing:.15em;color:rgba(248,245,239,.5);font-weight:500}
+  .fgrid ul{margin-top:12px;list-style:none;display:flex;flex-direction:column;gap:8px}
+  .fgrid a{font-size:14px;color:rgba(248,245,239,.85);transition:color .15s}
+  .fgrid a:hover{color:var(--crimson)}
+  .legal{border-top:1px solid rgba(248,245,239,.1);padding:24px 0;font-size:12px;color:rgba(248,245,239,.4)}
+
+  /* reveal */
+  .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+  .reveal.in{opacity:1;transform:translateY(0)}
+  .reveal[data-delay="1"]{transition-delay:.06s}
+  .reveal[data-delay="2"]{transition-delay:.12s}
+  .reveal[data-delay="3"]{transition-delay:.18s}
+  .reveal[data-delay="4"]{transition-delay:.24s}
+  .reveal[data-delay="5"]{transition-delay:.30s}
+  .reveal[data-delay="6"]{transition-delay:.36s}
+
+  /* switcher */
+  .switcher{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:50}
+  .switcher .row{display:flex;gap:4px;background:rgba(13,21,48,.92);border:1px solid rgba(248,245,239,.15);padding:4px;border-radius:999px;backdrop-filter:blur(20px);box-shadow:0 20px 40px rgba(13,21,48,.3)}
+  .switcher a{padding:8px 16px;border-radius:999px;font-size:12px;font-weight:500;color:rgba(248,245,239,.7);transition:all .15s}
+  .switcher a:hover{background:rgba(248,245,239,.1);color:var(--cream)}
+  .switcher a.active{background:var(--cream);color:var(--ink)}
+  .switcher a strong{font-weight:700}
+  .switcher a small{opacity:.6;margin-left:8px}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-inner">
+    <a class="logo" href="#">
+      <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="19" stroke="#0d1530" stroke-width="1.5"/>
+        <path d="M20 6 L31 12 V22 C31 28 26 32 20 34 C14 32 9 28 9 22 V12 Z" fill="#b91c2c" fill-opacity=".12" stroke="#b91c2c" stroke-width="1.5"/>
+        <text x="20" y="24.5" text-anchor="middle" fill="#0d1530" font-size="11" font-weight="700" font-family="Georgia,serif">SS</text>
+      </svg>
+      <div class="l-text"><b>SybilShield</b><small>est. 2026 · vol. i</small></div>
+    </a>
+    <div class="links">
+      <a href="#methods">Methodology</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#compare">Compare</a>
+    </div>
+    <div>
+      <a href="#" class="appeal">Appeal</a>
+      <a class="pill" href="#">Dashboard</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-deco"><div class="b1"></div><div class="b2"></div><div class="dots"></div></div>
+  <div class="wrap hero-inner">
+    <div>
+      <div class="vol reveal in"><span class="mono">No. 01 · The Sentinel</span></div>
+      <h1 class="reveal serif" data-delay="1">Restoring <em>trust</em> to token <em class="plain"><i>distributions.</i></em></h1>
+      <p class="lead reveal" data-delay="2">A principled approach to Sybil detection: open methodology, evidence-backed decisions, and a public appeal process built into the product from day one.</p>
+      <div class="ctas reveal" data-delay="3">
+        <a class="pill" href="#">Begin a free trial →</a>
+        <a class="second" href="#">Read the methodology</a>
+      </div>
+    </div>
+
+    <div class="casefile reveal" data-delay="2">
+      <div class="backstroke"></div>
+      <div class="face">
+        <div class="cf-head"><span>Case file</span><span>№ 0xA12b…c4d7</span></div>
+        <div class="cf-score"><b class="serif">87</b><span>/ 100</span></div>
+        <div class="cf-verdict">Verdict: Sybil</div>
+        <ol class="cf-list">
+          <li><span class="n">01</span><span>Shared funding source (47 wallets, 1.0h window)</span></li>
+          <li><span class="n">02</span><span>Behavioural pattern match (94% similarity)</span></li>
+          <li><span class="n">03</span><span>Anomalously low activity entropy</span></li>
+        </ol>
+        <div class="cf-foot">Open appeal · 48h SLA · immutable audit trail</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="band">
+  <div class="wrap band-inner">
+    <div><div class="b-v serif">$6.6B+</div><div class="b-l">Airdrops distributed in 2024</div></div>
+    <div><div class="b-v serif">~22%</div><div class="b-l">Captured by farmers (Arbitrum)</div></div>
+    <div><div class="b-v serif">6</div><div class="b-l">Independent detection methods</div></div>
+    <div><div class="b-v serif">48h</div><div class="b-l">Appeal response policy</div></div>
+  </div>
+</div>
+
+<section id="problem">
+  <div class="wrap sec-head reveal">
+    <p class="eyebrow">Chapter 01</p>
+    <h2 class="serif">The state of airdrops</h2>
+    <p class="sec-lead">Hard numbers from the last three years of major distributions. The damage is well-documented; the response is not.</p>
+  </div>
+  <div class="wrap sec-body">
+    <div class="agrid">
+      <article class="art reveal" data-delay="1"><div class="h"><h3 class="serif">Arbitrum</h3><span class="y">2023</span></div><div class="n serif">148,595</div><div class="d">addresses still slipped past industry-leading filters, capturing approximately 22% of distributed supply.</div></article>
+      <article class="art reveal" data-delay="2"><div class="h"><h3 class="serif">zkSync</h3><span class="y">2024</span></div><div class="n serif">$753,000</div><div class="d">extracted by a single farmer running 85 wallets. Another reportedly controlled over 21,000 addresses.</div></article>
+      <article class="art reveal" data-delay="3"><div class="h"><h3 class="serif">Linea</h3><span class="y">2025</span></div><div class="n serif">40%</div><div class="d">of 1.3M eligible addresses flagged as Sybil. Thousands of false-positive complaints, no public appeal mechanism.</div></article>
+      <article class="art reveal" data-delay="4"><div class="h"><h3 class="serif">LayerZero</h3><span class="y">2024</span></div><div class="n serif">803,273</div><div class="d">filtered through aggressive detection. Methodology kept private; appeal process opaque.</div></article>
+    </div>
+  </div>
+</section>
+
+<section class="methods-sec" id="methods">
+  <div class="wrap" style="padding:96px 24px">
+    <div class="methods-grid">
+      <div class="reveal">
+        <p class="eyebrow">Chapter 02</p>
+        <h2 class="serif" style="margin-top:12px">Six independent methods</h2>
+        <p class="sec-lead">No single signal is enough to convict. Six methods running in parallel produce convergent evidence — a verdict the community can audit, not a black-box score.</p>
+      </div>
+      <div class="methods-list">
+        <div class="mrow reveal" data-delay="1"><div class="top"><span class="nn">01.</span><h3 class="serif">Funding source</h3></div><p>Cluster wallets sharing a non-exchange funder within a tight time window. Catches the majority of amateur farms.</p></div>
+        <div class="mrow reveal" data-delay="2"><div class="top"><span class="nn">02.</span><h3 class="serif">Behavioural clustering</h3></div><p>Density-based grouping on transaction-pattern features. Mechanical sequences surface immediately.</p></div>
+        <div class="mrow reveal" data-delay="3"><div class="top"><span class="nn">03.</span><h3 class="serif">Graph community detection</h3></div><p>Leiden algorithm on the in-batch transaction graph. Dense isolated subgraphs are farms.</p></div>
+        <div class="mrow reveal" data-delay="4"><div class="top"><span class="nn">04.</span><h3 class="serif">Temporal anomaly</h3></div><p>Hour-of-day entropy, inter-transaction autocorrelation, dormant-burst patterns. Humans are messy.</p></div>
+        <div class="mrow reveal" data-delay="5"><div class="top"><span class="nn">05.</span><h3 class="serif">Cross-chain identity linking</h3></div><p>Deterministic linking via bridge events. Eight chains supported today.</p></div>
+        <div class="mrow reveal" data-delay="6"><div class="top"><span class="nn">06.</span><h3 class="serif">ML ensemble scoring</h3></div><p>LightGBM weighted by label confidence tier. Honest evaluation on T1+G1 holdout only.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="principles">
+  <div class="wrap sec-head reveal">
+    <p class="eyebrow">Chapter 03</p>
+    <h2 class="serif">Our editorial principles</h2>
+    <p class="sec-lead">Decisions that matter, made transparent.</p>
+  </div>
+  <div class="wrap sec-body">
+    <div class="prin">
+      <div class="p reveal" data-delay="1"><h3 class="serif">Evidence before verdict</h3><p>No flagged address goes out without a traceable evidence array. Every signal points at the specific feature or cluster that produced it.</p></div>
+      <div class="p reveal" data-delay="2"><h3 class="serif">Appeals are first-class</h3><p>Anyone can dispute a score without an account. 48-hour response policy. Immutable audit log for every event, including reversals.</p></div>
+      <div class="p reveal" data-delay="3"><h3 class="serif">Open methodology</h3><p>Algorithms, feature extractors, audit-log schema, and appeal protocol live under MIT on GitHub. Your community can audit our claims.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="compare">
+  <div class="wrap sec-head reveal">
+    <p class="eyebrow">Chapter 04</p>
+    <h2 class="serif">The landscape, plainly stated</h2>
+  </div>
+  <div class="wrap sec-body">
+    <div class="tablewrap reveal">
+      <table>
+        <thead><tr><th></th><th>Trusta Labs</th><th>Nansen / Chainalysis</th><th>In-house</th><th class="em">SybilShield</th></tr></thead>
+        <tbody>
+          <tr><td class="k">API-first</td><td>Yes</td><td>No</td><td>No</td><td class="em">Yes</td></tr>
+          <tr><td class="k">Per-analysis price</td><td>$1–3K</td><td>$50–150K</td><td>Engineering cost</td><td class="em">$2.5–15K</td></tr>
+          <tr><td class="k">Evidence reports</td><td>—</td><td>Manual PDF</td><td>Variable</td><td class="em">Per-address, traceable</td></tr>
+          <tr><td class="k">Immutable audit log</td><td>—</td><td>—</td><td>—</td><td class="em">Yes</td></tr>
+          <tr><td class="k">Public appeal process</td><td>—</td><td>—</td><td>—</td><td class="em">Live</td></tr>
+          <tr><td class="k">Open methodology</td><td>—</td><td>—</td><td>—</td><td class="em">MIT licensed</td></tr>
+          <tr><td class="k">Turnaround time</td><td>Hours</td><td>4–8 weeks</td><td>2–4 weeks</td><td class="em">Hours</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap sec-head reveal">
+    <p class="eyebrow">Chapter 05</p>
+    <h2 class="serif">Pricing, in plain terms</h2>
+    <p class="sec-lead">Begin free. Upgrade when you ship.</p>
+  </div>
+  <div class="wrap sec-body">
+    <div class="pricing">
+      <div class="plan reveal" data-delay="1">
+        <div class="desc">For exploration</div><h3 class="serif">Free</h3>
+        <div class="price"><b class="serif">$0</b></div>
+        <ul><li>Sandbox API</li><li>100 calls/month</li><li>Evidence reports</li><li>Public appeals</li></ul>
+        <a class="cta-btn" href="#">Start free</a>
+      </div>
+      <div class="plan hi reveal" data-delay="2">
+        <span class="badge">Recommended</span>
+        <div class="desc">For pre-TGE projects</div><h3 class="serif">Growth</h3>
+        <div class="price"><b class="serif">$1,499</b><span>per month</span></div>
+        <ul><li>250K calls/month</li><li>All clustering methods</li><li>Webhooks + SLA 99.5%</li><li>Slack support</li></ul>
+        <a class="cta-dis" href="#">Notify me · coming soon</a>
+      </div>
+      <div class="plan reveal" data-delay="3">
+        <div class="desc">For scale</div><h3 class="serif">Enterprise</h3>
+        <div class="price"><b class="serif">$4,999+</b><span>per month</span></div>
+        <ul><li>Unlimited calls</li><li>Custom-trained models</li><li>Dedicated instance</li><li>On-call engineering</li></ul>
+        <a class="cta-dis" href="#">Notify me · coming soon</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="quote">
+  <div class="inner reveal">
+    <p class="eyebrow">Editorial</p>
+    <blockquote class="serif">"Sybil detection is the credit-bureau layer for token distributions. And the bureau ought to be public."</blockquote>
+    <cite>— Founding principle</cite>
+  </div>
+</section>
+
+<section class="finalcta">
+  <div class="wrap reveal">
+    <h2 class="serif">Ready to defend your distribution?</h2>
+    <p>Register, receive an API key, and run your first analysis in under a minute. No card required. No commitments.</p>
+    <a class="pill pill-l" href="#">Begin →</a>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap fgrid">
+    <div class="fmain">
+      <div class="logo">
+        <svg width="36" height="36" viewBox="0 0 40 40" fill="none">
+          <circle cx="20" cy="20" r="19" stroke="#f8f5ef" stroke-width="1.5"/>
+          <path d="M20 6 L31 12 V22 C31 28 26 32 20 34 C14 32 9 28 9 22 V12 Z" fill="#b91c2c" fill-opacity=".2" stroke="#b91c2c" stroke-width="1.5"/>
+          <text x="20" y="24.5" text-anchor="middle" fill="#f8f5ef" font-size="11" font-weight="700" font-family="Georgia,serif">SS</text>
+        </svg>
+        <div class="l-text"><b>SybilShield</b><small style="color:rgba(248,245,239,.5)">est. 2026</small></div>
+      </div>
+      <p>Open methodology for Sybil-resistant token distributions. An editorial approach to on-chain detection.</p>
+    </div>
+    <div><h4>Product</h4><ul><li><a href="#">Pricing</a></li><li><a href="#">Docs</a></li><li><a href="#">Roadmap</a></li></ul></div>
+    <div><h4>Public</h4><ul><li><a href="#">Methodology</a></li><li><a href="#">Appeal</a></li><li><a href="#">Security</a></li></ul></div>
+    <div><h4>Editorial</h4><ul><li><a href="#">About</a></li><li><a href="#">Blog</a></li><li><a href="mailto:hello@sybilshield.com">Contact</a></li></ul></div>
+  </div>
+  <div class="wrap legal">Scores are probabilistic. Results may contain false positives. Customers using SybilShield in any public filter list must provide an appeal flow.</div>
+</footer>
+
+<div class="switcher">
+  <div class="row">
+    <a href="v1.html"><strong>Quantum</strong><small>Institutional</small></a>
+    <a href="v2.html"><strong>Genesis</strong><small>Cyber neon</small></a>
+    <a href="v3.html" class="active"><strong>Sentinel</strong><small>Editorial</small></a>
+    <a href="index.html" style="opacity:.5">×</a>
+  </div>
+</div>
+
+<script>
+  const io = new IntersectionObserver(es => es.forEach(e => e.isIntersecting && e.target.classList.add("in")), {threshold:.1, rootMargin:"-50px"});
+  document.querySelectorAll(".reveal").forEach(el => io.observe(el));
+</script>
+</body>
+</html>

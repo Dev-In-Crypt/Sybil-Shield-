@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lookup · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+<style>
+  .lookup-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:24px}
+  .lookup-bar input{flex:1;min-width:280px;background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:14px 16px;font-family:'JetBrains Mono',monospace;font-size:14px}
+  .lookup-bar input:focus{outline:none;border-color:var(--lime)}
+  .lookup-bar select{background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:14px 12px;font-family:'JetBrains Mono',monospace;font-size:13px}
+  .result{margin-top:32px;display:none}
+  .result.show{display:block}
+  .result .score-block{display:flex;align-items:baseline;gap:16px}
+  .result .score-block .n{font-family:'JetBrains Mono',monospace;font-size:96px;font-weight:700;line-height:1}
+  .result .ev{margin-top:16px;font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted)}
+  .sample-addr{display:inline-block;padding:4px 10px;background:#0a0a0a;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--lime);cursor:pointer;margin-right:6px;margin-top:6px}
+  .sample-addr:hover{border-color:var(--lime)}
+</style>
+</head>
+<body data-page="lookup">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// public good · free · no auth</p>
+    <h1>// LOOKUP</h1>
+    <p class="lead">Score any wallet address right now. Rate-limited to 30 requests per hour per IP. No registration needed.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:980px">
+    <form class="lookup-bar reveal" id="lookup-form">
+      <input id="addr" placeholder="0x... (40 hex chars)" pattern="^0x[0-9a-fA-F]{40}$" required>
+      <select id="chain">
+        <option value="ethereum">ethereum</option>
+        <option value="arbitrum">arbitrum</option>
+        <option value="optimism">optimism</option>
+        <option value="base">base</option>
+        <option value="polygon">polygon</option>
+        <option value="bsc">bsc</option>
+        <option value="avalanche">avalanche</option>
+        <option value="linea">linea</option>
+      </select>
+      <button type="submit" class="btn btn-l">SCORE</button>
+    </form>
+
+    <div class="mt-4">
+      <span class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">// try a sample:</span>
+      <span class="sample-addr" data-a="0xa12b00000000000000000000000000000000c4d7">sybil example</span>
+      <span class="sample-addr" data-a="0xd78a00000000000000000000000000000000b421">suspect example</span>
+      <span class="sample-addr" data-a="0xf03b00000000000000000000000000000000007900">genuine example</span>
+    </div>
+
+    <div id="result" class="result card">
+      <div class="mono dim" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">// address</div>
+      <div id="r-addr" class="mono mt-2" style="font-size:14px"></div>
+      <div class="score-block mt-6">
+        <div id="r-score" class="n">—</div>
+        <div>
+          <div id="r-label" class="badge">—</div>
+          <div class="dim mono mt-2" style="font-size:11px;text-transform:uppercase;letter-spacing:.2em">// confidence <span id="r-conf">—</span></div>
+        </div>
+      </div>
+      <div class="ev mt-6" id="r-ev">// no evidence available — address may not have been part of any analysis</div>
+      <div class="mt-8 dim mono" style="font-size:11px">
+        // think this is wrong? <a class="lime" href="appeal.html">submit appeal →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap" style="max-width:880px">
+    <h4 class="reveal">// what_you_see</h4>
+    <ul class="reveal mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px">
+      <li class="muted">› <span class="lime">SCORE 70-100</span> — high confidence Sybil. Multiple methods converge.</li>
+      <li class="muted">› <span class="lime">SCORE 40-69</span> — suspect. One or two signals fired but not all.</li>
+      <li class="muted">› <span class="lime">SCORE 0-39</span> — genuine. No detection method flagged.</li>
+      <li class="muted">› <span class="lime">"address not scored"</span> — we haven't seen this address in any analysis yet</li>
+    </ul>
+    <p class="mt-8 dim mono" style="font-size:12px">// for batch scoring or webhook notifications, <a class="lime" href="docs.html">use the API →</a></p>
+  </div>
+</section>
+
+<script>
+  const API = localStorage.getItem('sybilshield_api_base') || window.SYBILSHIELD_API || 'http://localhost:3001';
+  const labelColors = {sybil:'b-live',suspect:'b-beta',genuine:'b-live',suspicious:'b-beta'};
+  document.querySelectorAll('.sample-addr').forEach(s=>s.addEventListener('click',()=>{
+    document.getElementById('addr').value=s.dataset.a;
+  }));
+  document.getElementById('lookup-form').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const addr=document.getElementById('addr').value.trim();
+    const chain=document.getElementById('chain').value;
+    const res=document.getElementById('result');res.classList.add('show');
+    document.getElementById('r-addr').textContent=addr;
+    try{
+      const r=await fetch(`${API}/v1/score/${addr}?chain=${chain}`);
+      const d=await r.json();
+      if(r.status===404){
+        document.getElementById('r-score').textContent='—';
+        document.getElementById('r-score').style.color='var(--dim)';
+        document.getElementById('r-label').textContent='NOT SCORED';
+        document.getElementById('r-label').className='badge b-road';
+        document.getElementById('r-conf').textContent='n/a';
+        document.getElementById('r-ev').textContent='// this address has not been part of any analysis on SybilShield yet';
+        return;
+      }
+      if(!r.ok)throw new Error(d.error||r.statusText);
+      const s=d.sybil_score;
+      document.getElementById('r-score').textContent=s;
+      document.getElementById('r-score').style.color=s>=70?'var(--rose)':s>=40?'var(--amber)':'var(--lime)';
+      document.getElementById('r-label').textContent=(d.label||'').toUpperCase();
+      document.getElementById('r-label').className='badge '+(labelColors[d.label]||'b-road');
+      document.getElementById('r-conf').textContent=Number(d.confidence||0).toFixed(2);
+      const ev=Array.isArray(d.evidence)?d.evidence:[];
+      document.getElementById('r-ev').innerHTML=ev.length?ev.map(e=>`<div style="border-left:2px solid var(--lime);padding-left:12px;margin-top:8px">[${e.type}] ${e.description}</div>`).join(''):'// no evidence items';
+    }catch(err){
+      document.getElementById('r-score').textContent='ERR';
+      document.getElementById('r-score').style.color='var(--rose)';
+      document.getElementById('r-ev').textContent='// '+err.message;
+    }
+  });
+</script>
+<script src="_partials.js"></script>
+</body>
+</html>

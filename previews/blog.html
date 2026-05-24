@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Blog · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="blog">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// posts.log</p>
+    <h1>// BLOG</h1>
+    <p class="lead">Technical posts on detection methodology + public retros on completed airdrops.</p>
+    <p class="mt-4" style="color:var(--amber);font-size:12px;font-family:'JetBrains Mono',monospace;text-transform:uppercase;letter-spacing:.2em">// posts drop together with the first hosted public-good deployment. drafts in /content/blog</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <div style="display:flex;flex-direction:column;gap:24px">
+      <article class="card reveal">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <h3 class="lime" style="font-size:20px">Why 30 seconds is the tell</h3>
+          <span class="badge b-soon">COMING SOON</span>
+        </div>
+        <p class="mt-4">Real users transact at irregular, human-paced intervals. Sybil farms running shell scripts produce inter-tx gaps with characteristically low variance and high lag-1 autocorrelation. Here's why and how we detect it at scale.</p>
+      </article>
+
+      <article class="card reveal" data-d="1">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <h3 class="lime" style="font-size:20px">Replicating Linea's filter — 478K agreement, 45K candidates they missed</h3>
+          <span class="badge b-soon">COMING SOON</span>
+        </div>
+        <p class="mt-4">Public retro-analysis of the Linea airdrop filter results. Aggregate-only. We agree with Linea on 478K addresses, disagree on 39K, and identified 45K candidates their filter missed. Full methodology.</p>
+      </article>
+
+      <article class="card reveal" data-d="2">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <h3 class="lime" style="font-size:20px">Why training on Trusta's labels is a trap</h3>
+          <span class="badge b-soon">COMING SOON</span>
+        </div>
+        <p class="mt-4">Every public Sybil list is itself an output of a detector. If you train on those, you inherit their false positives. Our tiered confidence system fixes this.</p>
+      </article>
+
+      <article class="card reveal" data-d="3">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <h3 class="lime" style="font-size:20px">Designing the appeals protocol</h3>
+          <span class="badge b-soon">COMING SOON</span>
+        </div>
+        <p class="mt-4">After LayerZero published their Sybil list, thousands of users complained. We built the appeal flow into the product from day one — here's the spec.</p>
+      </article>
+
+      <article class="card reveal" data-d="4">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:16px;flex-wrap:wrap">
+          <h3 class="lime" style="font-size:20px">Cross-chain identity at scale — bridge events as ground truth</h3>
+          <span class="badge b-soon">COMING SOON</span>
+        </div>
+        <p class="mt-4">Stargate, Hop, Across, LayerZero OFTs: each emits structured events that deterministically link an EOA on one chain to an EOA on another. We use these as our cross-chain identity backbone.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="privacy">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// legal</p>
+    <h1>// PRIVACY</h1>
+    <p class="lead">What we collect, why, how long we keep it, and how to get it deleted. Plain English.</p>
+    <p class="mono dim mt-4" style="font-size:11px">// last updated 2026-05-24 · effective immediately upon revision</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:880px">
+
+    <h4 class="reveal">// 01 · who_we_are</h4>
+    <p class="reveal mt-4">SybilShield is an open-source Sybil-detection platform operated as an indie-developer project pre-incorporation. When we incorporate (planned Q4 2026), this notice will be updated with the legal entity name and address.</p>
+
+    <h4 class="reveal mt-12" data-d="1">// 02 · what_we_collect</h4>
+    <div class="grid-2 mt-6">
+      <div class="card reveal" data-d="1"><h3 class="lime">FROM CUSTOMERS</h3><p class="mt-2">Email · optional name / company · IP of registration · API call logs (timestamp, endpoint, status). Used for billing, abuse prevention, and account recovery.</p></div>
+      <div class="card reveal" data-d="2"><h3 class="lime">FROM ANALYSES</h3><p class="mt-2">Wallet addresses you submit. They're public on-chain data, but treated as your confidential input — we do not republish them outside aggregate stats.</p></div>
+      <div class="card reveal" data-d="3"><h3 class="lime">FROM APPEALS</h3><p class="mt-2">Wallet address, reason text, optional contact email. Used to review the flag; never republished with personally identifying details.</p></div>
+      <div class="card reveal" data-d="4"><h3 class="lime">PASSIVELY</h3><p class="mt-2">Standard server access logs (IP, user-agent). Retained 30 days for security debugging, then aggregated and discarded.</p></div>
+    </div>
+
+    <h4 class="reveal mt-12">// 03 · what_we_DONT_collect</h4>
+    <ul class="reveal mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px">
+      <li class="muted">› Wallet private keys · we never ask for them, period</li>
+      <li class="muted">› Browser fingerprints · no canvas/audio/font tracking</li>
+      <li class="muted">› Third-party tracking pixels · no Facebook/Google retargeting</li>
+      <li class="muted">› Cookies beyond strictly-necessary session ones</li>
+    </ul>
+
+    <h4 class="reveal mt-12">// 04 · how_long_we_keep</h4>
+    <div class="grid-3 mt-6">
+      <div class="card"><h3 class="lime">ACTIVE ACCOUNT</h3><p class="mt-2">Until you delete · or 2 years of inactivity</p></div>
+      <div class="card"><h3 class="lime">ANALYSIS RESULTS</h3><p class="mt-2">90 days by default · longer on paid plans · purged on request</p></div>
+      <div class="card"><h3 class="lime">AUDIT LOG</h3><p class="mt-2">7 years (legal-defense requirement) · anonymised after account deletion</p></div>
+    </div>
+
+    <h4 class="reveal mt-12">// 05 · who_sees_what</h4>
+    <ul class="reveal mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px">
+      <li class="muted">› <span class="lime">You</span> see everything about your account, analyses, and the addresses you submitted</li>
+      <li class="muted">› <span class="lime">Other customers</span> never see your data — period</li>
+      <li class="muted">› <span class="lime">SybilShield ops</span> have admin access for incident response only · access is logged</li>
+      <li class="muted">› <span class="lime">Reviewers</span> see appeal submissions for analyses they're assigned · names redacted</li>
+      <li class="muted">› <span class="lime">Public</span> sees only aggregate statistics published in blog posts (no individual addresses)</li>
+    </ul>
+
+    <h4 class="reveal mt-12">// 06 · your_rights</h4>
+    <p class="reveal mt-4">You can: download all your data, correct mistakes, delete your account (which deletes or anonymises everything we have about you), object to specific uses, and complain to a data-protection authority.</p>
+    <p class="reveal mt-4">To exercise: email <a class="lime" href="mailto:privacy@sybilshield.com">privacy@sybilshield.com</a>. We respond within 30 days.</p>
+
+    <h4 class="reveal mt-12">// 07 · subprocessors</h4>
+    <p class="reveal mt-4">Service providers who process data on our behalf:</p>
+    <ul class="reveal mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px">
+      <li class="muted">› <span class="lime">Hosting</span> — Railway / Vercel / Supabase / Upstash (will be confirmed at production launch)</li>
+      <li class="muted">› <span class="lime">On-chain data</span> — Alchemy (for tx ingestion) · PublicNode RPC (for derive scripts)</li>
+      <li class="muted">› <span class="lime">Email</span> — provider TBD at production launch</li>
+      <li class="muted">› <span class="lime">Payments</span> — NowPayments (crypto) · Stripe (cards, post-incorporation)</li>
+    </ul>
+
+    <h4 class="reveal mt-12">// 08 · changes</h4>
+    <p class="reveal mt-4">We'll announce material changes here at least 14 days before they take effect. Email all customers if changes are material.</p>
+
+    <p class="reveal mt-12 dim" style="font-size:12px">Questions? <a class="lime" href="mailto:privacy@sybilshield.com">privacy@sybilshield.com</a></p>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeFi protocol — farm catch · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="customers">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <a class="mono dim" href="customers.html" style="font-size:11px">← all customers</a>
+    <p class="eyebrow mt-4">// defi · farming</p>
+    <h1>// DEFI PROTOCOL — FARM CATCH</h1>
+    <p class="lead">Real-time scoring on every LP deposit. A 380-wallet coordinator was caught accumulating positions across 90 days; $1.8M of reward payout prevented.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:880px">
+    <div class="grid-4">
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Deposits scored</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">847,000</div></div>
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Farm wallets caught</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">380</div></div>
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">Reward saved</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">$1.8M</div></div>
+      <div class="card"><div class="dim mono" style="font-size:11px;text-transform:uppercase;letter-spacing:.15em">False positives</div><div class="lime mono mt-2" style="font-size:22px;font-weight:700">0.4%</div></div>
+    </div>
+
+    <h2 class="mt-12">// context</h2>
+    <p class="mt-4">A yield-farming protocol with per-wallet reward caps was bleeding rewards to a coordinator splitting capital across hundreds of fresh wallets.</p>
+
+    <h2 class="mt-12">// method</h2>
+    <p class="mt-4">The /v1/score endpoint was wired into the deposit webhook. Any wallet scoring ≥70 had its reward escrowed pending review.</p>
+
+    <h2 class="mt-12">// outcome</h2>
+    <p class="mt-4">Funding-source clustering attributed 380 wallets to a single funder. The escrowed rewards were redistributed to legitimate LPs after a 14-day appeal window.</p>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

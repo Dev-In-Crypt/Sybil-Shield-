@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /_partials.js
+Disallow: /_chooser.html
+
+Sitemap: https://sybilshield.com/sitemap.xml

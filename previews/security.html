@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Security · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="security">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// trust.md</p>
+    <h1>// SECURITY</h1>
+    <p class="lead">How we secure data, secrets, and the appeal trail.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// data_classification</h4>
+    <div class="grid-2 mt-6">
+      <div class="card reveal" data-d="1"><h3 class="lime">WALLET_ADDRESSES</h3><p class="mt-2">Public on-chain data. We process but never re-publish individual addresses outside aggregate stats.</p></div>
+      <div class="card reveal" data-d="2"><h3 class="lime">EMAIL + KEY_HASH</h3><p class="mt-2">SHA256-hashed in DB. Plaintext keys shown ONCE at creation.</p></div>
+      <div class="card reveal" data-d="3"><h3 class="lime">EVIDENCE + CLUSTERS</h3><p class="mt-2">Visible only to the customer who created the analysis. Aggregates may appear in public retros.</p></div>
+      <div class="card reveal" data-d="4"><h3 class="lime">APPEAL_SUBMISSIONS</h3><p class="mt-2">Visible to analysis owner + reviewer. Submitter contact email never published.</p></div>
+      <div class="card reveal" data-d="5"><h3 class="lime">WEBHOOKS</h3><p class="mt-2">Payloads signed with HMAC-SHA256 against the customer's webhook_secret. Verify before processing.</p></div>
+      <div class="card reveal" data-d="6"><h3 class="lime">AUDIT_LOG</h3><p class="mt-2">Append-only. No admin can edit prior entries. Schema captures actor, prior/new score, evidence snapshot.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// api_key_handling</h4>
+    <ul class="mt-6 reveal" style="list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px">
+      <li class="muted">› Format: <span class="code">sk_live_&lt;32 base64url chars&gt;</span></li>
+      <li class="muted">› SHA256-hashed in DB. Plaintext shown once at creation/rotation.</li>
+      <li class="muted">› Constant-time comparison on every request (timingSafeEqual).</li>
+      <li class="muted">› Rotate at <a class="lime" href="dashboard.html">/dashboard/api-keys</a> — old key revoked immediately.</li>
+    </ul>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// webhook_signature</h4>
+    <div class="card reveal mt-6">
+      <p>On <span class="code">analysis.completed</span> we POST to your URL with header <span class="code">x-sybilshield-signature: sha256=&lt;hex&gt;</span>. Recompute the HMAC over the raw request body and compare with constant-time equality. Reject mismatches.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// audit_log_format</h4>
+    <p class="reveal mt-4 muted">Every flagged event (score ≥ 40), every appeal, every review, every reversal is written. Rows are append-only. Schema captures:</p>
+    <ul class="mt-6 reveal" data-d="1" style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px">
+      <li class="muted">› <span class="lime">actor</span> — system:model:vX | customer:&lt;uuid&gt; | public:anonymous</li>
+      <li class="muted">› <span class="lime">timestamp</span> · <span class="lime">prior_score</span> · <span class="lime">new_score</span></li>
+      <li class="muted">› <span class="lime">evidence_snapshot</span> — JSON, frozen at event time</li>
+      <li class="muted">› <span class="lime">reason</span> — free text</li>
+    </ul>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// vulnerability_disclosure</h4>
+    <div class="card reveal mt-6" style="border-color:rgba(192,255,0,.3)">
+      <p>Email <a class="lime" href="mailto:security@sybilshield.com">security@sybilshield.com</a> with a description and reproduction.</p>
+      <ul class="mt-4" style="list-style:none;display:flex;flex-direction:column;gap:8px;font-size:14px">
+        <li class="muted">› Acknowledge within 48 hours</li>
+        <li class="muted">› Patch critical issues within 7 days</li>
+        <li class="muted">› Public-credit you in the disclosure if you wish</li>
+        <li class="muted">› No legal action against good-faith research</li>
+      </ul>
+      <p class="mt-4 dim" style="font-size:12px">// Bug bounty launches with the first hosted production deployment.</p>
+    </div>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <h4 class="reveal">// op_sec_current_state</h4>
+    <p class="reveal mt-4 dim" style="font-size:13px">// Honest about where we are pre-incorporation.</p>
+    <ul class="mt-6 reveal" data-d="1" style="list-style:none;display:flex;flex-direction:column;gap:10px;font-size:14px">
+      <li class="muted">› Code is open-source (MIT) — no secret algorithms to leak</li>
+      <li class="muted">› Secrets live in <span class="code">.env</span>, never committed</li>
+      <li class="muted">› Pre-incorporation: no formal SOC 2 / ISO 27001. Will pursue after revenue.</li>
+      <li class="muted">› Hosted production not yet deployed — sandbox mode on free-tier infra</li>
+    </ul>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

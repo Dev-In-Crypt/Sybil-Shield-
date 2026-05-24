@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Changelog · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+<style>
+  .entry{border-left:1px solid var(--border);padding:0 0 32px 24px;position:relative}
+  .entry:before{content:"";position:absolute;left:-5px;top:6px;width:10px;height:10px;background:var(--lime);border-radius:50%}
+  .entry .date{font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.2em;color:var(--dim)}
+  .entry h3{margin-top:4px}
+  .tag{display:inline-block;padding:2px 8px;background:#0a0a0a;border:1px solid var(--border);font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.1em;margin-right:6px}
+  .tag.added{color:var(--lime);border-color:var(--lime)}
+  .tag.changed{color:#3b82f6;border-color:#3b82f6}
+  .tag.fixed{color:var(--amber);border-color:var(--amber)}
+  .tag.removed{color:var(--rose);border-color:var(--rose)}
+</style>
+</head>
+<body data-page="changelog">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// release notes</p>
+    <h1>// CHANGELOG</h1>
+    <p class="lead"><a class="lime" href="https://keepachangelog.com">Keep a Changelog</a> format. Subscribe to releases via <a class="lime" href="https://github.com/sybilshield/sybilshield/releases.atom">RSS</a>.</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap" style="max-width:880px">
+
+    <h2>// 2026-05</h2>
+    <div class="entry mt-6">
+      <p class="date">2026-05-24 · v0.4.0</p>
+      <h3 class="lime">site_structure_expansion</h3>
+      <p class="mt-2"><span class="tag added">added</span>14 new public pages: compare, lookup, pricing-calculator, quickstart, api-playground, trust, sub-processors, customers, changelog, 4 product use-case pages.</p>
+      <p class="mt-2"><span class="tag added">added</span>Dashboard depth: notifications inbox, webhook deliveries log, team invites with roles, watchlist with daily re-scoring.</p>
+      <p class="mt-2"><span class="tag added">added</span>5 new backend tables (notifications, webhook_deliveries, team_members, invites, watchlist) + matching REST endpoints.</p>
+    </div>
+
+    <div class="entry">
+      <p class="date">2026-05-22 · v0.3.2</p>
+      <h3 class="lime">crypto_checkout + production_deploy</h3>
+      <p class="mt-2"><span class="tag added">added</span>NowPayments integration for BTC/ETH/USDC checkout on growth/scale plans.</p>
+      <p class="mt-2"><span class="tag added">added</span>Production deploy configs: Vercel (web) + Railway (api+worker) + Supabase (db) + Upstash (redis).</p>
+      <p class="mt-2"><span class="tag fixed">fixed</span>Alchemy provider switch from MockProvider when <code class="code">ALCHEMY_API_KEY</code> is set.</p>
+    </div>
+
+    <div class="entry">
+      <p class="date">2026-05-19 · v0.3.1</p>
+      <h3 class="lime">seo + legal_pages</h3>
+      <p class="mt-2"><span class="tag added">added</span>Favicon, OG tags, sitemap.xml, robots.txt, custom 404.</p>
+      <p class="mt-2"><span class="tag added">added</span>Privacy notice, Terms of service, Cookie policy.</p>
+      <p class="mt-2"><span class="tag added">added</span>First retro-analysis blog post: Linea airdrop methodology.</p>
+    </div>
+
+    <h2 class="mt-12">// 2026-05 (earlier)</h2>
+    <div class="entry mt-6">
+      <p class="date">2026-05-16 · v0.3.0</p>
+      <h3 class="lime">genesis_design + dashboard_polish</h3>
+      <p class="mt-2"><span class="tag changed">changed</span>Site-wide visual refresh: black + neon lime/purple Genesis palette. Space Grotesk + JetBrains Mono.</p>
+      <p class="mt-2"><span class="tag added">added</span>Dashboard subpages: analyses, api-keys, billing, plus single-analysis detail view.</p>
+      <p class="mt-2"><span class="tag added">added</span>Mobile hamburger menu, sandbox banner, footer reorg.</p>
+    </div>
+
+    <div class="entry">
+      <p class="date">2026-05-12 · v0.2.0</p>
+      <h3 class="lime">audit_log + retrain_orchestrator</h3>
+      <p class="mt-2"><span class="tag added">added</span>Audit log writes on every flagged score and feedback verdict (legal defensibility).</p>
+      <p class="mt-2"><span class="tag added">added</span>Retraining cron orchestrator (PSI + adversarial recall triggers).</p>
+      <p class="mt-2"><span class="tag added">added</span>derive_ens_veterans + derive_power_users scripts for G1/G2 labels.</p>
+    </div>
+
+    <div class="entry">
+      <p class="date">2026-05-09 · v0.1.0</p>
+      <h3 class="lime">first_green_build</h3>
+      <p class="mt-2"><span class="tag added">added</span>Dockerized test suites (API vitest + ML pytest). Both green.</p>
+      <p class="mt-2"><span class="tag fixed">fixed</span>fastify-raw-body version pin for Stripe webhook signature verification.</p>
+      <p class="mt-2"><span class="tag fixed">fixed</span>Multi-chain analyses now persist per-score chain (no longer hardcoded).</p>
+    </div>
+
+    <h2 class="mt-12">// 2026-04</h2>
+    <div class="entry mt-6">
+      <p class="date">2026-04-30 · v0.0.1</p>
+      <h3 class="lime">initial_release</h3>
+      <p class="mt-2"><span class="tag added">added</span>Monorepo scaffold, Drizzle schema, six detection methods, ML model + adversarial loop, REST API + worker pipeline.</p>
+      <p class="mt-2"><span class="tag added">added</span>Public appeal endpoint with 48h SLA.</p>
+    </div>
+
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

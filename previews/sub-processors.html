@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sub-processors · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="sub-processors">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// legal</p>
+    <h1>// SUB-PROCESSORS</h1>
+    <p class="lead">The third-party services we use to operate SybilShield. Each is bound by a written DPA. Customers may subscribe to <a class="lime" href="mailto:legal@sybilshield.com">change notifications</a> (30-day advance notice).</p>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="tablewrap mt-8">
+      <table>
+        <thead><tr><th>vendor</th><th>purpose</th><th>data</th><th>region</th><th>dpa</th></tr></thead>
+        <tbody>
+          <tr><td class="k lime">Vercel</td><td>Frontend hosting (Next.js)</td><td>HTTP logs, IP</td><td>USA · global edge</td><td><a class="lime" href="https://vercel.com/legal/dpa">DPA</a></td></tr>
+          <tr><td class="k lime">Railway</td><td>API + worker hosting</td><td>App data, logs</td><td>USA (us-west-2)</td><td><a class="lime" href="https://railway.com/legal/dpa">DPA</a></td></tr>
+          <tr><td class="k lime">Supabase</td><td>Managed Postgres (primary DB)</td><td>All customer records</td><td>EU (Frankfurt)</td><td><a class="lime" href="https://supabase.com/legal/dpa">DPA</a></td></tr>
+          <tr><td class="k lime">Upstash</td><td>Managed Redis (queue + cache)</td><td>Job payloads</td><td>EU (Frankfurt)</td><td><a class="lime" href="https://upstash.com/dpa">DPA</a></td></tr>
+          <tr><td class="k lime">Cloudflare</td><td>CDN, DNS, DDoS, WAF</td><td>Request metadata</td><td>Global edge</td><td><a class="lime" href="https://www.cloudflare.com/cloudflare-customer-dpa/">DPA</a></td></tr>
+          <tr><td class="k lime">Alchemy</td><td>Ethereum / L2 RPC provider</td><td>Public on-chain queries</td><td>USA</td><td><a class="lime" href="https://www.alchemy.com/policies/dpa">DPA</a></td></tr>
+          <tr><td class="k lime">Stripe</td><td>Card payments (USD)</td><td>Billing email, last4</td><td>USA + global</td><td><a class="lime" href="https://stripe.com/legal/dpa">DPA</a></td></tr>
+          <tr><td class="k lime">NowPayments</td><td>Crypto checkout (BTC/ETH/USDC)</td><td>Wallet addr, invoice</td><td>EU (Netherlands)</td><td><a class="lime" href="https://nowpayments.io/legal">Terms</a></td></tr>
+          <tr><td class="k lime">Postmark</td><td>Transactional email</td><td>Email addr, subject</td><td>USA</td><td><a class="lime" href="https://postmarkapp.com/eu-privacy">DPA</a></td></tr>
+          <tr><td class="k lime">GitGuardian</td><td>Secret leak scanning</td><td>Public repo content</td><td>EU (France)</td><td><a class="lime" href="https://www.gitguardian.com/legal">Terms</a></td></tr>
+          <tr><td class="k lime">PostHog</td><td>Product analytics (self-host EU)</td><td>Pseudonymous events</td><td>EU (Germany)</td><td><a class="lime" href="https://posthog.com/dpa">DPA</a></td></tr>
+          <tr><td class="k lime">Sentry</td><td>Error tracking</td><td>Stack traces, user_id hash</td><td>USA (EU on roadmap)</td><td><a class="lime" href="https://sentry.io/legal/dpa/">DPA</a></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h2 class="mt-12">// notification_subscription</h2>
+    <p class="mt-4">Email <a class="lime" href="mailto:legal@sybilshield.com">legal@sybilshield.com</a> with subject line "Subscribe sub-processors" to receive 30-day advance notice of any addition or replacement. You may object before the change takes effect.</p>
+
+    <h2 class="mt-12">// data_residency_summary</h2>
+    <div class="grid-3 mt-6">
+      <div class="card"><h3 class="lime">PRIMARY</h3><p class="mt-2">Customer records (analyses, scores, audit log) — EU (Frankfurt). Supabase + Upstash.</p></div>
+      <div class="card"><h3 class="lime">EDGE</h3><p class="mt-2">Static assets + DNS — global edge via Cloudflare + Vercel. No customer PII.</p></div>
+      <div class="card"><h3 class="lime">BILLING</h3><p class="mt-2">Card data — Stripe (USA, PCI-DSS L1). Crypto — NowPayments (EU). We never store card numbers.</p></div>
+    </div>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>

@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Mainnet airdrop Q3 · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+<style>
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:rgba(255,255,255,.05);margin-top:24px}
+  .sum-card{background:#000;padding:24px}
+  .sum-card .lbl{font-family:'JetBrains Mono',monospace;font-size:10px;text-transform:uppercase;letter-spacing:.2em;color:var(--dim)}
+  .sum-card .val{font-family:'JetBrains Mono',monospace;font-size:32px;font-weight:700;margin-top:8px}
+  .sum-card .pct{font-size:12px;color:var(--muted);margin-top:4px}
+  .sum-card.sybil .val{color:var(--rose)}
+  .sum-card.susp .val{color:var(--amber)}
+  .sum-card.gen .val{color:var(--lime)}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin:24px 0 16px;align-items:center}
+  .chip{padding:4px 12px;font-family:'JetBrains Mono',monospace;font-size:11px;text-transform:uppercase;letter-spacing:.15em;background:#0a0a0a;border:1px solid var(--border);color:var(--muted);cursor:pointer;transition:all .15s}
+  .chip:hover{border-color:var(--lime);color:var(--lime)}
+  .chip.on{background:var(--lime);color:#000;border-color:var(--lime)}
+  .chip.r{border-color:rgba(244,63,94,.4);color:var(--rose)}
+  .chip.r.on{background:var(--rose);color:#000;border-color:var(--rose)}
+  .chip.a{border-color:rgba(245,158,11,.4);color:var(--amber)}
+  .chip.a.on{background:var(--amber);color:#000;border-color:var(--amber)}
+  .search{flex:1;min-width:200px;background:#0a0a0a;border:1px solid var(--border);color:#fff;padding:8px 12px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .search:focus{outline:none;border-color:var(--lime)}
+  .ev-btn{background:transparent;border:none;color:var(--lime);font-family:'JetBrains Mono',monospace;font-size:12px;text-transform:uppercase;letter-spacing:.15em;cursor:pointer;padding:0}
+  .ev-btn:hover{text-decoration:underline}
+  /* drawer */
+  .drawer-bg{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(4px);z-index:60;display:none;opacity:0;transition:opacity .2s}
+  .drawer-bg.open{display:flex;opacity:1;justify-content:flex-end}
+  .drawer{width:100%;max-width:520px;background:#0a0a0a;border-left:1px solid var(--lime);height:100vh;overflow-y:auto;padding:24px;transform:translateX(20px);transition:transform .25s}
+  .drawer-bg.open .drawer{transform:translateX(0)}
+  .drawer .close{background:transparent;border:1px solid var(--border);color:var(--dim);width:32px;height:32px;cursor:pointer;font-family:'JetBrains Mono',monospace}
+  .drawer .close:hover{border-color:var(--lime);color:var(--lime)}
+  .ev-item{border-left:2px solid var(--lime);background:rgba(255,255,255,.02);padding:12px 16px;margin-top:8px;font-family:'JetBrains Mono',monospace;font-size:12px}
+  .ev-item .t{color:var(--lime)}
+  .ev-item .d{margin-top:6px;color:var(--muted);font-family:'Space Grotesk',sans-serif;font-size:13px;line-height:1.5}
+  .ev-bar{margin-top:8px;height:2px;background:rgba(255,255,255,.1);position:relative}
+  .ev-bar i{display:block;height:100%;background:var(--lime);box-shadow:0 0 6px var(--lime)}
+</style>
+</head>
+<body data-page="dashboard">
+
+<div class="wrap-grid dash-grid">
+  <aside class="dash-side">
+    <a href="dashboard.html">overview</a>
+    <a href="analyses.html" class="active">analyses</a>
+    <a href="new.html">new <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+    <a href="api-keys.html">api keys</a>
+    <a href="billing.html">billing <span class="badge b-beta" style="font-size:8px;padding:1px 6px">BETA</span></a>
+    <a href="settings.html">settings <span class="badge b-road" style="font-size:8px;padding:1px 6px">SOON</span></a>
+  </aside>
+
+  <section>
+    <a href="analyses.html" class="mono dim" style="font-size:12px;text-transform:uppercase;letter-spacing:.15em">← all analyses</a>
+    <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:16px;margin-top:8px">
+      <h1>Mainnet airdrop Q3</h1>
+      <span class="badge b-live">COMPLETE</span>
+    </div>
+    <p class="mono dim mt-2" style="font-size:12px">// id: an_8f3a…12cd · chains: eth, arb · 150,000 addresses · created 2026-05-22 · processed in 47 min</p>
+
+    <div class="summary">
+      <div class="sum-card gen"><div class="lbl">// genuine</div><div class="val">89,000</div><div class="pct">59.3%</div></div>
+      <div class="sum-card susp"><div class="lbl">// suspicious</div><div class="val">18,700</div><div class="pct">12.5%</div></div>
+      <div class="sum-card sybil"><div class="lbl">// sybil</div><div class="val">42,300</div><div class="pct">28.2%</div></div>
+      <div class="sum-card"><div class="lbl">// clusters</div><div class="val lime">1,247</div><div class="pct">largest: 312 addrs</div></div>
+      <div class="sum-card"><div class="lbl">// model</div><div class="val" style="font-size:14px;color:var(--lime);margin-top:14px">v0.2.0-20260521</div><div class="pct">tier-weighted T1+G1 holdout</div></div>
+    </div>
+
+    <div class="mt-8" style="display:flex;flex-wrap:wrap;gap:8px">
+      <a class="btn" href="#" onclick="event.preventDefault();alert('Demo: would download CSV')">+ export csv</a>
+      <a class="btn btn-ghost" href="#" onclick="event.preventDefault();alert('Demo: would open cluster viz')">view clusters</a>
+      <a class="btn btn-ghost" href="#" onclick="event.preventDefault();alert('Demo: would open webhook log')">webhook log</a>
+    </div>
+
+    <h4 class="mt-12">// per_address_scores</h4>
+    <div class="filters">
+      <input class="search" placeholder="// search address...">
+      <span class="chip on">all <span style="opacity:.6">150K</span></span>
+      <span class="chip r">sybil <span style="opacity:.6">42.3K</span></span>
+      <span class="chip a">suspicious <span style="opacity:.6">18.7K</span></span>
+      <span class="chip">genuine <span style="opacity:.6">89K</span></span>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>address</th><th>chain</th><th>score</th><th>label</th><th>cluster</th><th>cluster size</th><th>confidence</th><th>evidence</th></tr></thead>
+        <tbody>
+          <tr><td class="k mono">0xA12b…c4d7</td><td>eth</td><td class="em" style="color:var(--rose)">87</td><td><span class="badge b-live" style="background:rgba(244,63,94,.15);border-color:rgba(244,63,94,.4);color:var(--rose)">SYBIL</span></td><td class="lime mono">F-a8b2c1d4</td><td>47</td><td class="dim">0.93</td><td><button class="ev-btn" data-id="1">view (3) →</button></td></tr>
+          <tr><td class="k mono">0xB34e…772a</td><td>eth</td><td class="em" style="color:var(--rose)">85</td><td><span class="badge b-live" style="background:rgba(244,63,94,.15);border-color:rgba(244,63,94,.4);color:var(--rose)">SYBIL</span></td><td class="lime mono">F-a8b2c1d4</td><td>47</td><td class="dim">0.91</td><td><button class="ev-btn" data-id="2">view (3) →</button></td></tr>
+          <tr><td class="k mono">0xC56d…3a01</td><td>arb</td><td class="em" style="color:var(--rose)">82</td><td><span class="badge b-live" style="background:rgba(244,63,94,.15);border-color:rgba(244,63,94,.4);color:var(--rose)">SYBIL</span></td><td class="lime mono">G-17</td><td>21</td><td class="dim">0.88</td><td><button class="ev-btn" data-id="3">view (2) →</button></td></tr>
+          <tr><td class="k mono">0xD78a…b421</td><td>eth</td><td class="em" style="color:var(--amber)">62</td><td><span class="badge b-beta">SUSPECT</span></td><td class="lime mono">B-31</td><td>8</td><td class="dim">0.68</td><td><button class="ev-btn" data-id="4">view (2) →</button></td></tr>
+          <tr><td class="k mono">0xE91c…dd34</td><td>arb</td><td class="em" style="color:var(--amber)">54</td><td><span class="badge b-beta">SUSPECT</span></td><td class="lime mono">B-31</td><td>8</td><td class="dim">0.62</td><td><button class="ev-btn" data-id="5">view (1) →</button></td></tr>
+          <tr><td class="k mono">0xF03b…7900</td><td>eth</td><td class="em" style="color:var(--lime)">18</td><td><span class="badge b-live">GENUINE</span></td><td class="dim">—</td><td>—</td><td class="dim">0.22</td><td class="dim">—</td></tr>
+          <tr><td class="k mono">0x102a…cc11</td><td>eth</td><td class="em" style="color:var(--lime)">12</td><td><span class="badge b-live">GENUINE</span></td><td class="dim">—</td><td>—</td><td class="dim">0.15</td><td class="dim">—</td></tr>
+          <tr><td class="k mono">0x2a44…81fd</td><td>arb</td><td class="em" style="color:var(--lime)">8</td><td><span class="badge b-live">GENUINE</span></td><td class="dim">—</td><td>—</td><td class="dim">0.10</td><td class="dim">—</td></tr>
+          <tr><td class="k mono">0x3b71…ffe2</td><td>eth</td><td class="em" style="color:var(--lime)">5</td><td><span class="badge b-live">GENUINE</span></td><td class="dim">—</td><td>—</td><td class="dim">0.06</td><td class="dim">—</td></tr>
+          <tr><td class="k mono">0x4c99…aae0</td><td>eth</td><td class="em" style="color:var(--lime)">3</td><td><span class="badge b-live">GENUINE</span></td><td class="dim">—</td><td>—</td><td class="dim">0.04</td><td class="dim">—</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="dim mt-6 mono" style="font-size:11px">// showing 10 of 150,000 · paginate via API · use chip filters above</p>
+  </section>
+</div>
+
+<!-- evidence drawer -->
+<div class="drawer-bg" id="drawer">
+  <div class="drawer">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div>
+        <div class="mono dim" style="font-size:10px;text-transform:uppercase;letter-spacing:.2em">// evidence</div>
+        <div class="mono" id="d-addr" style="font-size:13px;margin-top:4px">—</div>
+      </div>
+      <button class="close" onclick="closeDrawer()">×</button>
+    </div>
+    <div style="display:flex;align-items:baseline;gap:12px;margin-top:24px">
+      <div class="mono" id="d-score" style="font-size:64px;font-weight:700;color:var(--rose);text-shadow:0 0 20px rgba(244,63,94,.3)">87</div>
+      <div class="dim">/ 100</div>
+    </div>
+    <div class="mt-2"><span class="badge b-live" id="d-label" style="background:rgba(244,63,94,.15);border-color:rgba(244,63,94,.4);color:var(--rose)">SYBIL</span></div>
+
+    <div id="d-items" class="mt-6"></div>
+
+    <div class="mt-8" style="padding-top:16px;border-top:1px solid var(--border);font-size:12px;color:var(--dim)">
+      <p>This address can be appealed at <a class="lime" href="appeal.html">/appeal</a>. 48h response policy. Immutable audit log.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const EVIDENCE = {
+    "1": {addr:"0xA12b…c4d7",score:87,label:"SYBIL",items:[
+      {t:"[shared_funding]",d:"Funded by 0xABC…123 which also funded 46 other addresses within 1.0h",c:.95},
+      {t:"[behavioral_clone]",d:"Tx pattern matches cluster B-17 with 94% similarity",c:.89},
+      {t:"[low_entropy]",d:"Hour-of-day entropy 0.82 << human baseline (>2.5)",c:.70},
+    ]},
+    "2": {addr:"0xB34e…772a",score:85,label:"SYBIL",items:[
+      {t:"[shared_funding]",d:"Same funder as cluster F-a8b2c1d4",c:.95},
+      {t:"[behavioral_clone]",d:"94% sequence similarity with 46 other wallets",c:.88},
+      {t:"[bridge_correlation]",d:"Bridged to Arbitrum in same 30-min window as 41 others",c:.82},
+    ]},
+    "3": {addr:"0xC56d…3a01",score:82,label:"SYBIL",items:[
+      {t:"[graph_cluster]",d:"Part of 21-node dense transaction community (density 0.78)",c:.88},
+      {t:"[low_entropy]",d:"Tx interval autocorrelation 0.91 — strongly mechanical",c:.74},
+    ]},
+    "4": {addr:"0xD78a…b421",score:62,label:"SUSPECT",items:[
+      {t:"[behavioral_clone]",d:"68% pattern similarity with cluster B-31 (8 wallets)",c:.62},
+      {t:"[shared_funding_weak]",d:"Funded from same address as 7 others, but 11-day spread",c:.55},
+    ]},
+    "5": {addr:"0xE91c…dd34",score:54,label:"SUSPECT",items:[
+      {t:"[behavioral_clone]",d:"61% pattern similarity with cluster B-31",c:.58},
+    ]},
+  };
+  document.querySelectorAll('.ev-btn').forEach(b=>b.addEventListener('click',()=>{
+    const id=b.dataset.id; const e=EVIDENCE[id]; if(!e)return;
+    document.getElementById('d-addr').textContent=e.addr;
+    document.getElementById('d-score').textContent=e.score;
+    const lbl=document.getElementById('d-label'); lbl.textContent=e.label;
+    if(e.label==='SUSPECT'){lbl.style.background='rgba(245,158,11,.15)';lbl.style.borderColor='rgba(245,158,11,.4)';lbl.style.color='var(--amber)';document.getElementById('d-score').style.color='var(--amber)'}
+    else{lbl.style.background='rgba(244,63,94,.15)';lbl.style.borderColor='rgba(244,63,94,.4)';lbl.style.color='var(--rose)';document.getElementById('d-score').style.color='var(--rose)'}
+    document.getElementById('d-items').innerHTML=e.items.map(i=>`<div class="ev-item"><div class="t">${i.t}</div><div class="d">${i.d}</div><div class="ev-bar"><i style="width:${i.c*100}%"></i></div></div>`).join('');
+    document.getElementById('drawer').classList.add('open');
+  }));
+  function closeDrawer(){document.getElementById('drawer').classList.remove('open')}
+  document.getElementById('drawer').addEventListener('click',e=>{if(e.target.id==='drawer')closeDrawer()});
+</script>
+<script src="_partials.js"></script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DeFi Farming · SybilShield</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="genesis.css">
+</head>
+<body data-page="product">
+
+<header class="page-head">
+  <div class="wrap reveal">
+    <p class="eyebrow">// for defi protocols</p>
+    <h1>// STOP BLEEDING REWARDS</h1>
+    <p class="lead">Score every deposit, swap, or LP add in real time. Webhook fires when a wallet scores ≥70 — escrow the reward, hold for review, save 3-15% of your incentive budget.</p>
+    <div class="mt-8" style="display:flex;gap:8px;flex-wrap:wrap">
+      <a class="btn btn-l" href="dashboard.html">START FREE</a>
+      <a class="btn-dis" style="display:inline-flex;padding:12px 24px" href="api-playground.html">try /v1/score</a>
+    </div>
+  </div>
+</header>
+
+<section class="sec">
+  <div class="wrap">
+    <h2>// problem</h2>
+    <div class="grid-4 mt-8">
+      <div class="card"><div class="lime mono" style="font-size:32px;font-weight:700">8-15%</div><p class="dim mt-2">of farming rewards typically leak to coordinators</p></div>
+      <div class="card"><div class="lime mono" style="font-size:32px;font-weight:700">&lt;200ms</div><p class="dim mt-2">p95 score latency at /v1/score</p></div>
+      <div class="card"><div class="lime mono" style="font-size:32px;font-weight:700">realtime</div><p class="dim mt-2">webhook on every deposit if you want it</p></div>
+      <div class="card"><div class="lime mono" style="font-size:32px;font-weight:700">audit</div><p class="dim mt-2">every escrow decision has evidence attached</p></div>
+    </div>
+
+    <h2 class="mt-12">// which_methods_matter</h2>
+    <div class="grid-2 mt-6">
+      <div class="card"><h3 class="lime">FUNDING_CLUSTERING</h3><p class="mt-2">Farms split capital from a single funder across 100s of wallets — the canonical pattern, highest yield method.</p></div>
+      <div class="card"><h3 class="lime">BEHAVIORAL_HDBSCAN</h3><p class="mt-2">Wallets executing the same action sequence within milliseconds of each other.</p></div>
+      <div class="card"><h3 class="lime">TEMPORAL_CORRELATION</h3><p class="mt-2">Bot-coordinated deposits across many wallets fire on the same block height.</p></div>
+      <div class="card"><h3 class="lime">ML_ENSEMBLE</h3><p class="mt-2">Combines methods into a single score so your webhook handler does one comparison.</p></div>
+    </div>
+
+    <h2 class="mt-12">// mini_case</h2>
+    <div class="card mt-6">
+      <p class="dim mono" style="font-size:11px">// defi protocol · anon</p>
+      <h3 class="lime mt-2">$1.8M SAVED FROM 380-WALLET FARM</h3>
+      <p class="mt-4">A yield-farming protocol with per-wallet reward caps wired /v1/score into its deposit webhook. Over 90 days we attributed 380 freshly-funded wallets to a single coordinator. Rewards escrowed, redistributed to legitimate LPs after a 14-day appeal window.</p>
+      <a class="mono lime mt-6" href="customers.html" style="font-size:11px;display:inline-block">SEE MORE CASE STUDIES →</a>
+    </div>
+
+    <h2 class="mt-12">// suggested_plan</h2>
+    <div class="card mt-6" style="border-color:var(--lime)">
+      <h3 class="lime">SCALE · $2,500-$15k/mo</h3>
+      <p class="mt-3">Real-time scoring requires the Scale plan: 99.9% SLA, dedicated rate limit pool, priority support.</p>
+      <a class="btn mt-6" href="pricing.html">SEE PRICING →</a>
+    </div>
+  </div>
+</section>
+
+<script src="_partials.js"></script>
+</body>
+</html>
