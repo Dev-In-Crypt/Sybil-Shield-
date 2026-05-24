@@ -100,13 +100,36 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
               <option value="suspicious">Suspicious</option>
               <option value="genuine">Genuine</option>
             </select>
-            <a
+            <button
+              type="button"
               className="rounded bg-zinc-800 px-3 py-2 text-sm hover:bg-zinc-700"
-              href={`${process.env.NEXT_PUBLIC_API_URL}/v1/analyses/${params.id}/results/export`}
-              download
+              onClick={async () => {
+                const key = localStorage.getItem("sybilshield_api_key");
+                if (!key) {
+                  alert("API key missing — log in again on /dashboard.");
+                  return;
+                }
+                const r = await fetch(
+                  `${process.env.NEXT_PUBLIC_API_URL}/v1/analyses/${params.id}/results/export`,
+                  { headers: { Authorization: `Bearer ${key}` } },
+                );
+                if (!r.ok) {
+                  alert(`Export failed: ${r.status} ${await r.text()}`);
+                  return;
+                }
+                const blob = await r.blob();
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `sybilshield-${params.id}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+                URL.revokeObjectURL(url);
+              }}
             >
               Export CSV
-            </a>
+            </button>
           </div>
 
           <table className="mt-4 w-full text-sm">
