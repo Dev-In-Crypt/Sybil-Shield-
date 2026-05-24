@@ -10,7 +10,7 @@
 
 services:
   postgres:
-    ports: !reset []        # drop the host:5432 binding from base
+    ports: !reset          # drop the host:5432 binding from base entirely
     environment:
       POSTGRES_USER: ${POSTGRES_USER:-sybilshield}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
@@ -18,10 +18,11 @@ services:
     restart: unless-stopped
 
   redis:
-    ports: !reset []
+    ports: !reset
     restart: unless-stopped
 
   ml:
+    ports: !reset          # ml is only reachable via docker network (api→ml)
     environment:
       USE_MOCK_PROVIDERS: ${USE_MOCK_PROVIDERS:-true}
       ALCHEMY_API_KEY: ${ALCHEMY_API_KEY:-}
@@ -29,7 +30,7 @@ services:
     restart: unless-stopped
 
   api:
-    ports: !reset
+    ports: !override
       - "127.0.0.1:3001:3001"        # only nginx (localhost) can reach it
     environment:
       DATABASE_URL: postgres://${POSTGRES_USER:-sybilshield}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sybilshield}
