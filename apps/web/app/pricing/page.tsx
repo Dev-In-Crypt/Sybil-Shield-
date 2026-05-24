@@ -231,13 +231,12 @@ function Plan({
           {cta.label}
         </Link>
       ) : (
-        <button
-          disabled
-          className="mt-6 cursor-not-allowed rounded border border-zinc-800 bg-zinc-950 px-4 py-2 text-sm text-zinc-500"
-          title="Available after billing module ships"
+        <a
+          href={`mailto:support@sybilshield.org?subject=${encodeURIComponent(`${name} plan inquiry`)}&body=${encodeURIComponent(`Hi — I'd like to start on the ${name} plan (${price}${suffix}).\n\nUse case:\nMonthly volume:\nPreferred payment (card / crypto / wire):\n\nThanks`)}`}
+          className="mt-6 rounded border border-emerald-700/60 bg-emerald-900/20 px-4 py-2 text-center text-sm font-medium text-emerald-300 hover:bg-emerald-900/40"
         >
-          Notify me
-        </button>
+          Contact sales
+        </a>
       )}
     </div>
   );

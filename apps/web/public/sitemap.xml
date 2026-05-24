@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://sybilshield.org/</loc><priority>1.0</priority></url>
+  <url><loc>https://sybilshield.org/pricing</loc><priority>0.9</priority></url>
+  <url><loc>https://sybilshield.org/pricing/calculator</loc><priority>0.7</priority></url>
+  <url><loc>https://sybilshield.org/methodology</loc><priority>0.8</priority></url>
+  <url><loc>https://sybilshield.org/docs</loc><priority>0.8</priority></url>
+  <url><loc>https://sybilshield.org/docs/quickstart</loc><priority>0.7</priority></url>
+  <url><loc>https://sybilshield.org/docs/api-playground</loc><priority>0.7</priority></url>
+  <url><loc>https://sybilshield.org/compare</loc><priority>0.8</priority></url>
+  <url><loc>https://sybilshield.org/lookup</loc><priority>0.8</priority></url>
+  <url><loc>https://sybilshield.org/trust</loc><priority>0.8</priority></url>
+  <url><loc>https://sybilshield.org/sub-processors</loc><priority>0.5</priority></url>
+  <url><loc>https://sybilshield.org/customers</loc><priority>0.7</priority></url>
+  <url><loc>https://sybilshield.org/customers/linea</loc><priority>0.6</priority></url>
+  <url><loc>https://sybilshield.org/customers/dao-x</loc><priority>0.6</priority></url>
+  <url><loc>https://sybilshield.org/customers/defi-protocol</loc><priority>0.6</priority></url>
+  <url><loc>https://sybilshield.org/changelog</loc><priority>0.5</priority></url>
+  <url><loc>https://sybilshield.org/roadmap</loc><priority>0.7</priority></url>
+  <url><loc>https://sybilshield.org/status</loc><priority>0.6</priority></url>
+  <url><loc>https://sybilshield.org/blog</loc><priority>0.7</priority></url>
+  <url><loc>https://sybilshield.org/blog/linea-retro</loc><priority>0.6</priority></url>
+  <url><loc>https://sybilshield.org/appeal</loc><priority>0.7</priority></url>
+  <url><loc>https://sybilshield.org/about</loc><priority>0.6</priority></url>
+  <url><loc>https://sybilshield.org/security</loc><priority>0.6</priority></url>
+  <url><loc>https://sybilshield.org/privacy</loc><priority>0.5</priority></url>
+  <url><loc>https://sybilshield.org/terms</loc><priority>0.5</priority></url>
+  <url><loc>https://sybilshield.org/cookies</loc><priority>0.4</priority></url>
+  <url><loc>https://sybilshield.org/product/airdrops</loc><priority>0.8</priority></url>
+  <url><loc>https://sybilshield.org/product/governance</loc><priority>0.8</priority></url>
+  <url><loc>https://sybilshield.org/product/defi-farming</loc><priority>0.8</priority></url>
+  <url><loc>https://sybilshield.org/product/dao-treasury</loc><priority>0.8</priority></url>
+</urlset>

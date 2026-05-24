@@ -58,7 +58,7 @@ export default function LookupPage() {
             className="min-w-[280px] flex-1 border border-white/10 bg-zinc-950 px-4 py-3 font-mono text-sm"
           />
           <select value={chain} onChange={(e) => setChain(e.target.value)} className="border border-white/10 bg-zinc-950 px-3 py-3 font-mono text-sm">
-            {["ethereum", "arbitrum", "optimism", "base", "polygon", "bsc", "avalanche", "linea"].map((c) => <option key={c}>{c}</option>)}
+            {["ethereum", "arbitrum", "optimism", "base", "polygon"].map((c) => <option key={c}>{c}</option>)}
           </select>
           <button type="submit" disabled={loading} className="border-2 border-lime-300 bg-lime-300 px-7 py-3 font-mono text-xs font-bold uppercase tracking-[0.15em] text-black hover:bg-transparent hover:text-lime-300">
             {loading ? "scoring..." : "score"}

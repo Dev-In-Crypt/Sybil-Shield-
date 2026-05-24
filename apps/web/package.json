@@ -10,10 +10,12 @@
   },
   "dependencies": {
     "framer-motion": "^11.2.0",
+    "marked": "^12.0.2",
     "next": "^14.2.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
+  "overrides": {},
   "devDependencies": {
     "@types/node": "^20.12.12",
     "@types/react": "^18.3.2",

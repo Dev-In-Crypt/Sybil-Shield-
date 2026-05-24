@@ -5,20 +5,30 @@ import { SiteHeader } from "../../components/SiteHeader";
 
 export const metadata = { title: "Blog · SybilShield" };
 
-const POSTS = [
+type Post = {
+  slug: string;
+  title: string;
+  excerpt: string;
+  date: string;
+  published: boolean;
+};
+
+const POSTS: Post[] = [
+  {
+    slug: "linea-retro",
+    title: "Replicating Linea's filter: 478K agreement, 45K candidates they missed",
+    excerpt:
+      "Public retro-analysis of the Linea airdrop filter results. Aggregate-only. We agree with Linea on 478K addresses, disagree on 39K, and identified 45K candidates their filter missed.",
+    date: "2026-06-15",
+    published: true,
+  },
   {
     slug: "why-30s-is-the-tell",
     title: "Why 30 seconds is the tell: detecting scripted wallets via inter-tx timing",
     excerpt:
       "Real users transact at irregular, human-paced intervals. Sybil farms running shell scripts produce inter-tx gaps with characteristically low variance and high lag-1 autocorrelation. Here's why.",
     date: "Coming soon",
-  },
-  {
-    slug: "linea-retro",
-    title: "Replicating Linea's filter: 478K agreement, 45K candidates they missed",
-    excerpt:
-      "Public retro-analysis of the Linea airdrop filter results. Aggregate-only. We agree with Linea on 478K addresses, disagree on 39K, and identified 45K candidates their filter missed.",
-    date: "Coming soon",
+    published: false,
   },
   {
     slug: "label-tiers",
@@ -26,6 +36,7 @@ const POSTS = [
     excerpt:
       "Every public Sybil list is itself an output of a detector. If you train on those, you inherit their false positives. We use a tiered confidence system to avoid this.",
     date: "Coming soon",
+    published: false,
   },
   {
     slug: "appeals-protocol",
@@ -33,6 +44,7 @@ const POSTS = [
     excerpt:
       "After LayerZero published their Sybil list, thousands of users complained. We built the appeal flow into the product from day one — here's the spec.",
     date: "Coming soon",
+    published: false,
   },
 ];
 
@@ -53,14 +65,20 @@ export default function BlogPage() {
 
         <ul className="mt-10 space-y-6">
           {POSTS.map((p) => (
-            <li key={p.slug} className="rounded-lg border border-zinc-800 bg-zinc-900 p-6">
+            <li key={p.slug} className={`rounded-lg border p-6 ${p.published ? "border-zinc-800 bg-zinc-900" : "border-zinc-900 bg-zinc-950 opacity-70"}`}>
               <div className="flex items-baseline justify-between gap-4">
                 <h2 className="text-xl font-semibold">
-                  <Link href={`/blog/${p.slug}`} className="hover:text-emerald-300">
-                    {p.title}
-                  </Link>
+                  {p.published ? (
+                    <Link href={`/blog/${p.slug}`} className="hover:text-emerald-300">
+                      {p.title}
+                    </Link>
+                  ) : (
+                    <span className="text-zinc-400">{p.title}</span>
+                  )}
                 </h2>
-                <span className="shrink-0 text-xs text-zinc-500">{p.date}</span>
+                <span className={`shrink-0 font-mono text-xs ${p.published ? "text-emerald-400" : "text-zinc-600"}`}>
+                  {p.published ? p.date : "// DRAFT"}
+                </span>
               </div>
               <p className="mt-3 text-sm text-zinc-400">{p.excerpt}</p>
             </li>
