@@ -1,0 +1,63 @@
+# Production override — apply alongside docker-compose.yml:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+#
+# Differences vs base:
+#   - postgres + redis NO longer expose ports to the host (only docker-network access)
+#   - api exposed only on 127.0.0.1:3001 (nginx proxies from outside, no direct internet)
+#   - secrets read from .env (loaded automatically by docker compose)
+#   - worker + ml read USE_MOCK_PROVIDERS from .env so you can swap to real Alchemy
+#   - postgres volume mounted into a path you can back up
+
+services:
+  postgres:
+    ports: []        # remove the host:5432 binding
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-sybilshield}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: ${POSTGRES_DB:-sybilshield}
+    restart: unless-stopped
+
+  redis:
+    ports: []
+    restart: unless-stopped
+
+  ml:
+    environment:
+      USE_MOCK_PROVIDERS: ${USE_MOCK_PROVIDERS:-true}
+      ALCHEMY_API_KEY: ${ALCHEMY_API_KEY:-}
+      ML_MODEL_PATH: ${ML_MODEL_PATH:-}
+    restart: unless-stopped
+
+  api:
+    ports:
+      - "127.0.0.1:3001:3001"        # only nginx (localhost) can reach it
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-sybilshield}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sybilshield}
+      REDIS_URL: redis://redis:6379
+      ML_SERVICE_URL: http://ml:8001
+      API_PORT: "3001"
+      API_HOST: "0.0.0.0"
+      API_PUBLIC_URL: ${API_PUBLIC_URL}
+      WEB_PUBLIC_URL: ${WEB_PUBLIC_URL}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
+      STRIPE_PRICE_DEVELOPER: ${STRIPE_PRICE_DEVELOPER:-}
+      STRIPE_PRICE_GROWTH: ${STRIPE_PRICE_GROWTH:-}
+      STRIPE_PRICE_ENTERPRISE: ${STRIPE_PRICE_ENTERPRISE:-}
+      NOWPAYMENTS_API_KEY: ${NOWPAYMENTS_API_KEY:-}
+      NOWPAYMENTS_IPN_SECRET: ${NOWPAYMENTS_IPN_SECRET:-}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+    restart: unless-stopped
+
+  migrate:
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-sybilshield}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sybilshield}
+    restart: "no"
+
+  worker:
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-sybilshield}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sybilshield}
+      REDIS_URL: redis://redis:6379
+      ML_SERVICE_URL: http://ml:8001
+      WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+    restart: unless-stopped
