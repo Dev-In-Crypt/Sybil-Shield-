@@ -49,7 +49,7 @@ export function CryptoPayButton({ plan, priceUsd }: Props) {
   }
 
   return (
-    <div className="mt-6 space-y-2">
+    <div className="mt-6">
       <button
         onClick={pay}
         disabled={busy}
@@ -57,9 +57,9 @@ export function CryptoPayButton({ plan, priceUsd }: Props) {
       >
         {busy ? "Opening checkout…" : `Pay $${priceUsd} in crypto`}
       </button>
-      {err && <p className="text-xs text-red-400">{err}</p>}
-      <p className="text-center text-[10px] uppercase tracking-widest text-zinc-600">
-        // USDT · USDC · ETH · BTC · non-custodial via Atlos
+      {err && <p className="mt-1 text-xs text-red-400">{err}</p>}
+      <p className="mt-1 text-center text-[10px] uppercase tracking-widest text-zinc-600">
+        // USDT · USDC · ETH · BTC · Atlos
       </p>
     </div>
   );

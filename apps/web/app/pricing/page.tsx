@@ -230,18 +230,23 @@ function Plan({
         ))}
       </ul>
       {cta ? (
-        <Link
-          href={cta.href}
-          className="mt-6 rounded bg-emerald-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-emerald-500"
-        >
-          {cta.label}
-        </Link>
+        <div className="mt-6">
+          <Link
+            href={cta.href}
+            className="block rounded bg-emerald-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-emerald-500"
+          >
+            {cta.label}
+          </Link>
+          <p className="mt-1 text-center text-[10px] uppercase tracking-widest text-zinc-600">
+            // no card · cancel anytime
+          </p>
+        </div>
       ) : payable ? (
         <>
           <CryptoPayButton plan={payable.plan} priceUsd={payable.priceUsd} />
           <a
             href={`mailto:support@sybilshield.org?subject=${encodeURIComponent(`${name} plan — wire / card`)}&body=${encodeURIComponent(`Hi — I'd like to pay for the ${name} plan (${price}${suffix}) via wire transfer or card.\n\nCompany:\nVAT/EIN:\n\nThanks`)}`}
-            className="mt-2 block text-center text-xs text-zinc-500 hover:text-emerald-400"
+            className="mt-1 block text-center text-xs text-zinc-500 hover:text-emerald-400"
           >
             or pay by wire / card →
           </a>
