@@ -6,9 +6,9 @@
  */
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
 import { beforeAll, describe, expect, it } from "vitest";
+import { migrateOnce } from "./_migrate-once.js";
 import { customers } from "../src/db/schema.js";
 import { buildServer } from "../src/index.js";
 
@@ -21,9 +21,9 @@ describeMaybe("billing quota enforcement", () => {
   let app: Awaited<ReturnType<typeof buildServer>>;
 
   beforeAll(async () => {
+    await migrateOnce(dbUrl!);
     client = postgres(dbUrl!, { max: 5 });
     db = drizzle(client);
-    await migrate(db, { migrationsFolder: "./src/db/migrations" });
     app = await buildServer();
     await app.ready();
   }, 30_000);
