@@ -13,6 +13,28 @@ interface Entry {
 
 const ENTRIES: Entry[] = [
   {
+    version: "0.4.2",
+    date: "2026-05-24",
+    title: "production_billing_live",
+    changes: [
+      { tag: "changed", body: "Switched crypto rail from NowPayments to Atlos. Non-custodial wallet→wallet, 0% fees, no KYC for buyer or merchant." },
+      { tag: "added", body: "Real per-plan quota enforcement: api_calls_this_month counter increments on every authed request, 429 monthly_quota_exceeded once limit hit, per-customer RPM rate-limit." },
+      { tag: "added", body: "Pay $X in crypto buttons on /pricing and /dashboard/billing (Developer/Growth/Enterprise — all live)." },
+      { tag: "added", body: "Real Alchemy provider on production — Ethereum mainnet live, MockProvider only in tests." },
+      { tag: "added", body: "Monthly quota reset cron (00:05 on the 1st)." },
+    ],
+  },
+  {
+    version: "0.4.1",
+    date: "2026-05-24",
+    title: "production_deploy",
+    changes: [
+      { tag: "added", body: "Backend live on Hetzner (api.sybilshield.org) with Let's Encrypt TLS, nginx reverse proxy, daily pg_dump backup." },
+      { tag: "added", body: "Frontend on Vercel (sybilshield.org) with custom 404, proper favicon + OG, /blog/[slug] dynamic route." },
+      { tag: "added", body: "Email routing via Cloudflare — support@ + security@ forwarded to ops mailbox." },
+    ],
+  },
+  {
     version: "0.4.0",
     date: "2026-05-24",
     title: "site_structure_expansion",

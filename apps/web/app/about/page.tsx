@@ -78,7 +78,7 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold">Legal posture</h2>
           <p className="mt-3 text-zinc-300">
             Pre-incorporation. Will register a Delaware C-corp (Stripe Atlas) after first grant
-            lands. Until then we accept crypto via NowPayments and operate as a public-beta
+            lands. Until then we accept crypto via Atlos (non-custodial, 0% fees) and operate as a public-beta
             indie project. Customers using SybilShield scores in any public filter list are
             contractually required to provide an appeal flow.
           </p>

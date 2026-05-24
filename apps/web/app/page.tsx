@@ -228,8 +228,8 @@ export default function HomePage() {
         <div className="grid gap-px bg-white/5 md:grid-cols-3">
           {[
             { name: "FREE", price: "$0", desc: "// sandbox", features: ["100 calls/mo", "Evidence reports", "Public appeals"], cta: { href: "/dashboard", label: "RUN" } },
-            { name: "GROWTH", price: "$1,499", suffix: "/mo", desc: "// pre-TGE", features: ["250K calls/mo", "All methods", "Webhooks", "SLA 99.5%"], highlight: true },
-            { name: "ENTERPRISE", price: "$4,999+", suffix: "/mo", desc: "// scale", features: ["Unlimited", "Custom model", "Dedicated", "On-call"] },
+            { name: "GROWTH", price: "$1,499", suffix: "/mo", desc: "// pre-TGE", features: ["250K calls/mo", "All methods", "Webhooks", "SLA 99.5%"], highlight: true, cta: { href: "/pricing", label: "SUBSCRIBE →" } },
+            { name: "ENTERPRISE", price: "$4,999+", suffix: "/mo", desc: "// scale", features: ["Unlimited", "Custom model", "Dedicated", "On-call"], cta: { href: "/pricing", label: "SUBSCRIBE →" } },
           ].map((p) => (
             <div
               key={p.name}

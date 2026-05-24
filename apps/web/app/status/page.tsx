@@ -171,7 +171,7 @@ const HUMAN: Partial<Record<FeatureKey, string>> = {
   enterprisePlan: "Enterprise plan",
   perAnalysisPricing: "Per-analysis pricing",
   stripeCards: "Stripe card payments",
-  cryptoCheckout: "Crypto checkout (NowPayments)",
+  cryptoCheckout: "Crypto checkout (Atlos)",
   apiKeyRotation: "API key rotation",
   webhookSubscriptions: "Webhook subscriptions",
   usageTracking: "Usage tracking",
