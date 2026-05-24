@@ -1,0 +1,191 @@
+# SybilShield labeled dataset manifest
+#
+# Tiers (see Technical Spec Step 0):
+#   T1 - Confessed         (~0.98 confidence) — self-reported under amnesty
+#   T2 - Manually verified (~0.95 confidence) — hand-labeled by researchers
+#   T3 - Multi-detector    (~0.85 confidence) — multiple detectors agree
+#   T4 - Single-detector   (~0.65 confidence) — one detector's output
+#   T5 - Heuristic         (~0.75 confidence) — self-derived (e.g. shared funder)
+#   G1 - Verified genuine  (~0.95 confidence) — verified human identity
+#   G2 - Likely genuine    (~0.80 confidence) — long history, diverse activity, no flag
+
+version: 1
+updated: 2026-05-21
+
+sources:
+  # ============================================================
+  # SYBIL LABELS
+  # ============================================================
+  - id: layerzero-amnesty
+    label_class: sybil
+    tier: T1
+    confidence: 0.98
+    description: >
+      Wallets self-reported under LayerZero's amnesty program in 2024.
+      Strongest available ground truth - farmers admitted publicly in exchange
+      for partial allocation.
+    license: public
+    chains: [ethereum, arbitrum, optimism, polygon, bsc, avalanche]
+    retrieval:
+      method: http
+      url: https://snapshot.layerzero.foundation/sybil-self-report.csv
+      format: csv
+      address_column: address
+    expected_count: 100000
+    enabled: true
+
+  - id: arbitrum-foundation-sybil
+    label_class: sybil
+    tier: T4
+    confidence: 0.65
+    description: >
+      Arbitrum Foundation's published Sybil filter list (2023).
+      Single detector - known to have false positives. Used only as training
+      augmentation with reduced weight; never as evaluation truth.
+    license: public
+    chains: [arbitrum, ethereum]
+    retrieval:
+      method: http
+      url: https://github.com/ArbitrumFoundation/sybil-detection/raw/main/sybil_list.csv
+      format: csv
+      address_column: address
+    expected_count: 148595
+    enabled: true
+
+  - id: linea-filtered
+    label_class: sybil
+    tier: T4
+    confidence: 0.65
+    description: >
+      Linea's filtered addresses (517K of 1.3M eligible). Same caveats as
+      Arbitrum list - single-detector, not ground truth.
+    license: public
+    chains: [linea, ethereum]
+    retrieval:
+      method: http
+      url: https://airdrop.linea.build/sybil-list.csv
+      format: csv
+      address_column: address
+    expected_count: 517000
+    enabled: true
+
+  - id: hop-protocol-sybil
+    label_class: sybil
+    tier: T2
+    confidence: 0.95
+    description: >
+      Hop Protocol manually-investigated farmer wallets (2022 airdrop post-mortem).
+      Hand-labeled by Hop team with public methodology.
+    license: public
+    chains: [ethereum, arbitrum, optimism, polygon]
+    retrieval:
+      method: http
+      url: https://github.com/hop-protocol/hop-airdrop/raw/main/sybil-investigations.csv
+      format: csv
+      address_column: address
+    expected_count: 4000
+    enabled: true
+
+  # ============================================================
+  # GENUINE LABELS
+  # ============================================================
+  - id: gitcoin-passport-verified
+    label_class: genuine
+    tier: G1
+    confidence: 0.95
+    description: >
+      Addresses with 3+ Gitcoin Passport stamps including at least one
+      high-trust stamp (Holonym, BrightID, or KYC-style).
+    license: public
+    chains: [ethereum]
+    retrieval:
+      method: api
+      url: https://api.scorer.gitcoin.co/registry/score/{address}
+      threshold_score: 20
+    expected_count: 50000
+    enabled: true
+
+  - id: ens-veterans
+    label_class: genuine
+    tier: G2
+    confidence: 0.80
+    description: >
+      Addresses owning ENS names registered before 2021-06-01 with >=50 txs.
+      Produced by `python -m sybilshield.data.derive_ens_veterans` BEFORE curate.
+      The script writes to raw/ens-veterans.csv which curate.py then ingests.
+    license: derived
+    chains: [ethereum]
+    retrieval:
+      method: derived
+      script: derive_ens_veterans.py
+      address_column: address
+    expected_count: 75000
+    enabled: true
+
+  - id: protocol-power-users
+    label_class: genuine
+    tier: G2
+    confidence: 0.80
+    description: >
+      Addresses with >=2 years of activity, >=10 unique contracts touching
+      >=2 of {defi, nft, governance}. Seed pool = ens-veterans.
+      Produced by `python -m sybilshield.data.derive_power_users` BEFORE curate.
+    license: derived
+    chains: [ethereum]
+    retrieval:
+      method: derived
+      script: derive_power_users.py
+      address_column: address
+    expected_count: 30000
+    enabled: true
+
+# ============================================================
+# CONFLICT RESOLUTION RULES
+# ============================================================
+# Applied in order. First matching rule wins.
+conflict_rules:
+  - name: T1_T2_genuine_beats_T4_sybil
+    if:
+      genuine_tiers: [T1, T2, G1]
+      sybil_tiers: [T4, T5]
+    then: keep_genuine
+
+  - name: T4_vs_T4_disagreement_drop
+    if:
+      genuine_tiers: [T4]
+      sybil_tiers: [T4]
+    then: drop
+
+  - name: T1_T2_sybil_beats_T4_genuine
+    if:
+      sybil_tiers: [T1, T2]
+      genuine_tiers: [T4]
+    then: keep_sybil
+
+  - name: data_error_drop_T1_G1_overlap
+    if:
+      genuine_tiers: [G1]
+      sybil_tiers: [T1]
+    then: drop
+
+  - name: agreement_strengthens
+    if:
+      same_class_multi_tier: true
+    then: max_confidence
+
+# ============================================================
+# HELD-OUT EVALUATION SET
+# ============================================================
+# Only T1+T2 (sybil) and G1 (genuine) are used for honest evaluation.
+# Never sampled into training. Stratified random subset.
+holdout:
+  sybil_tiers: [T1, T2]
+  # G1 (Gitcoin Passport) preferred but uses per-address API; until that source
+  # is populated we fall back to G2 (ENS veterans + power users) for holdout.
+  # When G1 is available, remove G2 from this list.
+  genuine_tiers: [G1, G2]
+  # MVP bootstrap size: small holdout because data pool is tiny.
+  # Production: 5000 when corpus exceeds 50K labels per class.
+  size_per_class: 30
+  random_seed: 42
+  output: holdout.parquet
