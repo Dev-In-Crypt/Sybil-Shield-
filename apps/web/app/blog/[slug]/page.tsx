@@ -7,7 +7,9 @@ import { SandboxBanner } from "../../../components/SandboxBanner";
 import { SiteFooter } from "../../../components/SiteFooter";
 import { SiteHeader } from "../../../components/SiteHeader";
 
-const BLOG_DIR = path.join(process.cwd(), "..", "..", "content", "blog");
+// content/blog lives inside apps/web so Next.js bundles it for the
+// serverless function (process.cwd() resolves to the project root on Vercel).
+const BLOG_DIR = path.join(process.cwd(), "content", "blog");
 
 interface PostMeta {
   title?: string;
