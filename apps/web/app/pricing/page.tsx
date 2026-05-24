@@ -240,6 +240,12 @@ function Plan({
           <p className="mt-1 text-center text-[10px] uppercase tracking-widest text-zinc-600">
             // no card · cancel anytime
           </p>
+          <a
+            href="mailto:support@sybilshield.org?subject=Custom%20usage%20inquiry"
+            className="mt-1 block text-center text-xs text-zinc-500 hover:text-emerald-400"
+          >
+            need higher volume? →
+          </a>
         </div>
       ) : payable ? (
         <>
