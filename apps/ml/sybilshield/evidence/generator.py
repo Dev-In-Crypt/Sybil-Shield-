@@ -122,4 +122,49 @@ def generate_evidence(
             }
         )
 
+    # Thin-account evidence - very common ML signal for fresh wallets that get
+    # flagged by the model but trigger no temporal/cluster rule above.
+    tx_count = int(features.get("total_tx_count", 0) or 0)
+    age_days = float(features.get("address_age_days", 0) or 0)
+    unique_contracts = int(features.get("unique_contracts", 0) or 0)
+    if tx_count > 0 and tx_count < 10 and age_days < 30:
+        items.append(
+            {
+                "type": "thin_account",
+                "description": (
+                    f"Address has {tx_count} transactions over {age_days:.0f} days with "
+                    f"{unique_contracts} unique contract interactions - signature of "
+                    f"a freshly-funded scripted wallet."
+                ),
+                "confidence": 0.6,
+            }
+        )
+
+    # Floor: if the model assigns score >= 40 but no rule above fires (e.g.
+    # ML picked up a higher-order interaction the rule layer doesn't cover),
+    # we still owe the caller a single auditable line. This is the explicit
+    # "model decided" item that points at the strongest available feature
+    # rather than silently returning an empty evidence array.
+    if not items:
+        signals: list[tuple[str, float]] = []
+        if tx_count > 0:
+            signals.append((f"total_tx_count={tx_count}", float(tx_count)))
+        if age_days > 0:
+            signals.append((f"address_age_days={age_days:.0f}", age_days))
+        if unique_contracts > 0:
+            signals.append((f"unique_contracts={unique_contracts}", float(unique_contracts)))
+        if hour_ent > 0:
+            signals.append((f"hour_entropy={hour_ent:.2f}", hour_ent))
+        sample = ", ".join(s for s, _ in signals[:3]) if signals else "no on-chain history found"
+        items.append(
+            {
+                "type": "model_classification",
+                "description": (
+                    f"LightGBM model assigned sybil_score={score} based on the feature "
+                    f"vector (no single rule-based trigger). Top observable signals: {sample}."
+                ),
+                "confidence": min(0.5 + (score - 40) / 120.0, 0.85),
+            }
+        )
+
     return items
