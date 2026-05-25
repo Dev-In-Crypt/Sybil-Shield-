@@ -46,7 +46,82 @@ export default function DocsPage() {
 }`}</Code>
         </Section>
 
-        <Section title="3 · Create an analysis">
+        <Section title="3 · Presets & decisions">
+          <p>
+            Every analysis comes back with a per-address verdict —{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">DROP</code>,{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">REVIEW</code>, or{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">KEEP</code> — computed
+            server-side from the preset you pick at submission time. Pass{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">preset</code> in the POST
+            body; the verdict is then stored against the analysis row (and audit-log entries) so
+            the decision is reproducible after the fact.
+          </p>
+          <div className="my-4 overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead className="text-left text-xs uppercase tracking-widest text-zinc-500">
+                <tr>
+                  <th className="py-2 pr-4">Preset</th>
+                  <th className="py-2 pr-4">DROP if</th>
+                  <th className="py-2 pr-4">REVIEW if</th>
+                  <th className="py-2 pr-4">Tuned for</th>
+                </tr>
+              </thead>
+              <tbody className="font-mono text-xs text-zinc-300">
+                <tr className="border-t border-zinc-800">
+                  <td className="py-2 pr-4 text-emerald-300">balanced</td>
+                  <td>score ≥ 80</td>
+                  <td>score ≥ 50</td>
+                  <td className="text-zinc-400">default — pick if unsure</td>
+                </tr>
+                <tr className="border-t border-zinc-800">
+                  <td className="py-2 pr-4 text-emerald-300">airdrop</td>
+                  <td>score ≥ 85 OR cluster_size ≥ 10</td>
+                  <td>score ≥ 60 OR cluster_size ≥ 5</td>
+                  <td className="text-zinc-400">aggressive — token distributions</td>
+                </tr>
+                <tr className="border-t border-zinc-800">
+                  <td className="py-2 pr-4 text-emerald-300">dao</td>
+                  <td>score ≥ 90 OR cluster_size ≥ 3</td>
+                  <td>score ≥ 50 OR cluster_size ≥ 2</td>
+                  <td className="text-zinc-400">conservative — governance voting</td>
+                </tr>
+                <tr className="border-t border-zinc-800">
+                  <td className="py-2 pr-4 text-emerald-300">grant</td>
+                  <td>cluster_size ≥ 5</td>
+                  <td>cluster_size ≥ 2 OR score ≥ 70</td>
+                  <td className="text-zinc-400">cluster-first — grant committees</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p>
+            <strong>Cluster-only mode.</strong> Pass{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">mode: "cluster_only"</code>{" "}
+            to skip per-address ML scoring entirely and return only multi-wallet farm groupings.
+            Useful when you care more about &quot;these 47 wallets are one entity&quot; than about
+            per-address risk scoring.
+          </p>
+          <Code lang="bash">{`# Submit with a preset + mode
+curl -X POST ${API}/v1/analyses \\
+  -H "Authorization: Bearer $KEY" \\
+  -H 'content-type: application/json' \\
+  -d '{
+    "name": "wave-2 airdrop scan",
+    "chains": ["ethereum"],
+    "preset": "airdrop",
+    "mode": "full",
+    "addresses": ["0xabc...", "0xdef..."]
+  }'`}</Code>
+          <p className="text-zinc-500 text-sm">
+            Decision rules live in{" "}
+            <code className="font-mono">apps/api/src/lib/presets.ts</code> (canonical) and{" "}
+            <code className="font-mono">apps/ml/sybilshield/scoring/presets.py</code> (Python
+            mirror) — open-source on GitHub.
+          </p>
+        </Section>
+
+        <Section title="4 · Create an analysis">
           <p>
             Submit a list of addresses on one or more chains. Returns immediately with
             an <code className="rounded bg-zinc-900 px-1 font-mono text-xs">id</code> and
@@ -60,6 +135,7 @@ export default function DocsPage() {
   -d '{
     "name": "my first analysis",
     "chains": ["ethereum"],
+    "preset": "balanced",
     "addresses": [
       "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
       "0xab5801a7d398351b8be11c439e05c5b3259aec9b"
@@ -73,7 +149,7 @@ export default function DocsPage() {
 }`}</Code>
         </Section>
 
-        <Section title="4 · Check analysis status">
+        <Section title="5 · Check analysis status">
           <p>Poll the resource until <code className="rounded bg-zinc-900 px-1 font-mono text-xs">status === "complete"</code>.</p>
           <Code lang="bash">{`curl -H "Authorization: Bearer $KEY" \\
   ${API}/v1/analyses/$ID`}</Code>
@@ -98,40 +174,55 @@ export default function DocsPage() {
           </p>
         </Section>
 
-        <Section title="5 · Read results">
+        <Section title="6 · Read results">
           <p>
-            Per-address scores with structured evidence. Paginated; default 100 per page.
-            Optional filter: <code className="rounded bg-zinc-900 px-1 font-mono text-xs">?label=sybil</code> /{" "}
-            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">suspicious</code> /{" "}
-            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">genuine</code>.
+            Per-address scores with structured evidence + the preset-aware{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">decision</code>{" "}
+            verdict. Paginated; default 100 per page. Filters:{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">?decision=DROP</code>{" "}
+            (or REVIEW/KEEP), or legacy{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">?label=sybil</code>.
           </p>
           <Code lang="bash">{`curl -H "Authorization: Bearer $KEY" \\
-  "${API}/v1/analyses/$ID/results?limit=10"`}</Code>
+  "${API}/v1/analyses/$ID/results?decision=DROP&limit=10"`}</Code>
           <Code lang="json">{`{
   "data": [
     {
-      "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+      "address": "0x9bfc0b6c1f1f6c9c30b6e8c4e8c1f2a1b3c4d5e6",
       "chain": "ethereum",
-      "sybil_score": 0,
-      "label": "genuine",
-      "confidence": "0.000",
-      "cluster_id": null,
-      "cluster_size": null,
-      "evidence": []
+      "sybil_score": 100,
+      "label": "sybil",
+      "confidence": "1.000",
+      "cluster_id": "F-a8b2c1d4",
+      "cluster_size": 12,
+      "decision": "DROP",
+      "decision_confidence": "high",
+      "rationale_codes": [
+        "shared_funder_cluster",
+        "score_ge_85",
+        "cluster_size_ge_10"
+      ],
+      "evidence": [
+        {
+          "type": "shared_funding",
+          "description": "Funded from same source as 11 other addresses within 6h.",
+          "confidence": 0.95
+        }
+      ]
     }
   ],
   "page": 0,
   "limit": 10
 }`}</Code>
           <p className="text-zinc-500 text-sm">
-            <strong>Score 0–100.</strong> Default thresholds: ≥70 = sybil, 40–69 =
-            suspicious, &lt;40 = genuine. Configurable per analysis on Pilot/Growth plans.
-            <strong> Evidence</strong> is a JSON array describing which methods fired
-            and which features pushed the score — populated only for flagged scores.
+            <strong>Decision</strong> is the preset-aware verdict (preferred for filtering).{" "}
+            <strong>Score 0–100</strong> remains available for callers who want to apply their
+            own thresholds. <strong>Evidence</strong> is a JSON array describing which methods
+            fired and which features pushed the score — populated only for flagged scores.
           </p>
         </Section>
 
-        <Section title="6 · Export CSV">
+        <Section title="7 · Export CSV">
           <p>One row per address, same scoring columns. Auth required (Bearer header).</p>
           <Code lang="bash">{`curl -H "Authorization: Bearer $KEY" \\
   "${API}/v1/analyses/$ID/results/export" \\
@@ -141,7 +232,7 @@ export default function DocsPage() {
 0xab5801a7d398351b8be11c439e05c5b3259aec9b,ethereum,0,genuine,0.000,,`}</Code>
         </Section>
 
-        <Section title="7 · Webhook behavior">
+        <Section title="8 · Webhook behavior">
           <p>
             Configure a webhook URL + secret on{" "}
             <Link href="/dashboard/api-keys" className="text-emerald-400 hover:underline">/dashboard/api-keys</Link>.
@@ -169,7 +260,7 @@ X-SybilShield-Signature: sha256=...
           </p>
         </Section>
 
-        <Section title="8 · Audit log">
+        <Section title="9 · Audit log">
           <p>
             Every flagged score and every appeal verdict writes an append-only row to the
             audit log. Read your slice with:
@@ -178,7 +269,7 @@ X-SybilShield-Signature: sha256=...
   "${API}/v1/audit-log?analysis_id=$ID&limit=100"`}</Code>
         </Section>
 
-        <Section title="9 · Rate limits & quotas">
+        <Section title="10 · Rate limits & quotas">
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-xs uppercase tracking-wider text-zinc-500">
@@ -204,7 +295,7 @@ X-SybilShield-Signature: sha256=...
           </p>
         </Section>
 
-        <Section title="10 · Current sandbox limitations">
+        <Section title="11 · Current sandbox limitations">
           <p className="text-zinc-300">
             The public sandbox is intended for testing the API flow, dashboard, evidence
             format, and scoring workflow. Real on-chain ingestion runs through Alchemy on
