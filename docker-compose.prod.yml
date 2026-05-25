@@ -26,7 +26,7 @@ services:
     environment:
       USE_MOCK_PROVIDERS: ${USE_MOCK_PROVIDERS:-true}
       ALCHEMY_API_KEY: ${ALCHEMY_API_KEY:-}
-      ML_MODEL_PATH: ${ML_MODEL_PATH:-}
+      ML_MODEL_PATH: ${ML_MODEL_PATH:-/app/apps/ml/sybilshield/data/models/current.pkl}
     restart: unless-stopped
 
   api:
