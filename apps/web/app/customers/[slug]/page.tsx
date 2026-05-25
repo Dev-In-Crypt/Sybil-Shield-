@@ -90,12 +90,20 @@ export default function CustomerCase({ params }: { params: { slug: string } }) {
       <main className="mx-auto max-w-3xl px-6 py-16 space-y-12">
         <header>
           <Link href="/customers" className="text-sm text-zinc-500 hover:text-emerald-400">
-            ← all customers
+            ← all examples
           </Link>
           <p className="mt-4 font-mono text-xs uppercase tracking-widest text-emerald-400">// {c.tag}</p>
           <h1 className="mt-2 text-4xl font-bold">{c.title}</h1>
           <p className="mt-3 text-zinc-400">{c.summary}</p>
         </header>
+
+        <aside className="rounded border border-amber-700/40 bg-amber-900/10 p-4 text-sm text-amber-200">
+          <strong>⚠ Illustrative scenario / Example workflow.</strong> Built from public
+          airdrop data (Linea) and anonymized patterns common to Sybil farms. Not a
+          customer attestation — we have no paying customers yet. The numbers show what
+          the system would surface against the described scenario; they aren&apos;t
+          measured production results.
+        </aside>
 
         <section className="grid gap-3 sm:grid-cols-4">
           {c.metrics.map((m) => (

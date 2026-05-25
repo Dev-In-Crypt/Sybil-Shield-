@@ -7,6 +7,14 @@ import { StatusBadge } from "../../components/StatusBadge";
 
 export const metadata = { title: "Pricing · SybilShield" };
 
+const MAIL = "support@sybilshield.org";
+
+function mailto(subject: string, body?: string): string {
+  const params = [`subject=${encodeURIComponent(subject)}`];
+  if (body) params.push(`body=${encodeURIComponent(body)}`);
+  return `mailto:${MAIL}?${params.join("&")}`;
+}
+
 export default function PricingPage() {
   return (
     <>
@@ -15,152 +23,100 @@ export default function PricingPage() {
       <main className="mx-auto max-w-6xl px-6 py-16">
         <div className="text-center">
           <h1 className="text-4xl font-bold">Simple pricing, public methodology</h1>
-          <p className="mt-3 text-zinc-400">
-            Free tier today. Paid plans accept crypto via Atlos (USDT / USDC / ETH / BTC) —
-            card payments and wire transfers after incorporation.
+          <p className="mt-3 max-w-2xl text-zinc-400 mx-auto">
+            Free sandbox is live today. Paid pilots are handled manually until production
+            billing is enabled.
           </p>
         </div>
 
-        {/* Subscription plans */}
         <section className="mt-16">
-          <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500">
-            API subscriptions
-          </h2>
-          <div className="mt-6 grid gap-6 md:grid-cols-4">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <Plan
-              name="Free"
+              name="Free Sandbox"
               price="$0"
               suffix=""
               status="available"
               features={[
                 "100 API calls / month",
-                "Single-address scoring",
+                "Sandbox API access",
+                "Evidence report format",
+                "Public appeal flow testing",
                 "Read evidence reports",
-                "Public appeal endpoint",
-                "Community Discord",
               ]}
-              cta={{ href: "/dashboard", label: "Start free" }}
+              footer="Best for testing the product flow"
+              cta={{ href: "/dashboard", label: "Start free", style: "primary" }}
+              tagline="// no card · cancel anytime"
             />
+
             <Plan
-              name="Developer"
-              price="$499"
-              suffix="/mo"
+              name="Pilot Analysis"
+              price="From $2,500"
+              suffix="/ analysis"
               status="available"
+              highlight
               features={[
-                "50K API calls / month",
-                "Batch scoring (up to 100 / req)",
+                "Manual onboarding",
+                "Real data ingestion where available",
+                "Evidence-backed report",
+                "Appeal flow support",
+                "Direct Slack with our team",
+              ]}
+              footer="Best for airdrop teams or grant committees"
+              cta={{
+                href: mailto(
+                  "Pilot inquiry — [your project]",
+                  `Hi — interested in a pilot analysis.\n\nProject:\nAddresses to score (approx.):\nTimeline:\nPreferred payment (crypto / wire):\n\nThanks`,
+                ),
+                label: "Request pilot →",
+                style: "primary",
+              }}
+              tagline="// USDT · USDC · ETH · BTC via Atlos · or wire"
+              payable={{ plan: "growth", priceUsd: 2500 }}
+            />
+
+            <Plan
+              name="Growth API"
+              price="—"
+              suffix=""
+              status="coming-soon"
+              features={[
+                "Ongoing scoring",
                 "Webhook notifications",
-                "All clustering methods",
-                "Email support",
+                "Higher rate limits",
+                "Production support",
+                "SLA target 99.5%",
               ]}
-              payable={{ plan: "developer", priceUsd: 499 }}
+              footer="When production billing is enabled"
+              cta={{
+                href: mailto("Growth API waitlist", `Add me to the Growth API waitlist.\n\nProject:\nExpected monthly volume:\n\nThanks`),
+                label: "Join waitlist",
+                style: "ghost",
+              }}
+              tagline="// post-incorporation"
             />
-            <Plan
-              name="Growth"
-              price="$1,499"
-              suffix="/mo"
-              status="available"
-              highlight
-              features={[
-                "250K API calls / month",
-                "Full per-analysis pipeline",
-                "Evidence + cluster export",
-                "Priority queue",
-                "SLA: 99.5%",
-                "Slack support",
-              ]}
-              payable={{ plan: "growth", priceUsd: 1499 }}
-            />
+
             <Plan
               name="Enterprise"
-              price="$4,999"
-              suffix="/mo"
-              status="available"
+              price="—"
+              suffix=""
+              status="coming-soon"
               features={[
-                "Unlimited API calls",
-                "Custom-trained models",
-                "Dedicated instance",
-                "SLA: 99.9% + 1h response",
+                "Custom model support",
+                "Dedicated infrastructure",
+                "SLA + support contract",
+                "Custom DPA",
                 "On-call engineering",
-                "Custom contract / DPA",
               ]}
-              payable={{ plan: "enterprise", priceUsd: 4999 }}
-            />
-          </div>
-        </section>
-
-        {/* Per-analysis */}
-        <section className="mt-20">
-          <h2 className="text-sm font-medium uppercase tracking-wider text-zinc-500">
-            One-time per-analysis (no subscription)
-          </h2>
-          <p className="mt-2 max-w-2xl text-zinc-400">
-            For airdrops and TGEs that need a single filtering pass. No commitment.
-          </p>
-          <div className="mt-6 grid gap-6 md:grid-cols-3">
-            <Plan
-              name="Starter"
-              price="$2,500"
-              suffix="/ analysis"
-              status="coming-soon"
-              features={[
-                "Up to 100K addresses",
-                "Single chain",
-                "Sybil score + label",
-                "Basic clustering",
-                "CSV export",
-              ]}
-            />
-            <Plan
-              name="Standard"
-              price="$7,500"
-              suffix="/ analysis"
-              status="coming-soon"
-              highlight
-              features={[
-                "Up to 500K addresses",
-                "Multi-chain (up to 4)",
-                "Full evidence per address",
-                "All clustering methods",
-                "Webhook on completion",
-                "Appeal handling included",
-              ]}
-            />
-            <Plan
-              name="Enterprise"
-              price="$15-50K"
-              suffix="/ analysis"
-              status="coming-soon"
-              features={[
-                "1M+ addresses",
-                "All 8 chains + cross-chain",
-                "Custom model retrained on your data",
-                "Dedicated reviewer for appeals",
-                "Public methodology audit",
-                "Custom SLA",
-              ]}
-            />
-          </div>
-        </section>
-
-        {/* Payment methods */}
-        <section className="mt-20 rounded-lg border border-zinc-800 bg-zinc-900 p-8">
-          <h2 className="text-2xl font-semibold">Payment methods</h2>
-          <div className="mt-6 grid gap-6 md:grid-cols-3">
-            <PaymentMethod
-              name="Crypto (USDT/USDC/ETH/BTC)"
-              desc="Pay from your treasury wallet via Atlos. Non-custodial, 0% fees, no KYC. Settles to our merchant wallet directly."
-              status="available"
-            />
-            <PaymentMethod
-              name="Bank wire (USD/EUR)"
-              desc="For Enterprise contracts. Request via Contact sales — invoice issued manually until incorporation."
-              status="coming-soon"
-            />
-            <PaymentMethod
-              name="Card (Stripe)"
-              desc="Standard recurring billing. After incorporation (Q4 2026)."
-              status="roadmap"
+              footer="For large institutional buyers"
+              cta={{
+                href: mailto(
+                  "Enterprise inquiry",
+                  `Hi — interested in Enterprise SybilShield.\n\nCompany:\nUse case:\nExpected volume:\nProcurement timeline:\n\nThanks`,
+                ),
+                label: "Contact us",
+                style: "ghost",
+              }}
+              tagline="// custom contract"
             />
           </div>
         </section>
@@ -169,20 +125,61 @@ export default function PricingPage() {
         <section className="mt-20 rounded-lg border border-emerald-900/40 bg-emerald-900/10 p-8">
           <h2 className="text-2xl font-semibold text-emerald-200">Free public-good tier</h2>
           <p className="mt-3 max-w-2xl text-zinc-300">
-            Any project can call <code className="font-mono text-emerald-300">GET /v1/score/:address</code> for
-            free at low volume. No registration required for read-only on cached scores. The
-            detection methodology is open-source (MIT) — you can audit, fork, or self-host.
+            Any project can call{" "}
+            <code className="font-mono text-emerald-300">GET /v1/score/:address</code> for free at low
+            volume — no registration required for read-only lookups on cached scores.
           </p>
+          <p className="mt-3 max-w-2xl text-zinc-400">
+            All six detection methods, the audit-log schema, and the appeal protocol spec are
+            MIT-licensed. You can fork, self-host, or just borrow the methodology.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-3">
+            <Link href="/lookup" className="rounded bg-emerald-700/50 px-4 py-2 text-sm hover:bg-emerald-700/70">
+              Try public lookup
+            </Link>
+            <a
+              href="https://github.com/Dev-In-Crypt/Sybil-Shield-"
+              className="rounded border border-zinc-700 px-4 py-2 text-sm hover:border-emerald-500"
+            >
+              GitHub →
+            </a>
+          </div>
         </section>
 
-        {/* FAQ */}
+        {/* Pricing-rationale FAQ */}
         <section className="mt-20">
-          <h2 className="text-2xl font-semibold">Billing FAQ</h2>
-          <div className="mt-6 space-y-4">
-            <Faq q="When will paid plans go live?" a="After we secure either grant funding or first paid analysis. The crypto checkout flow is the next infra task on the roadmap — see /roadmap." />
-            <Faq q="Can I pre-commit?" a="Yes - email support@sybilshield.org with your expected volume. We honour pre-commit pricing locked at today's tiers." />
-            <Faq q="Refunds?" a="Per-analysis: no refunds once ingestion starts (compute is sunk cost). Subscriptions: prorated refund within 14 days, no questions." />
-            <Faq q="Custom contracts / DPA / MSA?" a="Enterprise tier includes. We'll have a templates package after incorporation." />
+          <h2 className="text-2xl font-semibold">Pricing rationale</h2>
+          <div className="mt-6 space-y-6 text-sm text-zinc-300">
+            <div>
+              <h3 className="font-mono text-xs uppercase tracking-widest text-emerald-400">
+                Why is paid not self-serve yet?
+              </h3>
+              <p className="mt-2 text-zinc-400">
+                Production billing requires legal incorporation and customer-data handling we
+                don&apos;t have in the public sandbox. Pilots run manually so we can match the
+                methodology to your distribution and you can verify scores before signing
+                anything ongoing.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-mono text-xs uppercase tracking-widest text-emerald-400">
+                What does a pilot include?
+              </h3>
+              <p className="mt-2 text-zinc-400">
+                A one-time scoring pass on your address list, the full evidence payload per
+                address, a methodology brief you can publish with your filter, and 30 days of
+                appeal-flow coverage.
+              </p>
+            </div>
+            <div>
+              <h3 className="font-mono text-xs uppercase tracking-widest text-emerald-400">
+                Can I pay in crypto?
+              </h3>
+              <p className="mt-2 text-zinc-400">
+                Pilots accept USDT / USDC / ETH / BTC via Atlos (non-custodial, 0% processor
+                fee). Wire transfer and card are available on request for Enterprise.
+              </p>
+            </div>
           </div>
         </section>
       </main>
@@ -199,6 +196,8 @@ function Plan({
   status,
   highlight,
   cta,
+  footer,
+  tagline,
   payable,
 }: {
   name: string;
@@ -207,16 +206,22 @@ function Plan({
   features: string[];
   status: "available" | "coming-soon" | "beta";
   highlight?: boolean;
-  cta?: { href: string; label: string };
+  cta: { href: string; label: string; style: "primary" | "ghost" };
+  footer?: string;
+  tagline?: string;
   payable?: { plan: "developer" | "growth" | "enterprise"; priceUsd: number };
 }) {
+  const ctaClass =
+    cta.style === "primary"
+      ? "block rounded bg-emerald-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-emerald-500"
+      : "block rounded border border-emerald-700/60 bg-emerald-900/10 px-4 py-2 text-center text-sm font-medium text-emerald-300 hover:bg-emerald-900/30";
   return (
     <div
       className={`flex flex-col rounded-lg border p-6 ${
         highlight ? "border-emerald-700/50 bg-emerald-950/20" : "border-zinc-800 bg-zinc-900"
       }`}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <h3 className="text-lg font-semibold">{name}</h3>
         <StatusBadge status={status} />
       </div>
@@ -229,71 +234,33 @@ function Plan({
           <li key={f}>· {f}</li>
         ))}
       </ul>
-      {cta ? (
-        <div className="mt-6">
-          <Link
-            href={cta.href}
-            className="block rounded bg-emerald-600 px-4 py-2 text-center text-sm font-medium text-white hover:bg-emerald-500"
-          >
+      {footer && (
+        <p className="mt-4 text-xs italic text-zinc-500">{footer}</p>
+      )}
+      <div className="mt-6 space-y-2">
+        {cta.href.startsWith("mailto:") ? (
+          <a href={cta.href} className={ctaClass}>
+            {cta.label}
+          </a>
+        ) : (
+          <Link href={cta.href} className={ctaClass}>
             {cta.label}
           </Link>
-          <p className="mt-1 text-center text-[10px] uppercase tracking-widest text-zinc-600">
-            // no card · cancel anytime
-          </p>
-          <a
-            href="mailto:support@sybilshield.org?subject=Custom%20usage%20inquiry"
-            className="mt-1 block text-center text-xs text-zinc-500 hover:text-emerald-400"
-          >
-            need higher volume? →
-          </a>
-        </div>
-      ) : payable ? (
-        <>
-          <CryptoPayButton plan={payable.plan} priceUsd={payable.priceUsd} />
-          <a
-            href={`mailto:support@sybilshield.org?subject=${encodeURIComponent(`${name} plan — wire / card`)}&body=${encodeURIComponent(`Hi — I'd like to pay for the ${name} plan (${price}${suffix}) via wire transfer or card.\n\nCompany:\nVAT/EIN:\n\nThanks`)}`}
-            className="mt-1 block text-center text-xs text-zinc-500 hover:text-emerald-400"
-          >
-            or pay by wire / card →
-          </a>
-        </>
-      ) : (
-        <a
-          href={`mailto:support@sybilshield.org?subject=${encodeURIComponent(`${name} plan inquiry`)}&body=${encodeURIComponent(`Hi — I'd like to start on the ${name} plan (${price}${suffix}).\n\nUse case:\nMonthly volume:\nPreferred payment (card / crypto / wire):\n\nThanks`)}`}
-          className="mt-6 rounded border border-emerald-700/60 bg-emerald-900/20 px-4 py-2 text-center text-sm font-medium text-emerald-300 hover:bg-emerald-900/40"
-        >
-          Contact sales
-        </a>
-      )}
-    </div>
-  );
-}
-
-function PaymentMethod({
-  name,
-  desc,
-  status,
-}: {
-  name: string;
-  desc: string;
-  status: "coming-soon" | "available" | "roadmap";
-}) {
-  return (
-    <div className="rounded border border-zinc-800 bg-zinc-950 p-4">
-      <div className="flex items-center justify-between">
-        <h3 className="font-medium">{name}</h3>
-        <StatusBadge status={status} />
+        )}
+        {payable && (
+          <details className="rounded border border-zinc-800 bg-zinc-950">
+            <summary className="cursor-pointer px-3 py-2 text-xs text-zinc-400 hover:text-emerald-400">
+              or pay now in crypto →
+            </summary>
+            <div className="border-t border-zinc-800 p-3">
+              <CryptoPayButton plan={payable.plan} priceUsd={payable.priceUsd} />
+            </div>
+          </details>
+        )}
+        {tagline && (
+          <p className="text-center text-[10px] uppercase tracking-widest text-zinc-600">{tagline}</p>
+        )}
       </div>
-      <p className="mt-2 text-sm text-zinc-400">{desc}</p>
     </div>
-  );
-}
-
-function Faq({ q, a }: { q: string; a: string }) {
-  return (
-    <details className="group rounded border border-zinc-800 bg-zinc-900 p-4">
-      <summary className="cursor-pointer font-medium">{q}</summary>
-      <p className="mt-2 text-sm text-zinc-400">{a}</p>
-    </details>
   );
 }

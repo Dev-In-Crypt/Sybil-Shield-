@@ -39,8 +39,9 @@ export default function HomePage() {
             </h1>
 
             <p className="mt-10 max-w-xl text-lg leading-relaxed text-zinc-400">
-              The open-source detection engine for airdrops, governance and DeFi farms.
-              Built by people who got tired of watching $6B leak to bots.
+              Open-source Sybil detection for token distributions, DAO voting, and
+              incentive programs. Score wallets, detect coordinated clusters, and give
+              users a clear appeal path.
             </p>
 
             <div className="mt-12 flex flex-wrap items-center gap-4">
@@ -92,6 +93,9 @@ export default function HomePage() {
             </motion.div>
           ))}
         </div>
+        <p className="mt-6 text-center font-mono text-[10px] uppercase tracking-[0.2em] text-zinc-600">
+          // figures from public reporting + dune queries · not sybilshield-measured
+        </p>
       </SectionCyber>
 
       {/* METHODS */}
@@ -122,6 +126,27 @@ export default function HomePage() {
             </motion.div>
           ))}
         </div>
+      </SectionCyber>
+
+      {/* TRUST */}
+      <SectionCyber eyebrow="trust.md" title="// WHY TEAMS CAN TRUST THE SCORE">
+        <div className="grid gap-px bg-white/5 md:grid-cols-2 lg:grid-cols-5">
+          {[
+            { e: "evidence", b: "Every score links to per-address evidence — which methods fired, which features pushed the number." },
+            { e: "open source", b: "All six detection methods are MIT-licensed and documented. No vendor lock-in." },
+            { e: "sandbox vs prod", b: "Every page distinguishes sandbox state from production state. No theatre." },
+            { e: "appeal flow", b: "Public appeals endpoint with 48-hour SLA, built into the protocol, not a UX afterthought." },
+            { e: "audit log", b: "Append-only event log. Any flag, appeal, or reversal is reproducible from the public methodology." },
+          ].map((t) => (
+            <div key={t.e} className="bg-black p-6">
+              <div className="font-mono text-[10px] uppercase tracking-[0.2em] text-lime">{`// ${t.e}`}</div>
+              <p className="mt-3 text-sm text-zinc-300">{t.b}</p>
+            </div>
+          ))}
+        </div>
+        <p className="mt-8 text-center font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">
+          <Link href="/methodology" className="hover:text-lime">read the full methodology →</Link>
+        </p>
       </SectionCyber>
 
       {/* EVIDENCE TERMINAL */}
@@ -227,9 +252,9 @@ export default function HomePage() {
       <SectionCyber eyebrow="plans.json" title="// PRICING">
         <div className="grid gap-px bg-white/5 md:grid-cols-3">
           {[
-            { name: "FREE", price: "$0", desc: "// sandbox", features: ["100 calls/mo", "Evidence reports", "Public appeals"], cta: { href: "/dashboard", label: "RUN" } },
-            { name: "GROWTH", price: "$1,499", suffix: "/mo", desc: "// pre-TGE", features: ["250K calls/mo", "All methods", "Webhooks", "SLA 99.5%"], highlight: true, cta: { href: "/pricing", label: "SUBSCRIBE →" } },
-            { name: "ENTERPRISE", price: "$4,999+", suffix: "/mo", desc: "// scale", features: ["Unlimited", "Custom model", "Dedicated", "On-call"], cta: { href: "/pricing", label: "SUBSCRIBE →" } },
+            { name: "FREE SANDBOX", price: "$0", suffix: "", desc: "// sandbox", features: ["100 calls/mo", "Evidence format", "Public appeals testing"], cta: { href: "/dashboard", label: "RUN" } },
+            { name: "PILOT", price: "From $2,500", suffix: "/ analysis", desc: "// manual onboarding", features: ["Real data ingestion", "Evidence-backed report", "Appeal flow support"], highlight: true, cta: { href: "/pricing", label: "REQUEST PILOT →" } },
+            { name: "GROWTH API", price: "—", suffix: "", desc: "// coming soon", features: ["Ongoing scoring", "Webhooks", "Production support"], cta: { href: "/pricing", label: "JOIN WAITLIST →" } },
           ].map((p) => (
             <div
               key={p.name}
@@ -273,6 +298,23 @@ export default function HomePage() {
         </div>
       </SectionCyber>
 
+      {/* BUILT FOR */}
+      <SectionCyber eyebrow="audience.json" title="// BUILT FOR">
+        <div className="grid gap-px bg-white/5 md:grid-cols-2 lg:grid-cols-4">
+          {[
+            { t: "Airdrop teams", d: "Filter coordinated wallets before token distribution." },
+            { t: "DAO operators", d: "Review voter sets before controversial proposals." },
+            { t: "DeFi incentive programs", d: "Detect farming rings before rewards are paid." },
+            { t: "Grant committees", d: "Check whether applicants are connected entities." },
+          ].map((a) => (
+            <div key={a.t} className="bg-black p-8">
+              <h3 className="font-mono text-sm uppercase tracking-[0.15em] text-lime">{a.t}</h3>
+              <p className="mt-3 text-sm leading-relaxed text-zinc-400">{a.d}</p>
+            </div>
+          ))}
+        </div>
+      </SectionCyber>
+
       {/* CTA */}
       <section className="relative overflow-hidden border-t border-lime/20">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-lime/[0.05] to-transparent" />
@@ -291,7 +333,8 @@ export default function HomePage() {
               <span className="text-zinc-600">$&gt;</span> LAUNCH
             </h2>
             <p className="mt-6 text-zinc-400">
-              60 seconds from zero to first analysis. No card. No bullshit.
+              Create a free sandbox account, run a demo analysis, and inspect
+              evidence-backed scores.
             </p>
             <Link
               href="/dashboard"

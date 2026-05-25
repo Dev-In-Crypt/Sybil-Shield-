@@ -8,10 +8,10 @@ export const metadata = { title: "Trust Center · SybilShield" };
 const COMPLIANCE = [
   { fw: "GDPR", scope: "EU users / EU PII", status: "Compliant", color: "text-emerald-400", art: ["/privacy", "Privacy notice"] },
   { fw: "CCPA", scope: "California users", status: "Compliant", color: "text-emerald-400", art: ["/privacy", "Privacy notice §8"] },
-  { fw: "SOC 2 Type I", scope: "Service org controls", status: "Audit underway", color: "text-amber-400", art: [null, "Q3 2026"] },
-  { fw: "SOC 2 Type II", scope: "Operating effectiveness", status: "Planned", color: "text-zinc-500", art: [null, "Q1 2027"] },
-  { fw: "ISO 27001", scope: "InfoSec mgmt", status: "Backlog", color: "text-zinc-500", art: [null, "2027"] },
-  { fw: "PCI-DSS", scope: "Card data", status: "Out of scope", color: "text-emerald-400", art: [null, "Stripe-hosted"] },
+  { fw: "SOC 2 Type I", scope: "Service org controls", status: "Not started", color: "text-zinc-500", art: [null, "Planned after incorporation"] },
+  { fw: "SOC 2 Type II", scope: "Operating effectiveness", status: "Planned", color: "text-zinc-500", art: [null, "After SOC 2 Type I"] },
+  { fw: "ISO 27001", scope: "InfoSec mgmt", status: "Backlog", color: "text-zinc-500", art: [null, "2027+"] },
+  { fw: "PCI-DSS", scope: "Card data", status: "Out of scope", color: "text-emerald-400", art: [null, "Stripe-hosted (when wired)"] },
 ] as const;
 
 export default function TrustPage() {
@@ -24,25 +24,60 @@ export default function TrustPage() {
           <p className="text-xs font-mono uppercase tracking-widest text-emerald-400">// trust center</p>
           <h1 className="mt-2 text-5xl font-bold">Trust</h1>
           <p className="mt-3 max-w-2xl text-zinc-400">
-            Security posture, compliance status, audit log, and links to every legal artifact we publish.
+            Honest current state. We&apos;d rather under-promise here than over-claim
+            compliance posture we haven&apos;t actually shipped yet.
           </p>
         </header>
 
         <section>
+          <h2 className="text-2xl font-semibold">Current security state</h2>
+          <ul className="mt-6 space-y-3 text-sm text-zinc-300">
+            <li className="flex gap-3">
+              <span className="text-emerald-400">▸</span>
+              <span>Open-source sandbox deployment at sybilshield.org. All detection code is MIT-licensed and auditable in the public repo.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-emerald-400">▸</span>
+              <span>No production customer data is processed in the public sandbox. Pilot customers are onboarded manually with a separate engagement.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-emerald-400">▸</span>
+              <span>Backend on a single VPS (Hetzner CX22) with daily local <code className="font-mono text-emerald-300">pg_dump</code> backup. Off-site backup planned.</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-emerald-400">▸</span>
+              <span>TLS 1.3 via Let&apos;s Encrypt; secrets in <code className="font-mono text-emerald-300">.env</code>, never committed; UFW + fail2ban on the host; root SSH disabled; password auth disabled (keys only).</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="text-emerald-400">▸</span>
+              <span>Per-customer rate-limits + monthly call-quota enforcement live. Bearer-token auth with HMAC-signed webhook delivery.</span>
+            </li>
+          </ul>
+        </section>
+
+        <section>
           <h2 className="text-2xl font-semibold">Security posture</h2>
           <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {[
-              ["SOC 2", "amber", "In progress · Q3 2026", "Type I audit started May 2026. Type II Q1 2027."],
-              ["Pentest", "amber", "Scheduled", "First external pentest Aug 2026 (Trail of Bits). Public-redacted report."],
-              ["Encryption", "emerald", "Active", "TLS 1.3 in transit, AES-256 at rest. KMS-backed secrets."],
-              ["SDLC", "emerald", "Active", "Required review, signed commits, branch protection, secret + dep scanning."],
-            ].map(([title, c, status, body]) => (
-              <div key={title} className="rounded border border-zinc-800 bg-zinc-900 p-4">
-                <h3 className="font-mono text-sm text-emerald-400">{(title as string).toUpperCase()}</h3>
-                <p className={`mt-2 text-sm ${c === "emerald" ? "text-emerald-400" : "text-amber-400"}`}>{status}</p>
-                <p className="mt-2 text-sm text-zinc-400">{body}</p>
-              </div>
-            ))}
+            <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
+              <h3 className="font-mono text-sm text-emerald-400">SOC 2</h3>
+              <p className="mt-2 text-sm text-zinc-500">Not started</p>
+              <p className="mt-2 text-sm text-zinc-400">Planned after incorporation and first production customer data handling.</p>
+            </div>
+            <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
+              <h3 className="font-mono text-sm text-emerald-400">Pentest</h3>
+              <p className="mt-2 text-sm text-amber-400">Not scheduled yet</p>
+              <p className="mt-2 text-sm text-zinc-400">Planned before production launch. No vendor selected.</p>
+            </div>
+            <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
+              <h3 className="font-mono text-sm text-emerald-400">Encryption</h3>
+              <p className="mt-2 text-sm text-emerald-400">Active</p>
+              <p className="mt-2 text-sm text-zinc-400">TLS 1.3 in transit, AES-256 at rest (Postgres + filesystem). Secrets in env, not source.</p>
+            </div>
+            <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
+              <h3 className="font-mono text-sm text-emerald-400">SDLC</h3>
+              <p className="mt-2 text-sm text-emerald-400">Active</p>
+              <p className="mt-2 text-sm text-zinc-400">Public repo + signed commits + CI test gates. Secret scanning via GitGuardian on push.</p>
+            </div>
           </div>
         </section>
 
@@ -83,18 +118,20 @@ export default function TrustPage() {
         <section>
           <h2 className="text-2xl font-semibold">Audit log</h2>
           <p className="mt-3 text-zinc-400">
-            Every score change, appeal, review, and reversal is recorded in our immutable audit log. Customers can export their slice via{" "}
-            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">GET /v1/audit-log</code>.
+            Every flagged score, every appeal, every reversal is written append-only to
+            <code className="mx-1 rounded bg-zinc-900 px-1 font-mono text-xs">evidence_audit_log</code>.
+            Customers can export their slice via{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">GET /v1/audit-log?analysis_id={`{id}`}</code>.
           </p>
           <pre className="mt-4 overflow-auto rounded border border-zinc-800 bg-zinc-950 p-4 font-mono text-xs text-zinc-300">{`{
   "event_id": "evt_01HX...",
   "event_type": "flagged",
   "address": "0xa12b...c4d7",
-  "actor": "system:model:rule_based",
+  "actor": "system:v0.2.0-20260525",
   "prior_score": null,
   "new_score": 87,
   "reason": "sybil",
-  "timestamp": "2026-05-21T08:14:22.118Z"
+  "timestamp": "2026-05-25T08:14:22.118Z"
 }`}</pre>
         </section>
 

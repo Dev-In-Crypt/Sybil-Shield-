@@ -26,25 +26,33 @@ export default function CustomersPage() {
         </header>
 
         <section>
-          <h2 className="text-2xl font-semibold">Public reference customers</h2>
+          <h2 className="text-2xl font-semibold">Logos</h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            We don&apos;t have paying customers yet. When we do, the ones who&apos;ve given
+            permission will appear here. Until then, the slots stay honest empty.
+          </p>
           <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
             {Array.from({ length: 7 }).map((_, i) => (
-              <div key={i} className="flex h-28 items-center justify-center rounded border border-zinc-800 bg-zinc-900 font-mono text-xs uppercase tracking-widest text-zinc-600">
-                // REDACTED
+              <div key={i} className="flex h-28 items-center justify-center rounded border border-zinc-800 bg-zinc-900 font-mono text-xs uppercase tracking-widest text-zinc-700">
+                // your logo
               </div>
             ))}
             <a
-              href="mailto:support@sybilshield.org?subject=Add%20our%20logo"
+              href="mailto:support@sybilshield.org?subject=Pilot%20inquiry"
               className="flex h-28 items-center justify-center rounded border border-dashed border-emerald-700 bg-transparent font-mono text-xs uppercase tracking-widest text-emerald-400 hover:bg-emerald-900/10"
             >
-              + Your logo
+              + your logo
             </a>
           </div>
-          <p className="mt-3 text-xs text-zinc-500">// 8 confirmed pilots · logo permission pending · 3 published case studies below</p>
         </section>
 
         <section>
-          <h2 className="text-2xl font-semibold">Case studies</h2>
+          <h2 className="text-2xl font-semibold">Example case studies (illustrative)</h2>
+          <p className="mt-2 text-sm text-zinc-400">
+            Built from public airdrop data + anonymized farm patterns. Not customer
+            attestations. They show <em>what the system surfaces</em> against the described
+            scenarios.
+          </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             {CASES.map((c) => (
               <Link
@@ -62,12 +70,14 @@ export default function CustomersPage() {
         </section>
 
         <section className="rounded border border-zinc-800 bg-zinc-900 p-8 text-center">
-          <h3 className="font-mono text-lg text-emerald-400">USE_SYBILSHIELD?</h3>
+          <h3 className="font-mono text-lg text-emerald-400">RUN A PILOT WITH US</h3>
           <p className="mt-3 text-zinc-400">
-            If we've protected one of your distributions, we'd love to feature you — anonymized or named, your call.
+            We run paid pilots manually until production billing is enabled. If you have a
+            distribution to filter or an airdrop to score, we&apos;d love to be your first
+            published reference.
           </p>
-          <a href="mailto:support@sybilshield.org?subject=Case%20study" className="mt-6 inline-block rounded bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-500">
-            Contact us
+          <a href="mailto:support@sybilshield.org?subject=Pilot%20inquiry" className="mt-6 inline-block rounded bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+            Request pilot
           </a>
         </section>
       </main>

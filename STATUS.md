@@ -1,155 +1,150 @@
 # SybilShield — feature status
 
-Single source of truth for what's live, what's in beta, what's planned.
-The frontend imports this status from `apps/web/lib/feature-status.ts` and
-renders badges accordingly. Update both when shipping a feature.
+**Source of truth:** `apps/web/lib/feature-status.ts`. Public mirror at <https://sybilshield.org/status>.
 
-Last updated: 2026-05-24
+**Last synced:** 2026-05-25
 
 ## Legend
 
-- ✅ **available** — production-ready, fully functional
-- 🟡 **beta** — works but uses synthetic data, no SLA, free
-- 🔵 **sandbox** — works locally / on free-tier infra, no real on-chain data yet
-- ⏳ **coming-soon** — built but gated behind funding / LLC / etc.
-- 🗓️ **roadmap** — designed, not yet built
+| Symbol | Label | Meaning |
+|---|---|---|
+| ✅ | Live | Available in production, fully working |
+| 🟡 | Beta | Working but rough edges / limited surface |
+| 🔵 | Sandbox | Live in the public sandbox; not production-calibrated |
+| ⏳ | Coming soon | Decided + scheduled, not built |
+| 🗓️ | Roadmap | Future, no committed date |
+
+---
 
 ## Core API
 
-| Feature | Status | Notes |
-|---|---|---|
-| `POST /v1/account/register` | ✅ available | |
-| `POST /v1/analyses` | 🔵 sandbox | Runs against synthetic on-chain data via MockProvider. Real Alchemy ingest ships after first grant. |
-| `GET /v1/analyses/:id/results` | ✅ available | |
-| `GET /v1/analyses/:id/results/export` | ✅ available | CSV export |
-| `GET /v1/analyses/:id/clusters` | ✅ available | |
-| `GET /v1/score/:address` | 🔵 sandbox | Returns cached scores from prior analyses; one-shot scoring needs real ingest |
-| `POST /v1/score/batch` | 🔵 sandbox | Same caveat |
-| `GET /v1/entities/:address` | ✅ available | |
-| `POST /v1/feedback` | ✅ available | |
-| `POST /v1/appeals` | ✅ available | Public, no auth. 48h response policy. |
-| `GET /v1/appeals/policy` | ✅ available | |
+| Endpoint | Status |
+|---|---|
+| `POST /v1/account/register` | ✅ Live |
+| `POST /v1/analyses` | 🔵 Sandbox |
+| `GET /v1/analyses/:id/results` | ✅ Live |
+| `GET /v1/analyses/:id/results/export` | ✅ Live |
+| `GET /v1/analyses/:id/clusters` | ✅ Live |
+| `GET /v1/score/:address` | 🔵 Sandbox |
+| `POST /v1/score/batch` | 🔵 Sandbox |
+| `GET /v1/entities/:address` | ✅ Live |
+| `POST /v1/feedback` | ✅ Live |
+| `POST /v1/appeals` | ✅ Live |
+
+Sandbox-status endpoints work end-to-end; the underlying model is in-the-loop training, not a calibrated v1.
 
 ## Detection methods
 
 | Method | Status |
 |---|---|
-| Funding-source clustering | ✅ available |
-| Behavioral clustering (HDBSCAN) | ✅ available |
-| Graph community detection (Leiden) | ✅ available |
-| Cross-chain identity linking | 🟡 beta — works for 8 chains, bridge contracts seed list small |
-| Temporal anomaly features | ✅ available |
-| ML ensemble scoring (LightGBM) | 🟡 beta — baseline model trained on synthetic seed; calibration needs real corpus |
+| Funding-source clustering | ✅ Live |
+| Behavioral clustering (HDBSCAN) | ✅ Live |
+| Graph community detection (Leiden) | ✅ Live |
+| Cross-chain identity linking | 🟡 Beta |
+| Temporal anomaly features | ✅ Live |
+| ML ensemble scoring (LightGBM) | 🔵 Sandbox |
 
 ## Data sources
 
 | Source | Status |
 |---|---|
-| ENS subgraph (G2) | ✅ live — 100 real veterans curated |
-| Power users (G2) | ✅ live — 48 real addresses |
-| Gitcoin Passport (G1) | 🗓️ roadmap — requires per-address API integration |
-| LayerZero amnesty (T1) | ⏳ coming-soon — placeholder synthetic; replace with real CSV when sourced |
-| Hop investigations (T2) | ⏳ coming-soon — same |
-| Arbitrum Foundation (T4) | ⏳ coming-soon — same |
-| Linea filtered (T4) | ⏳ coming-soon — same |
+| ENS veterans (G2) | ✅ Live (real ENS subgraph) |
+| Protocol power users (G2) | ✅ Live |
+| Gitcoin Passport (G1) | 🗓️ Roadmap |
+| LayerZero amnesty list (T1) | ⏳ Coming soon |
+| Hop Protocol investigations (T2) | ⏳ Coming soon |
+| Arbitrum Foundation list (T4) | ⏳ Coming soon |
+| Linea filtered list (T4) | ⏳ Coming soon |
 
 ## On-chain providers
 
 | Provider | Status |
 |---|---|
-| MockProvider (synthetic) | ✅ available — default |
-| AlchemyProvider | 🟡 beta — code written, needs paid `ALCHEMY_API_KEY` |
-| Self-hosted Erigon/Reth node | 🗓️ roadmap — needs infra budget |
-| PublicNode RPC (for derive scripts) | ✅ available |
+| MockProvider (synthetic) | ✅ Live |
+| AlchemyProvider (real) | ✅ Live (Ethereum, Arbitrum, Optimism, Base, Polygon enabled) |
+| Self-hosted Erigon node | 🗓️ Roadmap |
 
 ## Pipeline stages
 
 | Stage | Status |
 |---|---|
-| Ingest | 🔵 sandbox (MockProvider) / 🟡 beta (Alchemy) |
-| Feature extraction | ✅ available |
-| Clustering | ✅ available |
-| ML scoring | 🟡 beta |
-| Evidence generation | ✅ available |
-| Audit log | ✅ available |
-| Webhook delivery | ✅ available |
+| Ingest | 🔵 Sandbox |
+| Feature extraction | ✅ Live |
+| Clustering | ✅ Live |
+| ML scoring | 🔵 Sandbox |
+| Evidence generation | ✅ Live |
+| Audit log writes | ✅ Live |
+| Webhook delivery (HMAC-SHA256) | ✅ Live |
 
-## Adversarial / drift / retrain
+## Adversarial / drift
 
-| | Status |
+| Capability | Status |
 |---|---|
-| Adversarial test set | ✅ available |
-| PSI drift detection job | ✅ available |
-| Monthly retrain orchestrator | ✅ available |
-| Automatic retrain on drift alert | 🗓️ roadmap — manual trigger now |
-| Customer feedback loop into retraining | 🟡 beta — endpoint live, retraining pipeline reads feedback in next iteration |
+| Adversarial test set | ✅ Live |
+| PSI drift detection | ✅ Live |
+| Retrain orchestrator | ✅ Live |
+| Auto-retrain on drift alert | 🗓️ Roadmap |
+| Feedback-driven label promotion | 🟡 Beta |
 
-## Frontend
+## Frontend pages
 
 | Page | Status |
 |---|---|
-| `/` landing | ✅ available |
-| `/docs` | ✅ available |
-| `/dashboard` overview | ✅ available |
-| `/dashboard/analyses` list | ✅ available |
-| `/dashboard/analyses/[id]` detail | ✅ available |
-| `/dashboard/api-keys` | ✅ available |
-| `/dashboard/new` | 🟡 beta — placeholder with API-as-curl |
-| `/dashboard/billing` | ✅ available — usage chart + tiers (crypto checkout pending) |
-| `/dashboard/settings` | 🗓️ roadmap |
-| `/dashboard/analyses/:id` | ✅ available — full evidence detail |
-| `/pricing` | ✅ available |
-| `/roadmap` | ✅ available |
-| `/methodology` | ✅ available |
-| `/about` | 🟡 beta — placeholder team info |
-| `/security` | ✅ available |
-| `/appeal` | ✅ available |
-| `/blog` | 🟡 beta — scaffold + 1 retro post |
-| Cluster network visualisation | 🗓️ roadmap |
+| `/` (Landing) | ✅ Live |
+| `/docs` | ✅ Live |
+| `/dashboard` | ✅ Live |
+| `/dashboard/analyses` | ✅ Live |
+| `/dashboard/analyses/[id]` | ✅ Live |
+| `/dashboard/api-keys` | ✅ Live |
+| `/dashboard/new` | 🗓️ Roadmap (CSV upload UI) |
+| `/dashboard/billing` | 🟡 Beta |
+| `/dashboard/settings` | 🗓️ Roadmap |
+| `/pricing` | ✅ Live |
+| `/roadmap` | ✅ Live |
+| `/methodology` | ✅ Live |
+| `/about` | ✅ Live |
+| `/security` | ✅ Live |
+| `/appeal` | ✅ Live |
+| `/blog` | ✅ Live (1 published post; 3 drafts visible) |
+| Cluster network visualisation | 🗓️ Roadmap |
 
 ## Billing & accounts
 
-| Feature | Status |
+| Capability | Status |
 |---|---|
-| Free tier (100 calls/mo) | ✅ available |
-| Developer plan ($499/mo) | ⏳ coming-soon — crypto checkout via NowPayments after LLC OR after first grant |
-| Growth plan ($1,499/mo) | ⏳ coming-soon |
-| Enterprise plan | ⏳ coming-soon — requires LLC + custom contract |
-| Per-analysis pricing | ⏳ coming-soon |
-| Stripe card payments | 🗓️ roadmap — requires LLC |
-| Crypto checkout (NowPayments) | 🗓️ roadmap — next infra task |
-| API key rotation | ✅ available |
-| Webhook subscriptions | ✅ available — HMAC-SHA256 signed |
-| Usage tracking | ✅ available |
+| Free Sandbox (100 calls/mo) | ✅ Live |
+| Developer plan ($499/mo) | ⏳ Coming soon |
+| Growth plan ($1,499/mo) | ⏳ Coming soon |
+| Enterprise plan | ⏳ Coming soon |
+| Per-analysis pricing | ⏳ Coming soon (manual pilot today via support@) |
+| Stripe card payments | 🗓️ Roadmap (post-incorporation) |
+| Crypto checkout (Atlos) | 🟡 Beta (works in code; one pilot flow uses it) |
+| API key rotation | ✅ Live |
+| Webhook subscriptions | ✅ Live |
+| Usage tracking | ✅ Live |
 
-## Infrastructure
-
-| | Status |
-|---|---|
-| Docker compose full stack | ✅ available |
-| Drizzle migrations | ✅ available |
-| CI on GitHub Actions | ✅ available |
-| Free-tier deployment (Railway+Vercel+Supabase) | 🗓️ roadmap — config to be added |
-| Production deployment guide | 🗓️ roadmap — after first grant lands |
-| Self-hosted node | 🗓️ roadmap |
+---
 
 ## Roadmap milestones
 
-### Now (already shipped — public beta)
-- Working API + dashboard with sandbox data
-- 63 automated tests, full e2e flow verified
-- Public appeal endpoint + audit log
-- Open-source clustering algorithms (MIT)
+### Now
 
-### Next (Q3 2026 — depends on first grant or self-funding)
-- Real Alchemy integration + production model
-- NowPayments crypto checkout
-- Free single-address scoring API (public good)
-- Public retro-analysis posts (Linea, LayerZero - aggregate only)
+- ML model calibration on real labeled corpus (LayerZero amnesty + Hop investigations as T1/T2)
+- Off-site Postgres backup (Backblaze B2)
+- First published retro: Linea airdrop methodology
 
-### Later (Q4 2026 — depends on LLC + revenue)
-- Card payments via Stripe
-- Enterprise contracts with SLA
-- Self-hosted node deployment
-- Cluster network visualisation
-- Custom-model training for enterprise customers
+### Next
+
+- CSV-upload UI for analyses creation
+- Resend email integration (team invites + analysis-complete notifications)
+- Multi-chain Alchemy: enable BSC + Avalanche + Linea (Growth tier)
+- Stripe products + production billing once Delaware C-corp is incorporated
+
+### Later
+
+- Self-hosted Erigon/Reth node (when Alchemy CU stops being enough)
+- SOC 2 Type I (after first enterprise customer asks)
+- Pentest (after SOC 2 Type I)
+- Cluster network visualization (D3/Sigma)
+- TypeScript + Python SDK packages on npm/PyPI
+- Auto-retrain cron triggered by drift alerts
