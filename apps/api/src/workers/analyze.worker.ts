@@ -9,6 +9,7 @@ import { Worker } from "bullmq";
 import { eq } from "drizzle-orm";
 import IORedis from "ioredis";
 import { addressScores, analyses, clusters, customers, db, evidenceAuditLog } from "../db/index.js";
+import { computeDecision, evidenceToCodes, type DecisionPreset } from "../lib/presets.js";
 import { createNotification } from "../routes/notifications.js";
 import { recordDelivery } from "../routes/webhook-deliveries.js";
 import { deliverWebhook } from "../services/webhooks.js";
@@ -21,6 +22,8 @@ interface AnalysisJob {
   addressesFileUrl?: string;
   chains: string[];
   sensitivity: string;
+  preset?: DecisionPreset;
+  mode?: "full" | "cluster_only";
 }
 
 interface MLScore {
@@ -87,7 +90,13 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
     throw new Error("no addresses to analyze");
   }
 
-  const resp = await fetch(`${ML_SERVICE_URL}/run`, {
+  // Pick the ML endpoint based on requested mode. cluster_only short-circuits
+  // ML inference; the ML side returns clusters + addr_to_clusters and the
+  // worker synthesises minimal "unscored" addressScores rows for addresses
+  // that landed in any cluster (so the dashboard can show membership).
+  const mode = job.mode ?? "full";
+  const endpoint = mode === "cluster_only" ? "/cluster-only" : "/run";
+  const resp = await fetch(`${ML_SERVICE_URL}${endpoint}`, {
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
@@ -100,7 +109,38 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
     const text = await resp.text();
     throw new Error(`ML service failed: ${resp.status} ${text}`);
   }
-  const result = (await resp.json()) as MLResponse;
+  const rawResult = await resp.json();
+  const result =
+    mode === "cluster_only"
+      ? normaliseClusterOnlyResponse(rawResult, addresses, job.chains[0] ?? "ethereum")
+      : (rawResult as MLResponse);
+
+  // Compute decisions per row using the preset (only meaningful for full mode).
+  const preset: DecisionPreset = job.preset ?? "balanced";
+  const enrichedScores = result.scores.map((s) => {
+    if (mode === "cluster_only") {
+      // No per-address verdict in cluster-only — null decision, but we still
+      // store the row so the dashboard can show cluster membership.
+      return { ...s, decision: null, decisionConfidence: null, rationaleCodes: [] as string[] };
+    }
+    const extraCodes = evidenceToCodes(s.evidence);
+    const d = computeDecision(s.sybil_score, s.cluster_size, preset, extraCodes);
+    return {
+      ...s,
+      decision: d.decision,
+      decisionConfidence: d.confidence,
+      rationaleCodes: d.rationale_codes,
+    };
+  });
+  // Decision-aware tally (only computed when full mode produced decisions).
+  let dropCount = 0;
+  let reviewCount = 0;
+  let keepCount = 0;
+  for (const s of enrichedScores) {
+    if (s.decision === "DROP") dropCount++;
+    else if (s.decision === "REVIEW") reviewCount++;
+    else if (s.decision === "KEEP") keepCount++;
+  }
 
   // Look up the customer (for webhook delivery later)
   const [analysisRow] = await db
@@ -121,9 +161,9 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
   // second attempt sees an already-populated child set and just re-flips
   // status (which is idempotent).
   await db.transaction(async (tx) => {
-    if (result.scores.length > 0) {
+    if (enrichedScores.length > 0) {
       await tx.insert(addressScores).values(
-        result.scores.map((s) => ({
+        enrichedScores.map((s) => ({
           analysisId: job.analysisId,
           address: s.address.toLowerCase(),
           chain: s.chain ?? defaultChain,
@@ -132,6 +172,9 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
           label: s.label,
           clusterId: s.cluster_id ?? undefined,
           clusterSize: s.cluster_size ?? undefined,
+          decision: s.decision ?? undefined,
+          decisionConfidence: s.decisionConfidence ?? undefined,
+          rationaleCodes: s.rationaleCodes,
           features: {},
           evidence: s.evidence ?? [],
         })),
@@ -181,6 +224,10 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
       sybilCount: result.summary.sybil_count,
       suspiciousCount: result.summary.suspicious_count,
       genuineCount: result.summary.genuine_count,
+      // Decision-aware tallies (null on cluster_only — no per-row verdict).
+      dropCount: mode === "cluster_only" ? null : dropCount,
+      reviewCount: mode === "cluster_only" ? null : reviewCount,
+      keepCount: mode === "cluster_only" ? null : keepCount,
       clusterCount: result.summary.cluster_count,
       largestClusterSize: result.summary.largest_cluster_size,
       cuConsumed: result.cu_consumed,
@@ -221,6 +268,72 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
       }
     }
   }
+}
+
+/**
+ * Adapt the ML service's `/cluster-only` response (which has clusters +
+ * addr_to_clusters but no per-address scores) into the same MLResponse
+ * shape the rest of the worker expects. For each address that landed in
+ * any cluster we synthesise a minimal "unscored" addressScores row so the
+ * dashboard can show cluster membership; addresses outside any cluster
+ * are dropped from `scores` (so the table only renders meaningful rows).
+ */
+function normaliseClusterOnlyResponse(
+  raw: unknown,
+  inputAddresses: string[],
+  defaultChain: string,
+): MLResponse {
+  const r = raw as {
+    clusters?: MLClusterOut[];
+    addr_to_clusters?: Record<string, string[]>;
+    cu_consumed?: number;
+  };
+  const clustersOut = r.clusters ?? [];
+  const addrMap = r.addr_to_clusters ?? {};
+  // Build a lookup of cluster id → size + biggest-cluster picker per address.
+  const sizeById = new Map<string, number>();
+  for (const c of clustersOut) sizeById.set(c.id, c.size);
+
+  const scores: MLScore[] = [];
+  for (const addr of inputAddresses) {
+    const lower = addr.toLowerCase();
+    const ids = addrMap[lower] ?? [];
+    if (ids.length === 0) continue;
+    let biggestId = ids[0]!;
+    let biggestSize = sizeById.get(biggestId) ?? 0;
+    for (const id of ids) {
+      const s = sizeById.get(id) ?? 0;
+      if (s > biggestSize) {
+        biggestId = id;
+        biggestSize = s;
+      }
+    }
+    scores.push({
+      address: lower,
+      chain: defaultChain,
+      sybil_score: 0,
+      label: "unscored",
+      confidence: 0,
+      cluster_id: biggestId,
+      cluster_size: biggestSize,
+      evidence: [],
+    });
+  }
+
+  return {
+    analysis_id: "",
+    summary: {
+      total_scored: scores.length,
+      sybil_count: 0,
+      suspicious_count: 0,
+      genuine_count: 0,
+      cluster_count: clustersOut.length,
+      largest_cluster_size: clustersOut.reduce((m, c) => Math.max(m, c.size), 0),
+    },
+    scores,
+    clusters: clustersOut,
+    cu_consumed: r.cu_consumed ?? 0,
+  };
 }
 
 export function startWorker(): Worker {

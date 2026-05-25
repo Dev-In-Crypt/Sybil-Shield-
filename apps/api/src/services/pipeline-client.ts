@@ -25,6 +25,10 @@ export interface AnalysisJob {
   addressesFileUrl?: string;
   chains: string[];
   sensitivity: string;
+  /** Preset for computeDecision(). Defaults to "balanced" when undefined. */
+  preset?: "airdrop" | "dao" | "grant" | "balanced";
+  /** "full" runs ML scoring; "cluster_only" skips ML and returns clusters only. */
+  mode?: "full" | "cluster_only";
 }
 
 export async function enqueueAnalysis(job: AnalysisJob): Promise<void> {

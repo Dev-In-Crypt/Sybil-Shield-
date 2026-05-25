@@ -140,6 +140,45 @@ class SybilShieldPipeline:
             cu_consumed=self.provider.quota.cu_consumed,
         )
 
+    def run_clusters_only(
+        self,
+        analysis_id: str,
+        addresses: list[str],
+        chains: list[str],
+    ) -> tuple[list[Cluster], dict[str, list[str]], int]:
+        """
+        Cluster-only pipeline — steps 1-3 of run(), no scoring.
+
+        Used by POST /cluster-only. Skips the ML inference cost; feature
+        extraction still runs because the behavior clusterer needs features.
+        Savings vs run(): ~20% on small lists, more when cluster density is
+        low (no extra evidence-gen passes per address).
+        """
+        addresses = sorted({a.lower() for a in addresses})
+        log.info(
+            "[%s] cluster-only: %d addresses on %s",
+            analysis_id, len(addresses), chains,
+        )
+        batches_by_chain: dict[str, list] = {}
+        for chain in chains:
+            batches_by_chain[chain] = ingest_batch(self.provider, addresses, chain)
+        primary_chain = chains[0]
+        primary_batch = batches_by_chain[primary_chain]
+        features = extract_all_features(primary_batch, self.contract_labels)
+
+        funding_clusters = cluster_by_funding_source(primary_batch)
+        behavior_clusters = cluster_by_behavior(
+            [d.address for d in primary_batch], features
+        )
+        graph_clusters = detect_communities(primary_batch)
+        cross_chain_clusters = (
+            link_cross_chain(batches_by_chain) if len(chains) > 1 else []
+        )
+        all_clusters, addr_to_clusters = merge_clusters(
+            funding_clusters, behavior_clusters, graph_clusters, cross_chain_clusters
+        )
+        return all_clusters, addr_to_clusters, self.provider.quota.cu_consumed
+
 
 def _summarize(scores: dict[str, dict[str, Any]], clusters: list[Cluster]) -> dict[str, int]:
     sybil = sum(1 for v in scores.values() if v["sybil_score"] >= 70)

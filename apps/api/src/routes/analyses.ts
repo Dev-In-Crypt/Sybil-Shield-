@@ -11,6 +11,12 @@ const CreateAnalysisSchema = z.object({
   addresses_file_url: z.string().url().optional(),
   sensitivity: z.enum(["strict", "balanced", "lenient"]).default("balanced"),
   include_evidence: z.boolean().default(true),
+  // Decision preset — drives the server-side DROP/REVIEW/KEEP verdict
+  // computed at worker time. See apps/api/src/lib/presets.ts for thresholds.
+  preset: z.enum(["airdrop", "dao", "grant", "balanced"]).default("balanced"),
+  // "full" runs the ML scoring pipeline; "cluster_only" short-circuits it
+  // and returns only multi-wallet cluster groupings.
+  mode: z.enum(["full", "cluster_only"]).default("full"),
 });
 
 export async function analysesRoutes(app: FastifyInstance): Promise<void> {
@@ -36,6 +42,8 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
         addressesFileUrl: body.addresses_file_url,
         sensitivity: body.sensitivity,
         includeEvidence: body.include_evidence,
+        preset: body.preset,
+        mode: body.mode,
         status: "pending",
       })
       .returning();
@@ -46,6 +54,8 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
       addressesFileUrl: body.addresses_file_url,
       chains: body.chains,
       sensitivity: body.sensitivity,
+      preset: body.preset,
+      mode: body.mode,
     });
 
     return reply.code(202).send({
@@ -78,12 +88,19 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
       name: row.name,
       chains: row.chains,
       address_count: row.addressCount,
+      preset: row.preset,
+      mode: row.mode,
       summary: row.status === "complete"
         ? {
             total_scored: row.totalScored,
+            // Legacy label-based counters (score-band tallies)
             sybil_count: row.sybilCount,
             suspicious_count: row.suspiciousCount,
             genuine_count: row.genuineCount,
+            // Decision counters (preset-aware) — preferred for new clients
+            drop_count: row.dropCount,
+            review_count: row.reviewCount,
+            keep_count: row.keepCount,
             cluster_count: row.clusterCount,
             largest_cluster_size: row.largestClusterSize,
           }
@@ -95,7 +112,10 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
     });
   });
 
-  app.get<{ Params: { id: string }; Querystring: { page?: string; limit?: string; label?: string } }>(
+  app.get<{
+    Params: { id: string };
+    Querystring: { page?: string; limit?: string; label?: string; decision?: string };
+  }>(
     "/v1/analyses/:id/results",
     async (request, reply) => {
       const [analysis] = await db
@@ -111,6 +131,10 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
       const baseConditions = [eq(addressScores.analysisId, request.params.id)];
       if (request.query.label) {
         baseConditions.push(eq(addressScores.label, request.query.label));
+      }
+      if (request.query.decision) {
+        // Decision filter: DROP|REVIEW|KEEP. Case-insensitive accept.
+        baseConditions.push(eq(addressScores.decision, request.query.decision.toUpperCase()));
       }
 
       const rows = await db
@@ -130,6 +154,11 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
           confidence: r.confidence,
           cluster_id: r.clusterId,
           cluster_size: r.clusterSize,
+          // Decision payload (preset-aware). Null on legacy rows or
+          // cluster_only analyses where per-address verdicts don't apply.
+          decision: r.decision,
+          decision_confidence: r.decisionConfidence,
+          rationale_codes: r.rationaleCodes,
           evidence: r.evidence,
         })),
         page,
@@ -155,11 +184,12 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
         .where(eq(addressScores.analysisId, request.params.id))
         .orderBy(desc(addressScores.sybilScore));
 
-      const header = "address,chain,sybil_score,label,confidence,cluster_id,cluster_size\n";
+      const header =
+        "address,chain,sybil_score,label,decision,decision_confidence,confidence,cluster_id,cluster_size,rationale_codes\n";
       const body = rows
         .map(
           (r) =>
-            `${r.address},${r.chain},${r.sybilScore},${r.label},${r.confidence ?? ""},${r.clusterId ?? ""},${r.clusterSize ?? ""}`,
+            `${r.address},${r.chain},${r.sybilScore},${r.label},${r.decision ?? ""},${r.decisionConfidence ?? ""},${r.confidence ?? ""},${r.clusterId ?? ""},${r.clusterSize ?? ""},${(r.rationaleCodes ?? []).join("|")}`,
         )
         .join("\n");
       reply.header("content-type", "text/csv");

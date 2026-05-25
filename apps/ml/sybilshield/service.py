@@ -65,6 +65,39 @@ def health() -> dict[str, Any]:
     return {"status": "ok", "service": "sybilshield-ml"}
 
 
+@app.post("/cluster-only")
+def cluster_only(req: RunRequest) -> dict[str, Any]:
+    """
+    Cluster-only mode: ingests addresses, runs the 4 clustering modules,
+    returns clusters + addr_to_clusters map. No per-address ML scoring.
+
+    Worker side (apps/api/src/workers/analyze.worker.ts) calls this when
+    the analysis was created with mode='cluster_only', and synthesises
+    minimal addressScores rows for addresses that landed in any cluster.
+    """
+    if not req.addresses:
+        raise HTTPException(status_code=400, detail="addresses must not be empty")
+    pipe = get_pipeline()
+    all_clusters, addr_to_clusters, cu_consumed = pipe.run_clusters_only(
+        req.analysis_id, req.addresses, req.chains
+    )
+    return {
+        "analysis_id": req.analysis_id,
+        "clusters": [
+            {
+                "id": c.id,
+                "method": c.method,
+                "size": c.size,
+                "confidence": c.confidence,
+                "evidence": c.evidence,
+            }
+            for c in all_clusters
+        ],
+        "addr_to_clusters": addr_to_clusters,
+        "cu_consumed": cu_consumed,
+    }
+
+
 @app.post("/run")
 def run(req: RunRequest) -> dict[str, Any]:
     if not req.addresses:
