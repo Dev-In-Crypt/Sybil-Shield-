@@ -109,9 +109,11 @@ jobs:
             docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build $REBUILD
           fi
 
-          # Always restart worker so it picks up env / code changes that
-          # don't touch its image layers (e.g. a typescript constant tweak).
-          docker compose -f docker-compose.yml -f docker-compose.prod.yml restart worker || true
+          # Always force-recreate worker so it picks up new env vars from
+          # .env (plain `restart` reuses the existing container with its
+          # original env baked in at create-time). Code changes via
+          # bind-mounted /app/apps/api/src are picked up regardless.
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --force-recreate worker || true
 
           # Prune dangling images so disk doesn't fill up over months of deploys.
           docker image prune -f >/dev/null

@@ -110,6 +110,16 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
 
   const defaultChain = job.chains[0] ?? "ethereum";
 
+  // Two-phase write so callers that poll GET /analyses/:id and see
+  // status='complete' can immediately read /results without hitting an
+  // empty page. Phase 1 inserts all child rows in one atomic tx; the
+  // status flip happens in a SEPARATE tx that runs only after phase 1
+  // commits, guaranteeing scores/audit/clusters are visible before
+  // 'complete' becomes observable. The trade-off: if phase 2 fails we
+  // end up with orphaned scores under status='ingesting' — but BullMQ
+  // will retry the whole job and the analysisId is stable, so the
+  // second attempt sees an already-populated child set and just re-flips
+  // status (which is idempotent).
   await db.transaction(async (tx) => {
     if (result.scores.length > 0) {
       await tx.insert(addressScores).values(
@@ -157,23 +167,25 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
         })),
       );
     }
-    const completedAt = new Date();
-    await tx
-      .update(analyses)
-      .set({
-        status: "complete",
-        completedAt,
-        processingTimeSeconds: Math.round((completedAt.getTime() - startedAt.getTime()) / 1000),
-        totalScored: result.summary.total_scored,
-        sybilCount: result.summary.sybil_count,
-        suspiciousCount: result.summary.suspicious_count,
-        genuineCount: result.summary.genuine_count,
-        clusterCount: result.summary.cluster_count,
-        largestClusterSize: result.summary.largest_cluster_size,
-        cuConsumed: result.cu_consumed,
-      })
-      .where(eq(analyses.id, job.analysisId));
   });
+
+  // Phase 2: flip status to 'complete' only after phase 1 has committed.
+  const completedAt = new Date();
+  await db
+    .update(analyses)
+    .set({
+      status: "complete",
+      completedAt,
+      processingTimeSeconds: Math.round((completedAt.getTime() - startedAt.getTime()) / 1000),
+      totalScored: result.summary.total_scored,
+      sybilCount: result.summary.sybil_count,
+      suspiciousCount: result.summary.suspicious_count,
+      genuineCount: result.summary.genuine_count,
+      clusterCount: result.summary.cluster_count,
+      largestClusterSize: result.summary.largest_cluster_size,
+      cuConsumed: result.cu_consumed,
+    })
+    .where(eq(analyses.id, job.analysisId));
 
   // After commit: notification + webhook delivery (best-effort, no rollback)
   if (analysisRow) {
