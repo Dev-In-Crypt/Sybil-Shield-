@@ -15,6 +15,14 @@ type Post = {
 
 const POSTS: Post[] = [
   {
+    slug: "v05-real-corpus",
+    title: "Trained on 1000 real wallets: what we learned",
+    excerpt:
+      "v0.5.0 ships the first real-Alchemy training corpus + on-chain governance-voters as a new genuine source (170 → 1,669, 10x). Adversarial recall went 0.0 → 1.0. Honest holdout limits explained.",
+    date: "2026-05-25",
+    published: true,
+  },
+  {
     slug: "linea-retro",
     title: "Replicating Linea's filter: 478K agreement, 45K candidates they missed",
     excerpt:
