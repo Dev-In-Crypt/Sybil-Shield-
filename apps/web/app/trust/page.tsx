@@ -127,7 +127,7 @@ export default function TrustPage() {
   "event_id": "evt_01HX...",
   "event_type": "flagged",
   "address": "0xa12b...c4d7",
-  "actor": "system:v0.2.0-20260525",
+  "actor": "system:v0.4.0-alchemy-adv",
   "prior_score": null,
   "new_score": 87,
   "reason": "sybil",

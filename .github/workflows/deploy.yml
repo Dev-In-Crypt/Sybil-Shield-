@@ -1,0 +1,117 @@
+name: Deploy
+
+# Auto-deploys the API + worker + ML containers to the Hetzner VPS after CI
+# passes on main. Vercel handles the web app separately on its own webhook.
+#
+# Required repository secrets:
+#   DEPLOY_SSH_HOST       — e.g. 178.105.176.105
+#   DEPLOY_SSH_USER       — e.g. sybil
+#   DEPLOY_SSH_KEY        — private key (ed25519) with passphrase NONE.
+#                            Public half installed in /home/sybil/.ssh/authorized_keys
+#   DEPLOY_HEALTH_URL     — e.g. https://api.sybilshield.org/health
+#   (optional) DEPLOY_DISCORD_WEBHOOK — Discord webhook for success/failure pings
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-prod
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout (for diff context only)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+
+      - name: Install SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.DEPLOY_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+      - name: Pull + rebuild + restart
+        env:
+          HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          USER: ${{ secrets.DEPLOY_SSH_USER }}
+        run: |
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "$USER@$HOST" 'bash -s' <<'REMOTE'
+          set -euo pipefail
+          cd ~/sybilshield
+          echo "==> git pull"
+          git fetch --quiet origin main
+          BEFORE=$(git rev-parse HEAD)
+          git reset --hard origin/main
+          AFTER=$(git rev-parse HEAD)
+          echo "moved $BEFORE -> $AFTER"
+
+          # Detect which services need rebuilding from the changed paths.
+          CHANGED=$(git diff --name-only "$BEFORE" "$AFTER" || true)
+          REBUILD=""
+          if echo "$CHANGED" | grep -qE '^(apps/api/|docker-compose|package(-lock)?\.json|pnpm-lock\.yaml)'; then
+            REBUILD="$REBUILD api worker migrate"
+          fi
+          if echo "$CHANGED" | grep -qE '^(apps/ml/|docker-compose|requirements)'; then
+            REBUILD="$REBUILD ml"
+          fi
+
+          if [ -z "$REBUILD" ]; then
+            echo "==> no infra-relevant changes; skipping rebuild"
+          else
+            echo "==> rebuilding:$REBUILD"
+            # shellcheck disable=SC2086
+            docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build $REBUILD
+          fi
+
+          # Always restart worker so it picks up env / code changes that
+          # don't touch its image layers (e.g. a typescript constant tweak).
+          docker compose -f docker-compose.yml -f docker-compose.prod.yml restart worker || true
+
+          # Prune dangling images so disk doesn't fill up over months of deploys.
+          docker image prune -f >/dev/null
+          REMOTE
+
+      - name: Wait + health-check
+        env:
+          HEALTH_URL: ${{ secrets.DEPLOY_HEALTH_URL }}
+        run: |
+          sleep 10
+          for i in 1 2 3 4 5 6; do
+            code=$(curl -sS -o /tmp/h -w '%{http_code}' "${HEALTH_URL:-https://api.sybilshield.org/health}" || echo 000)
+            echo "health attempt $i: $code"
+            if [ "$code" = "200" ]; then
+              cat /tmp/h
+              echo "OK"
+              exit 0
+            fi
+            sleep 5
+          done
+          echo "Health check failed after 6 attempts"
+          cat /tmp/h || true
+          exit 1
+
+      - name: Notify Discord (success)
+        if: success() && env.DEPLOY_DISCORD_WEBHOOK != ''
+        env:
+          DEPLOY_DISCORD_WEBHOOK: ${{ secrets.DEPLOY_DISCORD_WEBHOOK }}
+          SHA: ${{ github.sha }}
+        run: |
+          curl -sS -X POST -H "content-type: application/json" -d "{\"content\":\"✅ deploy ok: ${SHA:0:7}\"}" "$DEPLOY_DISCORD_WEBHOOK" || true
+
+      - name: Notify Discord (failure)
+        if: failure() && env.DEPLOY_DISCORD_WEBHOOK != ''
+        env:
+          DEPLOY_DISCORD_WEBHOOK: ${{ secrets.DEPLOY_DISCORD_WEBHOOK }}
+          SHA: ${{ github.sha }}
+        run: |
+          curl -sS -X POST -H "content-type: application/json" -d "{\"content\":\"❌ deploy FAILED on ${SHA:0:7} — check Actions tab\"}" "$DEPLOY_DISCORD_WEBHOOK" || true

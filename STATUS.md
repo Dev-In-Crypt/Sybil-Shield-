@@ -2,7 +2,7 @@
 
 **Source of truth:** `apps/web/lib/feature-status.ts`. Public mirror at <https://sybilshield.org/status>.
 
-**Last synced:** 2026-05-25
+**Last synced:** 2026-05-25 (ML v0.4.0-alchemy-adv deployed; legal pages live; public score lookup unauth)
 
 ## Legend
 
@@ -25,13 +25,16 @@
 | `GET /v1/analyses/:id/results` | ✅ Live |
 | `GET /v1/analyses/:id/results/export` | ✅ Live |
 | `GET /v1/analyses/:id/clusters` | ✅ Live |
-| `GET /v1/score/:address` | 🔵 Sandbox |
+| `GET /v1/score/:address` | ✅ Live (public, no auth — read-only cached lookup) |
 | `POST /v1/score/batch` | 🔵 Sandbox |
 | `GET /v1/entities/:address` | ✅ Live |
 | `POST /v1/feedback` | ✅ Live |
 | `POST /v1/appeals` | ✅ Live |
+| `GET /v1/audit-log?analysis_id=…` | ✅ Live (tenant-scoped, JSON + CSV) |
 
-Sandbox-status endpoints work end-to-end; the underlying model is in-the-loop training, not a calibrated v1.
+Sandbox-status endpoints work end-to-end on Alchemy data; LightGBM model is
+trained on a real-Alchemy 545-sample corpus (incl. adversarial), but
+production calibration on wild-traffic feedback is the next milestone.
 
 ## Detection methods
 
@@ -106,6 +109,10 @@ Sandbox-status endpoints work end-to-end; the underlying model is in-the-loop tr
 | `/security` | ✅ Live |
 | `/appeal` | ✅ Live |
 | `/blog` | ✅ Live (1 published post; 3 drafts visible) |
+| `/privacy` | ✅ Live (sandbox version) |
+| `/terms` | ✅ Live (sandbox version) |
+| `/cookies` | ✅ Live |
+| `/trust`, `/sub-processors`, `/changelog`, `/status` | ✅ Live |
 | Cluster network visualisation | 🗓️ Roadmap |
 
 ## Billing & accounts
@@ -129,9 +136,10 @@ Sandbox-status endpoints work end-to-end; the underlying model is in-the-loop tr
 
 ### Now
 
-- ML model calibration on real labeled corpus (LayerZero amnesty + Hop investigations as T1/T2)
+- Expand genuine corpus (derive more ENS-veterans + Gitcoin Passport integration) so production metrics aren't capped by a 140-sample G2 pool
 - Off-site Postgres backup (Backblaze B2)
-- First published retro: Linea airdrop methodology
+- Deploy-on-push GitHub Action (replaces manual `ssh + git pull + docker compose`)
+- Sentry / healthcheck monitoring
 
 ### Next
 

@@ -20,7 +20,7 @@ export const FEATURES = {
   apiGetResults: "available",
   apiExportCsv: "available",
   apiClusters: "available",
-  apiSingleScore: "sandbox",
+  apiSingleScore: "available",
   apiBatchScore: "sandbox",
   apiEntities: "available",
   apiFeedback: "available",
@@ -81,6 +81,9 @@ export const FEATURES = {
   pageSecurity: "available",
   pageAppeal: "available",
   pageBlog: "available",
+  pagePrivacy: "available",
+  pageTerms: "available",
+  pageCookies: "available",
   clusterViz: "roadmap",
 
   // Billing

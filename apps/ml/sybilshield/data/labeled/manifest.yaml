@@ -139,6 +139,26 @@ sources:
     expected_count: 30000
     enabled: true
 
+  - id: snapshot-voters
+    label_class: genuine
+    tier: G2
+    confidence: 0.80
+    description: >
+      Addresses that voted on Snapshot.org proposals (>=5 votes across
+      >=3 unique spaces). Snapshot voting requires holding the space's
+      governance token, so prolific voters strongly correlate with human
+      participants. Produced by `python -m sybilshield.data.derive_snapshot_voters`
+      BEFORE curate. Replaces ENS-veterans when the ENS subgraph is
+      unavailable (the hosted thegraph endpoint deprecated in 2024).
+    license: derived
+    chains: [ethereum]
+    retrieval:
+      method: derived
+      script: derive_snapshot_voters.py
+      address_column: address
+    expected_count: 2000
+    enabled: true
+
 # ============================================================
 # CONFLICT RESOLUTION RULES
 # ============================================================
