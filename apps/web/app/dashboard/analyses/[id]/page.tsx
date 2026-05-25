@@ -4,9 +4,14 @@ import { useEffect, useState } from "react";
 
 interface Summary {
   total_scored: number;
+  // Legacy label-based counts (kept for backwards compatibility)
   sybil_count: number;
   suspicious_count: number;
   genuine_count: number;
+  // Decision counts (preset-aware) — preferred when present.
+  drop_count?: number | null;
+  review_count?: number | null;
+  keep_count?: number | null;
   cluster_count: number;
   largest_cluster_size: number;
 }
@@ -19,6 +24,9 @@ interface ScoreRow {
   confidence: number | string;
   cluster_id: string | null;
   cluster_size: number | null;
+  decision?: "DROP" | "REVIEW" | "KEEP" | null;
+  decision_confidence?: "high" | "medium" | "low" | null;
+  rationale_codes?: string[] | null;
   evidence: Array<{ type: string; description: string; confidence: number }> | null;
 }
 
@@ -27,10 +35,33 @@ interface Analysis {
   status: string;
   name: string;
   address_count: number;
+  preset?: string | null;
+  mode?: string | null;
   summary?: Summary;
   created_at: string;
   completed_at: string | null;
 }
+
+// Mirror of apps/api/src/lib/presets.ts — kept duplicated for now so the
+// dashboard can render rule descriptions without an extra round-trip.
+const PRESET_RULES: Record<string, { drop: string; review: string }> = {
+  airdrop: {
+    drop: "score ≥ 85 OR cluster_size ≥ 10",
+    review: "score ≥ 60 OR cluster_size ≥ 5",
+  },
+  dao: {
+    drop: "score ≥ 90 OR cluster_size ≥ 3",
+    review: "score ≥ 50 OR cluster_size ≥ 2",
+  },
+  grant: {
+    drop: "cluster_size ≥ 5",
+    review: "cluster_size ≥ 2 OR score ≥ 70",
+  },
+  balanced: {
+    drop: "score ≥ 80",
+    review: "score ≥ 50",
+  },
+};
 
 export default function AnalysisDetail({ params }: { params: { id: string } }) {
   const [apiKey] = useState<string>(
@@ -38,7 +69,7 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
   );
   const [analysis, setAnalysis] = useState<Analysis | null>(null);
   const [results, setResults] = useState<ScoreRow[]>([]);
-  const [labelFilter, setLabelFilter] = useState<string>("");
+  const [decisionFilter, setDecisionFilter] = useState<string>("");
   const [search, setSearch] = useState<string>("");
   const [drawer, setDrawer] = useState<ScoreRow | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,16 +82,23 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
       try {
         const a = await fetch(`${base}/v1/analyses/${params.id}`, { headers }).then((r) => r.json());
         setAnalysis(a);
-        const q = labelFilter ? `?label=${labelFilter}` : "";
+        const q = decisionFilter ? `?decision=${decisionFilter}` : "";
         const r = await fetch(`${base}/v1/analyses/${params.id}/results${q}`, { headers }).then((x) => x.json());
         setResults(r.data ?? []);
       } catch (e) {
         setError(String(e));
       }
     })();
-  }, [apiKey, params.id, labelFilter]);
+  }, [apiKey, params.id, decisionFilter]);
 
   const filtered = results.filter((r) => !search || r.address.toLowerCase().includes(search.toLowerCase()));
+
+  // Decision counts come from the summary; fall back to tallying the loaded
+  // page if the analysis was created before the decision columns existed.
+  const hasDecisionSummary =
+    analysis?.summary?.drop_count != null ||
+    analysis?.summary?.review_count != null ||
+    analysis?.summary?.keep_count != null;
 
   return (
     <main className="mx-auto max-w-6xl px-6 py-12">
@@ -71,15 +109,46 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
         <>
           <h1 className="text-2xl font-semibold">{analysis.name}</h1>
           <p className="mt-1 text-sm text-zinc-500">
-            {analysis.status} · {analysis.address_count.toLocaleString()} addresses · created {new Date(analysis.created_at).toLocaleString()}
+            {analysis.status} · {analysis.address_count.toLocaleString()} addresses · created{" "}
+            {new Date(analysis.created_at).toLocaleString()}
+            {analysis.preset && (
+              <>
+                {" "}
+                · <span className="font-mono text-zinc-400">preset={analysis.preset}</span>
+              </>
+            )}
+            {analysis.mode === "cluster_only" && (
+              <>
+                {" "}
+                · <span className="font-mono text-amber-300">cluster-only mode</span>
+              </>
+            )}
           </p>
 
-          {analysis.summary && (
+          {analysis.summary && hasDecisionSummary && (
+            <section className="mt-8 grid gap-4 sm:grid-cols-4">
+              <Stat label="Drop" value={analysis.summary.drop_count ?? 0} pct={analysis.summary.total_scored} tone="rose" />
+              <Stat label="Review" value={analysis.summary.review_count ?? 0} pct={analysis.summary.total_scored} tone="amber" />
+              <Stat label="Keep" value={analysis.summary.keep_count ?? 0} pct={analysis.summary.total_scored} tone="emerald" />
+              <Stat
+                label="Clusters"
+                value={analysis.summary.cluster_count}
+                subtitle={`largest: ${analysis.summary.largest_cluster_size}`}
+                tone="zinc"
+              />
+            </section>
+          )}
+          {analysis.summary && !hasDecisionSummary && (
             <section className="mt-8 grid gap-4 sm:grid-cols-4">
               <Stat label="Genuine" value={analysis.summary.genuine_count} pct={analysis.summary.total_scored} tone="emerald" />
               <Stat label="Suspicious" value={analysis.summary.suspicious_count} pct={analysis.summary.total_scored} tone="amber" />
               <Stat label="Sybil" value={analysis.summary.sybil_count} pct={analysis.summary.total_scored} tone="rose" />
-              <Stat label="Clusters" value={analysis.summary.cluster_count} subtitle={`largest: ${analysis.summary.largest_cluster_size}`} tone="zinc" />
+              <Stat
+                label="Clusters"
+                value={analysis.summary.cluster_count}
+                subtitle={`largest: ${analysis.summary.largest_cluster_size}`}
+                tone="zinc"
+              />
             </section>
           )}
 
@@ -92,26 +161,25 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
             />
             <select
               className="rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm"
-              value={labelFilter}
-              onChange={(e) => setLabelFilter(e.target.value)}
+              value={decisionFilter}
+              onChange={(e) => setDecisionFilter(e.target.value)}
+              aria-label="Filter by decision"
             >
-              <option value="">All labels</option>
-              <option value="sybil">Sybil</option>
-              <option value="suspicious">Suspicious</option>
-              <option value="genuine">Genuine</option>
+              <option value="">All decisions</option>
+              <option value="DROP">Drop only</option>
+              <option value="REVIEW">Review only</option>
+              <option value="KEEP">Keep only</option>
             </select>
             <ExportCsvButton analysisId={params.id} />
           </div>
-          {/* slot below table for export feedback messages, no-op when empty */}
-          <div className="mt-2 min-h-[18px] text-xs">
-          </div>
+          <div className="mt-2 min-h-[18px] text-xs"></div>
 
           <table className="mt-4 w-full text-sm">
             <thead className="text-left text-xs uppercase tracking-wider text-zinc-500">
               <tr>
                 <th className="py-2 px-2">Address</th>
+                <th>Decision</th>
                 <th>Score</th>
-                <th>Label</th>
                 <th>Cluster</th>
                 <th>Evidence</th>
               </tr>
@@ -119,17 +187,26 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
             <tbody>
               {filtered.map((r) => (
                 <tr key={r.address} className="border-t border-zinc-800 font-mono">
-                  <td className="py-2 px-2">{r.address.slice(0, 10)}…{r.address.slice(-6)}</td>
-                  <td>{r.sybil_score}</td>
-                  <td><LabelChip label={r.label} /></td>
-                  <td className="text-zinc-500">{r.cluster_id ?? "—"}</td>
+                  <td className="py-2 px-2">
+                    {r.address.slice(0, 10)}…{r.address.slice(-6)}
+                  </td>
                   <td>
-                    {(r.evidence?.length ?? 0) > 0 ? (
-                      <button
-                        className="text-emerald-400 hover:underline"
-                        onClick={() => setDrawer(r)}
-                      >
-                        View ({r.evidence!.length})
+                    <DecisionChip decision={r.decision} confidence={r.decision_confidence} fallbackLabel={r.label} />
+                  </td>
+                  <td className="text-zinc-400">{r.sybil_score}</td>
+                  <td className="text-zinc-500">
+                    {r.cluster_id ? (
+                      <span title={r.cluster_id}>
+                        {r.cluster_id.slice(0, 8)}… <span className="text-zinc-600">(n={r.cluster_size})</span>
+                      </span>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                  <td>
+                    {(r.rationale_codes?.length ?? 0) > 0 || (r.evidence?.length ?? 0) > 0 ? (
+                      <button className="text-emerald-400 hover:underline" onClick={() => setDrawer(r)}>
+                        View ({r.rationale_codes?.length ?? r.evidence?.length ?? 0})
                       </button>
                     ) : (
                       <span className="text-zinc-600">—</span>
@@ -143,20 +220,63 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
       )}
 
       {drawer && (
-        <div
-          className="fixed inset-0 z-10 flex justify-end bg-black/60"
-          onClick={() => setDrawer(null)}
-        >
+        <div className="fixed inset-0 z-10 flex justify-end bg-black/60" onClick={() => setDrawer(null)}>
           <div
             className="w-full max-w-md overflow-y-auto bg-zinc-900 p-6 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between">
-              <h2 className="font-mono text-sm">{drawer.address}</h2>
-              <button onClick={() => setDrawer(null)} className="text-zinc-400">×</button>
+              <h2 className="font-mono text-sm break-all">{drawer.address}</h2>
+              <button onClick={() => setDrawer(null)} className="ml-2 shrink-0 text-zinc-400" aria-label="Close">
+                ×
+              </button>
             </div>
-            <p className="mt-2 text-2xl font-semibold">{drawer.sybil_score} <span className="text-sm text-zinc-500"><LabelChip label={drawer.label} /></span></p>
-            <ul className="mt-6 space-y-4">
+            <div className="mt-2 flex items-center gap-3">
+              <DecisionChip
+                decision={drawer.decision}
+                confidence={drawer.decision_confidence}
+                fallbackLabel={drawer.label}
+                size="lg"
+              />
+              <span className="font-mono text-sm text-zinc-500">score {drawer.sybil_score}</span>
+            </div>
+
+            {analysis?.preset && drawer.decision && (
+              <p className="mt-3 rounded border border-zinc-800 bg-zinc-950 p-3 text-xs text-zinc-400">
+                <span className="text-zinc-500">preset</span>{" "}
+                <span className="font-mono text-emerald-300">{analysis.preset}</span>
+                {PRESET_RULES[analysis.preset] && (
+                  <>
+                    {" · "}
+                    <span className="text-zinc-500">
+                      {drawer.decision === "DROP" ? "drop_if" : drawer.decision === "REVIEW" ? "review_if" : "thresholds"}:
+                    </span>{" "}
+                    <span className="font-mono text-zinc-300">
+                      {drawer.decision === "DROP"
+                        ? PRESET_RULES[analysis.preset]!.drop
+                        : drawer.decision === "REVIEW"
+                          ? PRESET_RULES[analysis.preset]!.review
+                          : "below review threshold"}
+                    </span>
+                  </>
+                )}
+              </p>
+            )}
+
+            {(drawer.rationale_codes?.length ?? 0) > 0 && (
+              <div className="mt-4">
+                <div className="text-xs uppercase tracking-wider text-zinc-500">Rationale</div>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {drawer.rationale_codes!.map((c) => (
+                    <span key={c} className="rounded bg-zinc-800 px-2 py-0.5 font-mono text-xs text-emerald-300">
+                      {c}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <ul className="mt-6 space-y-3">
               {drawer.evidence?.map((e, i) => (
                 <li key={i} className="rounded border border-zinc-800 p-3">
                   <div className="text-xs uppercase tracking-wider text-emerald-400">{e.type}</div>
@@ -175,7 +295,19 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
   );
 }
 
-function Stat({ label, value, pct, subtitle, tone }: { label: string; value: number; pct?: number; subtitle?: string; tone: string }) {
+function Stat({
+  label,
+  value,
+  pct,
+  subtitle,
+  tone,
+}: {
+  label: string;
+  value: number;
+  pct?: number;
+  subtitle?: string;
+  tone: string;
+}) {
   const colorMap: Record<string, string> = {
     emerald: "text-emerald-300",
     amber: "text-amber-300",
@@ -186,19 +318,51 @@ function Stat({ label, value, pct, subtitle, tone }: { label: string; value: num
     <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
       <div className="text-xs uppercase tracking-wider text-zinc-500">{label}</div>
       <div className={`mt-2 text-2xl font-semibold ${colorMap[tone]}`}>{value.toLocaleString()}</div>
-      {pct !== undefined && pct > 0 && <div className="text-xs text-zinc-500">{((value / pct) * 100).toFixed(1)}%</div>}
+      {pct !== undefined && pct > 0 && (
+        <div className="text-xs text-zinc-500">{((value / pct) * 100).toFixed(1)}%</div>
+      )}
       {subtitle && <div className="text-xs text-zinc-500">{subtitle}</div>}
     </div>
   );
 }
 
-function LabelChip({ label }: { label: string }) {
+function DecisionChip({
+  decision,
+  confidence,
+  fallbackLabel,
+  size = "sm",
+}: {
+  decision: ScoreRow["decision"];
+  confidence: ScoreRow["decision_confidence"];
+  fallbackLabel: string;
+  size?: "sm" | "lg";
+}) {
+  if (!decision) {
+    // Legacy or cluster-only row — fall back to the old label chip.
+    const legacy: Record<string, string> = {
+      sybil: "bg-rose-900/40 text-rose-300",
+      suspicious: "bg-amber-900/40 text-amber-300",
+      genuine: "bg-emerald-900/40 text-emerald-300",
+      unscored: "bg-zinc-800 text-zinc-400",
+    };
+    return (
+      <span className={`rounded px-2 py-0.5 text-xs ${legacy[fallbackLabel] ?? "bg-zinc-800"}`}>
+        {fallbackLabel}
+      </span>
+    );
+  }
   const styles: Record<string, string> = {
-    sybil: "bg-rose-900/40 text-rose-300",
-    suspicious: "bg-amber-900/40 text-amber-300",
-    genuine: "bg-emerald-900/40 text-emerald-300",
+    DROP: "bg-rose-900/50 text-rose-200 border border-rose-700/40",
+    REVIEW: "bg-amber-900/50 text-amber-200 border border-amber-700/40",
+    KEEP: "bg-emerald-900/50 text-emerald-200 border border-emerald-700/40",
   };
-  return <span className={`rounded px-2 py-0.5 text-xs ${styles[label] ?? "bg-zinc-800"}`}>{label}</span>;
+  const padding = size === "lg" ? "px-3 py-1 text-sm" : "px-2 py-0.5 text-xs";
+  return (
+    <span className={`inline-flex items-center gap-1 rounded font-semibold ${padding} ${styles[decision]}`}>
+      {decision}
+      {confidence && <span className="text-[10px] font-normal opacity-70">· {confidence}</span>}
+    </span>
+  );
 }
 
 function ExportCsvButton({ analysisId }: { analysisId: string }) {

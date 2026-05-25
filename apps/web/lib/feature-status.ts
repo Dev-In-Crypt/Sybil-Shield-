@@ -71,7 +71,7 @@ export const FEATURES = {
   pageAnalysesList: "available",
   pageAnalysesDetail: "available",
   pageApiKeys: "available",
-  pageNewAnalysis: "roadmap",
+  pageNewAnalysis: "available",
   pageBilling: "beta",
   pageSettings: "roadmap",
   pagePricing: "available",
