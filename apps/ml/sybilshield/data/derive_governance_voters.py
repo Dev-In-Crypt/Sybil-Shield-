@@ -39,14 +39,16 @@ GOVERNORS = [
     {"name": "ens", "addr": "0x323A76393544d5ecca80cd6ef2A560C6a395b7E3", "from_block": 0xDDF45F},
 ]
 
-BLOCK_STEP = 50_000  # Alchemy limit per getLogs call is 50K blocks
+BLOCK_STEP = 50_000  # publicnode/Cloudflare allow ~50K block window per call
+
+# Public RPC by default — Alchemy free tier limits eth_getLogs to 10 blocks
+# per call, which makes all-time scans impractical. publicnode.com permits
+# wider ranges and doesn't require auth.
+PUBLIC_RPC = "https://ethereum-rpc.publicnode.com"
 
 
-def alchemy_url() -> str:
-    key = os.environ.get("ALCHEMY_API_KEY")
-    if not key:
-        raise SystemExit("ALCHEMY_API_KEY env required")
-    return f"https://eth-mainnet.g.alchemy.com/v2/{key}"
+def rpc_url() -> str:
+    return os.environ.get("GOVERNANCE_RPC_URL", PUBLIC_RPC)
 
 
 def fetch_logs_range(
@@ -94,9 +96,9 @@ def derive(
     block_range: int | None = None,
 ) -> int:
     session = requests.Session()
-    url = alchemy_url()
+    url = rpc_url()
     head = latest_block(session, url)
-    log.info("head block = %d", head)
+    log.info("rpc=%s head_block=%d", url, head)
 
     # voter -> set of (governor_name, proposal_topic)
     by_voter: dict[str, set] = defaultdict(set)
