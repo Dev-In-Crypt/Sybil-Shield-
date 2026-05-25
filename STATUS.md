@@ -2,7 +2,7 @@
 
 **Source of truth:** `apps/web/lib/feature-status.ts`. Public mirror at <https://sybilshield.org/status>.
 
-**Last synced:** 2026-05-25 (ML v0.4.0-alchemy-adv deployed; legal pages live; public score lookup unauth)
+**Last synced:** 2026-05-25 (ML v0.5.0-gov-expanded on 1000+125 corpus; governance-voters G2 source live; backup+monitor cron on Hetzner; deploy automation queued)
 
 ## Legend
 
@@ -51,13 +51,15 @@ production calibration on wild-traffic feedback is the next milestone.
 
 | Source | Status |
 |---|---|
-| ENS veterans (G2) | ✅ Live (real ENS subgraph) |
-| Protocol power users (G2) | ✅ Live |
-| Gitcoin Passport (G1) | 🗓️ Roadmap |
-| LayerZero amnesty list (T1) | ⏳ Coming soon |
-| Hop Protocol investigations (T2) | ⏳ Coming soon |
-| Arbitrum Foundation list (T4) | ⏳ Coming soon |
-| Linea filtered list (T4) | ⏳ Coming soon |
+| ENS veterans (G2) | 🟡 Beta — frozen at 200 (hosted ENS subgraph deprecated mid-2024) |
+| Protocol power users (G2) | 🟡 Beta — 92 entries from old derive seed |
+| Governance voters (G2) | ✅ Live — 1500 from Uniswap+Compound+ENS via publicnode RPC |
+| Snapshot voters (G2) | 🗓️ Roadmap — deriver written but Snapshot GraphQL unreachable from prod |
+| Gitcoin Passport (G1) | 🗓️ Roadmap — needs per-address API key |
+| LayerZero amnesty list (T1) | ✅ Live (1974 addresses) |
+| Hop Protocol investigations (T2) | ✅ Live (496 addresses) |
+| Arbitrum Foundation list (T4) | ✅ Live (5000 addresses) |
+| Linea filtered list (T4) | ✅ Live (8000 addresses) |
 
 ## On-chain providers
 
@@ -136,10 +138,10 @@ production calibration on wild-traffic feedback is the next milestone.
 
 ### Now
 
-- Expand genuine corpus (derive more ENS-veterans + Gitcoin Passport integration) so production metrics aren't capped by a 140-sample G2 pool
-- Off-site Postgres backup (Backblaze B2)
-- Deploy-on-push GitHub Action (replaces manual `ssh + git pull + docker compose`)
-- Sentry / healthcheck monitoring
+- Hardening the v0.5.0 model: wild-traffic feedback loop, drift cron, real precision/recall once an external holdout exists
+- Activate off-site B2 sync on existing backup script (env file already in place, just needs B2 application key + `rclone config`)
+- Wire deploy.yml secrets so pushes auto-deploy to Hetzner (DEPLOY_SSH_*, DEPLOY_DISCORD_WEBHOOK)
+- Gitcoin Passport G1 integration for true ground-truth genuine signal
 
 ### Next
 
