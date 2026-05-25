@@ -4,8 +4,9 @@ from __future__ import annotations
 from typing import Any
 
 import numpy as np
+import pandas as pd
 
-from sybilshield.features.combine import to_feature_vector
+from sybilshield.features.combine import FEATURE_NAMES, to_feature_vector
 from sybilshield.scoring.model import SybilModel, label_from_score
 
 
@@ -21,7 +22,12 @@ def predict_batch(
     addresses = list(features_by_address.keys())
     if not addresses:
         return {}
-    X = np.array([to_feature_vector(features_by_address[a]) for a in addresses], dtype=float)
+    # Wrap the matrix in a DataFrame with named columns so LightGBM doesn't
+    # warn 'X does not have valid feature names' on every /run call. The
+    # booster was fitted against the same FEATURE_NAMES ordering — this is
+    # a pure-presentation fix, values are identical.
+    rows = [to_feature_vector(features_by_address[a]) for a in addresses]
+    X = pd.DataFrame(np.asarray(rows, dtype=float), columns=FEATURE_NAMES)
     scores = model.predict_scores(X)
     probs = model.predict_proba(X)
     out: dict[str, dict[str, Any]] = {}
