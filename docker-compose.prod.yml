@@ -62,4 +62,6 @@ services:
       ML_SERVICE_URL: http://ml:8001
       ML_MODEL_VERSION: ${ML_MODEL_VERSION:-rule_based}
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
+      USE_MOCK_PROVIDERS: ${USE_MOCK_PROVIDERS:-true}
+      ALCHEMY_API_KEY: ${ALCHEMY_API_KEY:-}
     restart: unless-stopped
