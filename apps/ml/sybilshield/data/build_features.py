@@ -30,7 +30,21 @@ log = logging.getLogger(__name__)
 
 
 def _make_provider(label_map: dict[str, int]) -> OnChainProvider:
-    """Synthetic scenarios per label so the model has signal to learn."""
+    """
+    Choose a provider:
+      - USE_MOCK_PROVIDERS=true (default) → synthetic scenarios per label
+        so the model has clean signal on a synthetic-only corpus.
+      - USE_MOCK_PROVIDERS=false → real AlchemyProvider. Features extracted
+        from on-chain data. Runtime inference also uses Alchemy, so the
+        train and serve distributions match.
+    """
+    use_mock = os.environ.get("USE_MOCK_PROVIDERS", "true") == "true"
+    if not use_mock and os.environ.get("ALCHEMY_API_KEY"):
+        from sybilshield.providers.alchemy import AlchemyProvider
+        rps = float(os.environ.get("ALCHEMY_RATE_LIMIT_RPS", "10"))
+        log.info("build_features: using AlchemyProvider (rps=%s)", rps)
+        return AlchemyProvider(rps=rps)
+    log.info("build_features: using MockProvider with label-mapped scenarios")
     scenarios: dict[str, str] = {}
     sybil_addrs = [a for a, l in label_map.items() if l == 1]
     for i, addr in enumerate(sybil_addrs):
@@ -83,8 +97,7 @@ def _parse_args(argv: list[str]) -> argparse.Namespace:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
     args = _parse_args(sys.argv[1:])
-    use_mock = os.environ.get("USE_MOCK_PROVIDERS", "true") == "true"
-    if not use_mock:
-        log.warning("USE_MOCK_PROVIDERS=false - real ingestion not implemented in this script")
+    # _make_provider() inside build() reads USE_MOCK_PROVIDERS + ALCHEMY_API_KEY
+    # and picks the right backend.
     build(args.labeled_dir / "train.parquet", args.labeled_dir / "train_with_features.parquet")
     build(args.labeled_dir / "holdout.parquet", args.labeled_dir / "holdout_with_features.parquet")
