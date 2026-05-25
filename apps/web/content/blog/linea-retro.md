@@ -4,9 +4,7 @@ slug: linea-retro
 date: 2026-06-15
 status: draft
 tags: [retro, methodology, linea]
-disclaimer: |
-  Aggregate analysis only. No individual addresses published. Per our public
-  policy, individual claims are appealable at /appeal with 48h SLA.
+disclaimer: "Aggregate analysis only. No individual addresses published. Per our public policy, individual claims are appealable at /appeal with 48h SLA."
 ---
 
 # Replicating Linea's filter — 478K agreement, 45K missed

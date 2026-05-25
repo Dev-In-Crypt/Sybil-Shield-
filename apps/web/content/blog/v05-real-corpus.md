@@ -4,10 +4,7 @@ slug: v05-real-corpus
 date: 2026-05-25
 status: published
 tags: [ml, methodology, transparency]
-disclaimer: |
-  Sandbox model. Metrics below are honest holdout numbers from a small,
-  curated set — they are NOT a claim about wild-traffic performance.
-  Production calibration requires customer feedback we don't have yet.
+disclaimer: "Sandbox model. Metrics below are honest holdout numbers from a small, curated set — they are NOT a claim about wild-traffic performance. Production calibration requires customer feedback we don't have yet."
 ---
 
 # Trained on 1000 real wallets: what we learned shipping v0.5.0
