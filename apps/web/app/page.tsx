@@ -258,7 +258,7 @@ export default function HomePage() {
           ].map((p) => (
             <div
               key={p.name}
-              className={`relative bg-black p-8 ${p.highlight ? "bg-gradient-to-b from-lime/[0.05] to-transparent" : ""}`}
+              className={`relative flex flex-col bg-black p-8 ${p.highlight ? "bg-gradient-to-b from-lime/[0.05] to-transparent" : ""}`}
             >
               {p.highlight && (
                 <span className="absolute -top-3 right-6 bg-lime px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black">
@@ -269,9 +269,9 @@ export default function HomePage() {
               <h3 className="mt-2 font-mono text-2xl font-bold text-lime">{p.name}</h3>
               <div className="mt-6 flex items-baseline gap-1">
                 <span className="font-mono text-5xl font-bold">{p.price}</span>
-                {p.suffix && <span className="text-sm text-zinc-500">{p.suffix}</span>}
+                <span className="text-sm text-zinc-500">{p.suffix || " "}</span>
               </div>
-              <ul className="mt-8 space-y-2 text-sm">
+              <ul className="mt-8 flex-1 space-y-2 text-sm">
                 {p.features.map((f) => (
                   <li key={f} className="flex gap-2 text-zinc-400">
                     <span className="text-lime">›</span> {f}

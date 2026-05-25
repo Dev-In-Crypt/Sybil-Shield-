@@ -225,19 +225,33 @@ function Plan({
         <h3 className="text-lg font-semibold">{name}</h3>
         <StatusBadge status={status} />
       </div>
-      <div className="mt-4">
+      <div className="mt-4 flex items-baseline gap-1">
         <span className="text-3xl font-bold">{price}</span>
-        {suffix && <span className="text-sm text-zinc-500">{suffix}</span>}
+        <span className="text-sm text-zinc-500">{suffix || " "}</span>
       </div>
       <ul className="mt-6 flex-1 space-y-2 text-sm text-zinc-400">
         {features.map((f) => (
           <li key={f}>· {f}</li>
         ))}
       </ul>
-      {footer && (
-        <p className="mt-4 text-xs italic text-zinc-500">{footer}</p>
-      )}
-      <div className="mt-6 space-y-2">
+      <p className="mt-4 min-h-[2.5rem] text-xs italic text-zinc-500">{footer ?? " "}</p>
+      <div className="mt-6 flex flex-col gap-2">
+        {/* Reserve space for the optional crypto accordion so CTAs align across cards */}
+        <div className="min-h-[2.25rem]">
+          {payable && (
+            <details className="rounded border border-zinc-800 bg-zinc-950">
+              <summary className="cursor-pointer px-3 py-2 text-xs text-zinc-400 hover:text-emerald-400">
+                or pay now in crypto →
+              </summary>
+              <div className="border-t border-zinc-800 p-3">
+                <CryptoPayButton plan={payable.plan} priceUsd={payable.priceUsd} />
+              </div>
+            </details>
+          )}
+        </div>
+        <p className="min-h-[2rem] text-center text-[10px] uppercase tracking-widest text-zinc-600">
+          {tagline ?? " "}
+        </p>
         {cta.href.startsWith("mailto:") ? (
           <a href={cta.href} className={ctaClass}>
             {cta.label}
@@ -246,19 +260,6 @@ function Plan({
           <Link href={cta.href} className={ctaClass}>
             {cta.label}
           </Link>
-        )}
-        {payable && (
-          <details className="rounded border border-zinc-800 bg-zinc-950">
-            <summary className="cursor-pointer px-3 py-2 text-xs text-zinc-400 hover:text-emerald-400">
-              or pay now in crypto →
-            </summary>
-            <div className="border-t border-zinc-800 p-3">
-              <CryptoPayButton plan={payable.plan} priceUsd={payable.priceUsd} />
-            </div>
-          </details>
-        )}
-        {tagline && (
-          <p className="text-center text-[10px] uppercase tracking-widest text-zinc-600">{tagline}</p>
         )}
       </div>
     </div>
