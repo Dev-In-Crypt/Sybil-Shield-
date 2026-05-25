@@ -22,6 +22,13 @@
       "when": 1779607137752,
       "tag": "0002_equal_nova",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1779724000000,
+      "tag": "0003_preset_decision",
+      "breakpoints": true
     }
   ]
 }

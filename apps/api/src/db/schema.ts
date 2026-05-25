@@ -65,10 +65,20 @@ export const analyses = pgTable(
     addressesFileUrl: text("addresses_file_url"),
     sensitivity: text("sensitivity").default("balanced"),
     includeEvidence: boolean("include_evidence").default(true),
+    // preset = airdrop|dao|grant|balanced — drives computeDecision()
+    // mode = full|cluster_only — when cluster_only, ML scoring is skipped
+    preset: text("preset").default("balanced"),
+    mode: text("mode").default("full"),
     totalScored: integer("total_scored"),
     sybilCount: integer("sybil_count"),
     suspiciousCount: integer("suspicious_count"),
     genuineCount: integer("genuine_count"),
+    // Decision counts (preset-aware). dropCount + reviewCount + keepCount
+    // should equal totalScored. Old sybil/suspicious/genuine kept for
+    // backwards compatibility with callers that don't use presets.
+    dropCount: integer("drop_count"),
+    reviewCount: integer("review_count"),
+    keepCount: integer("keep_count"),
     clusterCount: integer("cluster_count"),
     largestClusterSize: integer("largest_cluster_size"),
     cuConsumed: bigint("cu_consumed", { mode: "number" }),
@@ -128,6 +138,12 @@ export const addressScores = pgTable(
     label: text("label").notNull(),
     clusterId: text("cluster_id"),
     clusterSize: integer("cluster_size"),
+    // Decision = DROP|REVIEW|KEEP — computed at worker time using the
+    // analysis's preset. Null when the analysis ran in cluster_only mode
+    // (no per-address verdict, just cluster membership).
+    decision: text("decision"),
+    decisionConfidence: text("decision_confidence"),
+    rationaleCodes: text("rationale_codes").array(),
     features: jsonb("features").notNull(),
     evidence: jsonb("evidence"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -137,6 +153,7 @@ export const addressScores = pgTable(
     addressIdx: index("idx_scores_address").on(t.address, t.chain),
     clusterIdx: index("idx_scores_cluster").on(t.clusterId),
     labelIdx: index("idx_scores_label").on(t.analysisId, t.label),
+    decisionIdx: index("idx_scores_decision").on(t.analysisId, t.decision),
   }),
 );
 
