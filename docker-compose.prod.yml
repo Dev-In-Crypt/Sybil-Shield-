@@ -60,5 +60,6 @@ services:
       DATABASE_URL: postgres://${POSTGRES_USER:-sybilshield}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-sybilshield}
       REDIS_URL: redis://redis:6379
       ML_SERVICE_URL: http://ml:8001
+      ML_MODEL_VERSION: ${ML_MODEL_VERSION:-rule_based}
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
     restart: unless-stopped
