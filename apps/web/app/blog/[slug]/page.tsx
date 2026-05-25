@@ -93,9 +93,14 @@ export default async function BlogPost({ params }: { params: { slug: string } })
             {post.meta.disclaimer}
           </aside>
         )}
+        {/* Strip the leading H1 from rendered HTML if it duplicates the
+            header above — markdown posts conventionally start with `# title`
+            but we already render meta.title in the <header>. */}
         <article
-          className="prose prose-invert mt-10 max-w-none prose-headings:font-mono prose-headings:tracking-tight prose-h2:mt-12 prose-h3:mt-8 prose-a:text-emerald-400 prose-code:rounded prose-code:bg-zinc-900 prose-code:px-1 prose-code:py-0.5 prose-code:text-emerald-300 prose-pre:bg-zinc-950 prose-pre:border prose-pre:border-zinc-800 prose-blockquote:border-emerald-500 prose-blockquote:text-zinc-300"
-          dangerouslySetInnerHTML={{ __html: post.html }}
+          className="markdown-content mt-10"
+          dangerouslySetInnerHTML={{
+            __html: post.html.replace(/^\s*<h1[^>]*>[\s\S]*?<\/h1>\s*/i, ""),
+          }}
         />
       </main>
       <SiteFooter />

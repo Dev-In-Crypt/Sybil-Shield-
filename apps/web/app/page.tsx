@@ -390,24 +390,37 @@ function CyberBackground() {
 }
 
 function Marquee() {
+  // Mock telemetry strip — illustrative numbers showing what a production
+  // deployment dashboard would look like. Real sandbox traffic is in the
+  // single-digit thousands; we don't fake live counters. Labelled clearly
+  // below the strip so visitors don't read it as our real telemetry.
   const items = [
     "ANALYSES_RUN: 12,847",
     "ADDRESSES_SCORED: 28.4M",
     "CLUSTERS_DETECTED: 412,099",
     "APPEALS_PROCESSED: 8,231",
-    "MODEL_VERSION: v0.2.0",
+    "MODEL_VERSION: v0.5.0-gov-expanded",
     "UPTIME: 99.97%",
   ];
   const doubled = [...items, ...items];
   return (
-    <div className="mt-20 overflow-hidden border-y border-lime/20 bg-lime/[0.02] py-4">
-      <div className="animate-marquee flex gap-12 whitespace-nowrap font-mono text-xs uppercase tracking-[0.2em] text-lime/70">
-        {doubled.map((it, i) => (
-          <span key={i} className="shrink-0">
-            {it} <span className="ml-12 text-zinc-700">·</span>
-          </span>
-        ))}
+    <div className="mt-20">
+      <div className="overflow-hidden border-y border-lime/20 bg-lime/[0.02] py-4">
+        <div className="animate-marquee flex gap-12 whitespace-nowrap font-mono text-xs uppercase tracking-[0.2em] text-lime/70">
+          {doubled.map((it, i) => (
+            <span key={i} className="shrink-0">
+              {it} <span className="ml-12 text-zinc-700">·</span>
+            </span>
+          ))}
+        </div>
       </div>
+      <p className="mt-2 px-6 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-600">
+        // mock telemetry · illustrative numbers · real sandbox traffic is much smaller — see{" "}
+        <a href="/status" className="underline decoration-zinc-700 hover:text-zinc-400">
+          /status
+        </a>{" "}
+        for actuals
+      </p>
     </div>
   );
 }
