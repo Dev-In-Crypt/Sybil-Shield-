@@ -5,6 +5,7 @@ import rawBody from "fastify-raw-body";
 import { countAuthedCall, planLimits, requireApiKey } from "./middleware/auth.js";
 import { analysesRoutes } from "./routes/analyses.js";
 import { appealsRoutes } from "./routes/appeals.js";
+import { auditLogRoutes } from "./routes/audit-log.js";
 import { authedAccountRoutes, publicAuthRoutes } from "./routes/auth.js";
 import { billingRoutes } from "./routes/billing.js";
 import { feedbackRoutes } from "./routes/feedback.js";
@@ -74,6 +75,7 @@ export async function buildServer() {
     await instance.register(webhookDeliveriesRoutes);
     await instance.register(teamRoutes);
     await instance.register(watchlistRoutes);
+    await instance.register(auditLogRoutes);
   });
 
   return app;

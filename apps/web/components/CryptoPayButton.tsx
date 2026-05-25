@@ -18,10 +18,7 @@ export function CryptoPayButton({ plan, priceUsd }: Props) {
     if (typeof window === "undefined") return;
     const key = window.localStorage.getItem("sybilshield_api_key");
     if (!key) {
-      const ok = window.confirm(
-        `You need a SybilShield account to subscribe. Go to /dashboard to register? (Free tier first — no card needed.)`,
-      );
-      if (ok) window.location.href = "/dashboard";
+      setErr("Sign up at /dashboard first (free, no card).");
       return;
     }
     setBusy(true);

@@ -2,14 +2,18 @@ import type { Metadata } from "next";
 import { jbMono, spaceGrotesk } from "../lib/fonts";
 import "./globals.css";
 
-const SITE_URL = "https://sybilshield.org";
+// Match the canonical host the production deploy serves AFTER its redirects.
+// Vercel currently 307s sybilshield.org → www.sybilshield.org, so www is the one
+// search engines actually see. If we ever flip to apex-canonical, change this here
+// AND in apps/web/public/sitemap.xml + robots.txt.
+const SITE_URL = "https://www.sybilshield.org";
 const DESCRIPTION =
-  "Open-source Sybil detection for airdrops, DAO governance, and DeFi farming. Six methods, evidence per address, public appeal flow.";
+  "Open-source Sybil detection for token distributions, DAO voting, and incentive programs. Score wallets, detect coordinated clusters, and give users a clear appeal path.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "SybilShield — Hunt Sybils. Protect real users.",
+    default: "SybilShield — Open-source Sybil detection",
     template: "%s · SybilShield",
   },
   description: DESCRIPTION,
@@ -37,7 +41,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     siteName: "SybilShield",
-    title: "SybilShield — Hunt Sybils. Protect real users.",
+    title: "SybilShield — Open-source Sybil detection",
     description: DESCRIPTION,
     url: SITE_URL,
     images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "SybilShield" }],

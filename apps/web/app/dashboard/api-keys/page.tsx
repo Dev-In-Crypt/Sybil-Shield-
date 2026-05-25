@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { InlineConfirm } from "../../../components/InlineConfirm";
 
 interface Account {
   id: string;
@@ -37,7 +38,6 @@ export default function ApiKeysPage() {
   }
 
   async function rotateKey() {
-    if (!confirm("Rotate API key? The old key stops working immediately.")) return;
     setError(null);
     const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/account/api-keys/rotate`, {
       method: "POST",
@@ -102,9 +102,16 @@ export default function ApiKeysPage() {
             <div className="mt-1 text-xs text-zinc-500">
               plan: {account.plan} · prefix: <span className="font-mono">{account.api_key_prefix}</span> · usage: {account.usage.calls_this_month.toLocaleString()} / {account.usage.limit.toLocaleString()}
             </div>
-            <button className="mt-3 rounded bg-rose-700 px-3 py-1.5 text-sm hover:bg-rose-600" onClick={rotateKey}>
-              Rotate key
-            </button>
+            <div className="mt-3">
+              <InlineConfirm
+                prompt="Old key stops working immediately. Sure?"
+                cta="Rotate"
+                variant="danger"
+                triggerLabel="Rotate key"
+                triggerClass="rounded bg-rose-700 px-3 py-1.5 text-sm hover:bg-rose-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+                onConfirm={rotateKey}
+              />
+            </div>
           </div>
 
           {newKey && (

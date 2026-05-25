@@ -3,4 +3,4 @@ Allow: /
 Disallow: /dashboard/
 Disallow: /api/
 
-Sitemap: https://sybilshield.org/sitemap.xml
+Sitemap: https://www.sybilshield.org/sitemap.xml

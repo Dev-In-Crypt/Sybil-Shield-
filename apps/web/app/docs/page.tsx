@@ -1,133 +1,230 @@
+import Link from "next/link";
 import { SandboxBanner } from "../../components/SandboxBanner";
 import { SiteFooter } from "../../components/SiteFooter";
 import { SiteHeader } from "../../components/SiteHeader";
 
-export const metadata = { title: "Documentation · SybilShield" };
+export const metadata = { title: "Docs · SybilShield" };
+
+const API = "https://api.sybilshield.org";
 
 export default function DocsPage() {
   return (
     <>
       <SandboxBanner />
       <SiteHeader />
-      <main className="mx-auto max-w-4xl px-6 py-16">
-        <h1 className="text-4xl font-bold">Documentation</h1>
-        <p className="mt-3 text-zinc-400">
-          What the SybilShield API does, how analyses flow, and how to integrate. The full
-          OpenAPI spec and ready-to-import Postman collection ship with the next release.
-        </p>
-
-        <Section title="How it works">
-          <p className="text-zinc-300">
-            Submit an address list. We ingest on-chain history for every wallet, run six
-            independent detection methods, produce a per-address risk score with evidence, and
-            return both a queryable result set and a downloadable CSV. The whole pipeline takes
-            hours, not weeks.
+      <main className="mx-auto max-w-3xl px-6 py-16 space-y-12">
+        <header>
+          <p className="font-mono text-xs uppercase tracking-widest text-emerald-400">// api docs</p>
+          <h1 className="mt-2 text-4xl font-bold">Docs</h1>
+          <p className="mt-3 text-zinc-400">
+            Every example below hits the live sandbox at{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">{API}</code>.
+            Replace <code className="rounded bg-zinc-900 px-1 font-mono text-xs">$KEY</code> with
+            your sandbox key from <Link href="/dashboard/api-keys" className="text-emerald-400 hover:underline">/dashboard/api-keys</Link>.
           </p>
-          <ol className="mt-6 space-y-3 text-zinc-300">
-            <Step n={1} title="Register">
-              Create a free account. Receive an API key (shown once — store it securely). Free tier covers 100 calls/month.
-            </Step>
-            <Step n={2} title="Create an analysis">
-              Submit a list of wallet addresses (up to 1M per request) along with chains and sensitivity preference. The platform queues the job and returns an analysis ID.
-            </Step>
-            <Step n={3} title="Track progress">
-              Poll the analysis endpoint or subscribe to a webhook. Status transitions through <em>ingesting → analyzing → scoring → complete</em>.
-            </Step>
-            <Step n={4} title="Read results">
-              Fetch scored addresses (filterable by label), detected clusters, and per-address evidence reports. Export as CSV.
-            </Step>
-            <Step n={5} title="Handle appeals">
-              Flagged users can submit appeals directly via the public endpoint. Every submission is logged immutably and routed to a reviewer.
-            </Step>
-          </ol>
+        </header>
+
+        <Section title="1 · Getting started">
+          <p>
+            Sign up at <Link className="text-emerald-400 hover:underline" href="/dashboard">/dashboard</Link>{" "}
+            with an email — no card required. You get an API key with a Free Sandbox quota
+            of 100 calls/month. Store the key somewhere safe; it cannot be retrieved later
+            (only rotated).
+          </p>
         </Section>
 
-        <Section title="What you get back">
-          <div className="grid gap-4 md:grid-cols-2">
-            <Feature title="Sybil score" desc="0–100 confidence that the address is part of a Sybil farm. Three bucket labels: genuine, suspicious, sybil." />
-            <Feature title="Cluster ID" desc="Which other wallets in the analysis it groups with, plus the cluster's size and detection method." />
-            <Feature title="Evidence list" desc="Per-address human-readable evidence items pointing at the specific features or cluster memberships that produced the score." />
-            <Feature title="Confidence interval" desc="Calibrated probability output from the ML ensemble alongside per-evidence-item confidence." />
-            <Feature title="CSV export" desc="Full results table for compliance archiving or distribution-list filtering." />
-            <Feature title="Webhook notification" desc="Signed POST to your URL on analysis completion with summary statistics." />
+        <Section title="2 · Authentication">
+          <p>All authenticated endpoints take a bearer token.</p>
+          <Code lang="bash">{`curl -H "Authorization: Bearer $KEY" \\
+  ${API}/v1/account`}</Code>
+          <Code lang="json">{`{
+  "id": "...",
+  "email": "you@example.com",
+  "plan": "free",
+  "api_key_prefix": "sk_live_xxxx...",
+  "usage": { "calls_this_month": 3, "limit": 100 }
+}`}</Code>
+        </Section>
+
+        <Section title="3 · Create an analysis">
+          <p>
+            Submit a list of addresses on one or more chains. Returns immediately with
+            an <code className="rounded bg-zinc-900 px-1 font-mono text-xs">id</code> and
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">status: pending</code>.
+            The worker picks the job up, ingests on-chain data via Alchemy, runs the
+            detection pipeline, and writes scores.
+          </p>
+          <Code lang="bash">{`curl -X POST ${API}/v1/analyses \\
+  -H "Authorization: Bearer $KEY" \\
+  -H 'content-type: application/json' \\
+  -d '{
+    "name": "my first analysis",
+    "chains": ["ethereum"],
+    "addresses": [
+      "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+      "0xab5801a7d398351b8be11c439e05c5b3259aec9b"
+    ]
+  }'`}</Code>
+          <Code lang="json">{`{
+  "id": "325554d5-559a-40dc-bd34-b3d180d5eb08",
+  "status": "pending",
+  "address_count": 2,
+  "estimated_time_minutes": 2
+}`}</Code>
+        </Section>
+
+        <Section title="4 · Check analysis status">
+          <p>Poll the resource until <code className="rounded bg-zinc-900 px-1 font-mono text-xs">status === "complete"</code>.</p>
+          <Code lang="bash">{`curl -H "Authorization: Bearer $KEY" \\
+  ${API}/v1/analyses/$ID`}</Code>
+          <Code lang="json">{`{
+  "id": "325554d5-...",
+  "status": "complete",
+  "name": "my first analysis",
+  "chains": ["ethereum"],
+  "address_count": 2,
+  "summary": {
+    "total_scored": 2,
+    "sybil_count": 0,
+    "suspicious_count": 0,
+    "genuine_count": 2,
+    "cluster_count": 0
+  },
+  "processing_time_seconds": 5,
+  "completed_at": "2026-05-25T..."
+}`}</Code>
+          <p className="text-zinc-500 text-sm">
+            Or configure a webhook — see §7 — and skip polling entirely.
+          </p>
+        </Section>
+
+        <Section title="5 · Read results">
+          <p>
+            Per-address scores with structured evidence. Paginated; default 100 per page.
+            Optional filter: <code className="rounded bg-zinc-900 px-1 font-mono text-xs">?label=sybil</code> /{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">suspicious</code> /{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">genuine</code>.
+          </p>
+          <Code lang="bash">{`curl -H "Authorization: Bearer $KEY" \\
+  "${API}/v1/analyses/$ID/results?limit=10"`}</Code>
+          <Code lang="json">{`{
+  "data": [
+    {
+      "address": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+      "chain": "ethereum",
+      "sybil_score": 0,
+      "label": "genuine",
+      "confidence": "0.000",
+      "cluster_id": null,
+      "cluster_size": null,
+      "evidence": []
+    }
+  ],
+  "page": 0,
+  "limit": 10
+}`}</Code>
+          <p className="text-zinc-500 text-sm">
+            <strong>Score 0–100.</strong> Default thresholds: ≥70 = sybil, 40–69 =
+            suspicious, &lt;40 = genuine. Configurable per analysis on Pilot/Growth plans.
+            <strong> Evidence</strong> is a JSON array describing which methods fired
+            and which features pushed the score — populated only for flagged scores.
+          </p>
+        </Section>
+
+        <Section title="6 · Export CSV">
+          <p>One row per address, same scoring columns. Auth required (Bearer header).</p>
+          <Code lang="bash">{`curl -H "Authorization: Bearer $KEY" \\
+  "${API}/v1/analyses/$ID/results/export" \\
+  -o analysis-$ID.csv`}</Code>
+          <Code lang="csv">{`address,chain,sybil_score,label,confidence,cluster_id,cluster_size
+0xd8da6bf26964af9d7eed9e03e53415d37aa96045,ethereum,0,genuine,0.000,,
+0xab5801a7d398351b8be11c439e05c5b3259aec9b,ethereum,0,genuine,0.000,,`}</Code>
+        </Section>
+
+        <Section title="7 · Webhook behavior">
+          <p>
+            Configure a webhook URL + secret on{" "}
+            <Link href="/dashboard/api-keys" className="text-emerald-400 hover:underline">/dashboard/api-keys</Link>.
+            When an analysis completes, we POST a JSON event with a SHA-256 HMAC signature
+            in <code className="rounded bg-zinc-900 px-1 font-mono text-xs">X-SybilShield-Signature</code>.
+          </p>
+          <Code lang="json">{`POST https://your-server.com/webhook
+Content-Type: application/json
+X-SybilShield-Signature: sha256=...
+
+{
+  "type": "analysis.completed",
+  "analysisId": "325554d5-...",
+  "data": {
+    "total_scored": 2,
+    "sybil_count": 0,
+    "suspicious_count": 0,
+    "genuine_count": 2,
+    "cluster_count": 0
+  }
+}`}</Code>
+          <p className="text-zinc-500 text-sm">
+            Verify with HMAC-SHA256 over the raw body, using your webhook_secret as the
+            key. If signatures don&apos;t match, reject the event.
+          </p>
+        </Section>
+
+        <Section title="8 · Audit log">
+          <p>
+            Every flagged score and every appeal verdict writes an append-only row to the
+            audit log. Read your slice with:
+          </p>
+          <Code lang="bash">{`curl -H "Authorization: Bearer $KEY" \\
+  "${API}/v1/audit-log?analysis_id=$ID&limit=100"`}</Code>
+        </Section>
+
+        <Section title="9 · Rate limits & quotas">
+          <div className="mt-4 overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="text-left text-xs uppercase tracking-wider text-zinc-500">
+                <tr>
+                  <th className="py-2">Tier</th>
+                  <th>Per minute</th>
+                  <th>Per month</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-zinc-900">
+                <tr><td className="py-2">Free Sandbox</td><td>30</td><td>100</td></tr>
+                <tr><td className="py-2">Pilot</td><td>100</td><td>per engagement</td></tr>
+                <tr><td className="py-2">Growth API <span className="text-zinc-500">(coming soon)</span></td><td>300</td><td>250,000</td></tr>
+                <tr><td className="py-2">Enterprise <span className="text-zinc-500">(coming soon)</span></td><td>1,000</td><td>unlimited</td></tr>
+              </tbody>
+            </table>
           </div>
+          <p className="mt-4 text-sm text-zinc-500">
+            Exceeding the monthly quota returns <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 monthly_quota_exceeded</code> with{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">upgrade_url</code> in the body.
+            Exceeding RPM returns <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 rate_limit_exceeded</code> with{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">retry_after_seconds</code>.
+          </p>
         </Section>
 
-        <Section title="Endpoints overview">
-          <div className="space-y-3">
-            <Endpoint group="Account" items={[
-              { name: "Register a new account", desc: "Returns an API key shown once" },
-              { name: "Rotate API key", desc: "Invalidates the old key immediately" },
-              { name: "View account & usage", desc: "Plan, monthly call count, webhook configuration" },
-              { name: "Configure webhook", desc: "Set URL and receive a signing secret" },
-            ]} />
-            <Endpoint group="Analyses" items={[
-              { name: "Create analysis", desc: "Submit address list, chains, sensitivity" },
-              { name: "List analyses", desc: "Paginated history of your analyses" },
-              { name: "Get analysis status", desc: "Includes summary counts when complete" },
-              { name: "Get scored results", desc: "Paginated, filter by label (sybil/suspicious/genuine)" },
-              { name: "Export CSV", desc: "Stream the full results table" },
-              { name: "Get detected clusters", desc: "Cluster metadata with detection method" },
-            ]} />
-            <Endpoint group="Scoring" items={[
-              { name: "Single-address score", desc: "Cached lookup for any address previously seen" },
-              { name: "Batch score (up to 100)", desc: "Bulk lookup endpoint" },
-              { name: "Known entity check", desc: "Cross-analysis intelligence — is this address flagged anywhere?" },
-            ]} />
-            <Endpoint group="Trust & feedback" items={[
-              { name: "Submit feedback", desc: "Customer-side false-positive / false-negative reporting" },
-              { name: "Public appeal", desc: "Open, unauthenticated — anyone can dispute their score" },
-              { name: "Appeals policy", desc: "Public-readable JSON describing review SLA" },
-            ]} />
-          </div>
-        </Section>
-
-        <Section title="Webhook signature verification">
+        <Section title="10 · Current sandbox limitations">
           <p className="text-zinc-300">
-            Every webhook payload is signed with HMAC-SHA256 using a secret you receive when you
-            configure the webhook URL. The signature arrives in the
-            <code className="mx-1 rounded bg-zinc-900 px-1.5 py-0.5 font-mono text-xs text-emerald-300">x-sybilshield-signature</code>
-            header as <em>sha256=&lt;hex&gt;</em>. Recompute the HMAC over the raw request body and
-            compare with constant-time equality. Reject mismatches.
+            The public sandbox is intended for testing the API flow, dashboard, evidence
+            format, and scoring workflow. Real on-chain ingestion runs through Alchemy on
+            5 chains (Ethereum, Arbitrum, Optimism, Base, Polygon). Production model
+            calibration on a real labeled corpus is handled separately from the sandbox
+            environment.
           </p>
-        </Section>
-
-        <Section title="Rate limits & quotas">
-          <table className="mt-4 w-full text-sm">
-            <thead className="text-left text-xs uppercase tracking-wider text-zinc-500">
-              <tr>
-                <th className="py-2">Plan</th>
-                <th>Calls / month</th>
-                <th>Per-minute rate</th>
-                <th>Concurrent analyses</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-zinc-900">
-              <Row label="Free" cols={["100", "30 / min", "1"]} />
-              <Row label="Developer" cols={["50,000", "100 / min", "3"]} />
-              <Row label="Growth" cols={["250,000", "300 / min", "10"]} />
-              <Row label="Enterprise" cols={["Unlimited", "1,000 / min", "Unlimited"]} />
-            </tbody>
-          </table>
-          <p className="mt-3 text-xs text-zinc-500">
-            Exceeding a limit returns HTTP 429 with a <em>retry-after</em> header. We never
-            silently drop data.
-          </p>
-        </Section>
-
-        <Section title="Coming next">
-          <ul className="space-y-2 text-zinc-300">
-            <li>· Interactive OpenAPI explorer (Stoplight / Redoc)</li>
-            <li>· Ready-to-import Postman collection</li>
-            <li>· Official SDKs: TypeScript and Python</li>
-            <li>· Streaming results endpoint for &gt;500K-address jobs</li>
-            <li>· GraphQL gateway for advanced filtering</li>
+          <ul className="mt-4 list-disc space-y-1 pl-6 text-sm text-zinc-400">
+            <li>Scores in the sandbox may shift as the model is recalibrated.</li>
+            <li>Cluster IDs are stable within an analysis, not across analyses.</li>
+            <li>Evidence arrays are empty when sybil_score &lt; 40.</li>
+            <li>Webhook retries are manual today (auto-retry with backoff is on the roadmap).</li>
           </ul>
         </Section>
 
-        <p className="mt-12 text-sm text-zinc-500">
-          Questions? Email <a className="underline" href="mailto:support@sybilshield.org">support@sybilshield.org</a> or
-          open an issue on GitHub.
+        <p className="text-center text-sm text-zinc-500">
+          Bug or unclear doc?{" "}
+          <a href="mailto:support@sybilshield.org" className="text-emerald-400 hover:underline">
+            support@sybilshield.org
+          </a>
         </p>
       </main>
       <SiteFooter />
@@ -137,73 +234,17 @@ export default function DocsPage() {
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
-    <section className="mt-12">
-      <h2 className="text-2xl font-semibold">{title}</h2>
-      <div className="mt-4">{children}</div>
+    <section>
+      <h2 className="text-xl font-semibold">{title}</h2>
+      <div className="mt-4 space-y-4 text-zinc-300 text-sm leading-relaxed">{children}</div>
     </section>
   );
 }
 
-function Step({
-  n,
-  title,
-  children,
-}: {
-  n: number;
-  title: string;
-  children: React.ReactNode;
-}) {
+function Code({ children, lang }: { children: string; lang: string }) {
   return (
-    <li className="flex gap-4">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-emerald-700/50 bg-emerald-900/20 text-sm font-semibold text-emerald-300">
-        {n}
-      </div>
-      <div>
-        <div className="font-medium">{title}</div>
-        <p className="mt-1 text-sm text-zinc-400">{children}</p>
-      </div>
-    </li>
-  );
-}
-
-function Feature({ title, desc }: { title: string; desc: string }) {
-  return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-4">
-      <h3 className="font-medium">{title}</h3>
-      <p className="mt-2 text-sm text-zinc-400">{desc}</p>
-    </div>
-  );
-}
-
-function Endpoint({
-  group,
-  items,
-}: {
-  group: string;
-  items: { name: string; desc: string }[];
-}) {
-  return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900 p-5">
-      <div className="text-xs uppercase tracking-wider text-emerald-400">{group}</div>
-      <ul className="mt-3 space-y-2">
-        {items.map((i) => (
-          <li key={i.name} className="flex flex-wrap justify-between gap-3 text-sm">
-            <span className="font-medium">{i.name}</span>
-            <span className="text-zinc-500">{i.desc}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-function Row({ label, cols }: { label: string; cols: string[] }) {
-  return (
-    <tr>
-      <td className="py-2 font-medium text-zinc-200">{label}</td>
-      {cols.map((c, i) => (
-        <td key={i} className="text-zinc-400">{c}</td>
-      ))}
-    </tr>
+    <pre className="overflow-x-auto rounded border border-zinc-800 bg-zinc-950 p-4 font-mono text-xs text-zinc-300">
+      <code data-lang={lang}>{children}</code>
+    </pre>
   );
 }

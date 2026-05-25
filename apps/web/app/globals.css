@@ -77,3 +77,36 @@ body {
 .orb-1 { animation: orb-float-1 20s infinite ease-in-out; }
 .orb-2 { animation: orb-float-2 25s infinite ease-in-out; }
 .orb-3 { animation: orb-float-3 18s infinite ease-in-out; }
+
+/* ────────── a11y: visible keyboard focus on every interactive ────────── */
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  details:focus-visible,
+  summary:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid var(--lime);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+/* ────────── reduced motion: respect prefers-reduced-motion ────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .animate-marquee,
+  .neon-pulse,
+  .orb-1, .orb-2, .orb-3 {
+    animation: none !important;
+  }
+}

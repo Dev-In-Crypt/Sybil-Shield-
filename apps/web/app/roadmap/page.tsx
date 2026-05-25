@@ -23,7 +23,7 @@ const NOW: Item[] = [
 
 const NEXT: Item[] = [
   { title: "Real on-chain data (Alchemy)", desc: "Live — AlchemyProvider on Ethereum mainnet. Multi-chain (Arbitrum/OP/Base/Polygon) one click away.", status: "available" },
-  { title: "Crypto checkout (Atlos)", desc: "Live — pay any plan in USDT/USDC/ETH/BTC. Non-custodial wallet→wallet, 0% fees, no KYC.", status: "available" },
+  { title: "Crypto checkout (Atlos)", desc: "Beta — Atlos (non-custodial, 0% fees, USDT/USDC/ETH/BTC) wired into Pilot Analysis flow. Production-self-serve checkout still on the roadmap.", status: "beta" },
   { title: "Calibrated production model", desc: "Train on 10K+ real labeled corpus. Calibrate probabilities so the 70 threshold is meaningful.", status: "coming-soon" },
   { title: "Free single-address public API", desc: "Rate-limited public-good tier for any project to test our scores.", status: "coming-soon" },
   { title: "Public retro-analyses", desc: "Aggregate-only posts: 'we agree with Linea on 478K, found 45K more, 8K likely FP'. Methodology peer-review.", status: "coming-soon" },

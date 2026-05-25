@@ -100,36 +100,10 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
               <option value="suspicious">Suspicious</option>
               <option value="genuine">Genuine</option>
             </select>
-            <button
-              type="button"
-              className="rounded bg-zinc-800 px-3 py-2 text-sm hover:bg-zinc-700"
-              onClick={async () => {
-                const key = localStorage.getItem("sybilshield_api_key");
-                if (!key) {
-                  alert("API key missing — log in again on /dashboard.");
-                  return;
-                }
-                const r = await fetch(
-                  `${process.env.NEXT_PUBLIC_API_URL}/v1/analyses/${params.id}/results/export`,
-                  { headers: { Authorization: `Bearer ${key}` } },
-                );
-                if (!r.ok) {
-                  alert(`Export failed: ${r.status} ${await r.text()}`);
-                  return;
-                }
-                const blob = await r.blob();
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement("a");
-                a.href = url;
-                a.download = `sybilshield-${params.id}.csv`;
-                document.body.appendChild(a);
-                a.click();
-                a.remove();
-                URL.revokeObjectURL(url);
-              }}
-            >
-              Export CSV
-            </button>
+            <ExportCsvButton analysisId={params.id} />
+          </div>
+          {/* slot below table for export feedback messages, no-op when empty */}
+          <div className="mt-2 min-h-[18px] text-xs">
           </div>
 
           <table className="mt-4 w-full text-sm">
@@ -225,4 +199,57 @@ function LabelChip({ label }: { label: string }) {
     genuine: "bg-emerald-900/40 text-emerald-300",
   };
   return <span className={`rounded px-2 py-0.5 text-xs ${styles[label] ?? "bg-zinc-800"}`}>{label}</span>;
+}
+
+function ExportCsvButton({ analysisId }: { analysisId: string }) {
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
+
+  async function go() {
+    setMsg(null);
+    const key = localStorage.getItem("sybilshield_api_key");
+    if (!key) {
+      setMsg({ kind: "err", text: "API key missing — log in again on /dashboard." });
+      return;
+    }
+    setBusy(true);
+    try {
+      const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/analyses/${analysisId}/results/export`, {
+        headers: { Authorization: `Bearer ${key}` },
+      });
+      if (!r.ok) {
+        setMsg({ kind: "err", text: `Export failed: ${r.status} ${await r.text()}` });
+        return;
+      }
+      const blob = await r.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sybilshield-${analysisId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setMsg({ kind: "ok", text: "✓ Downloaded" });
+      setTimeout(() => setMsg(null), 2500);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={go}
+        disabled={busy}
+        className="rounded bg-zinc-800 px-3 py-2 text-sm hover:bg-zinc-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+      >
+        {busy ? "Exporting…" : "Export CSV"}
+      </button>
+      {msg && (
+        <span className={`text-xs ${msg.kind === "ok" ? "text-emerald-400" : "text-red-400"}`}>{msg.text}</span>
+      )}
+    </>
+  );
 }

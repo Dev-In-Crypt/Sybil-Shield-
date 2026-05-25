@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { CopyableSecret } from "../../components/CopyableSecret";
 
 interface Analysis {
   id: string;
@@ -95,14 +96,7 @@ export default function DashboardOverview() {
       <section className="mt-12">
         <h2 className="text-xl font-semibold">Recent analyses</h2>
         {analyses.length === 0 ? (
-          <p className="mt-4 rounded border border-zinc-800 bg-zinc-900 p-6 text-sm text-zinc-500">
-            No analyses yet. Create one via{" "}
-            <code className="font-mono">POST /v1/analyses</code> (see{" "}
-            <Link href="/docs" className="underline">
-              docs
-            </Link>
-            ) — the dashboard form is on the roadmap.
-          </p>
+          <EmptyState apiKeyPrefix={account?.api_key_prefix ?? ""} />
         ) : (
           <ul className="mt-4 divide-y divide-zinc-900 rounded-lg border border-zinc-800">
             {analyses.slice(0, 5).map((a) => (
@@ -126,6 +120,59 @@ export default function DashboardOverview() {
         )}
       </section>
     </main>
+  );
+}
+
+function EmptyState({ apiKeyPrefix }: { apiKeyPrefix: string }) {
+  const [copied, setCopied] = useState(false);
+  const example = `# Replace $KEY with the value shown on /dashboard/api-keys
+curl -X POST https://api.sybilshield.org/v1/analyses \\
+  -H "Authorization: Bearer $KEY" \\
+  -H 'content-type: application/json' \\
+  -d '{
+    "name": "first analysis",
+    "chains": ["ethereum"],
+    "addresses": [
+      "0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+    ]
+  }'`;
+
+  async function copy() {
+    try {
+      await navigator.clipboard.writeText(example);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1800);
+    } catch {
+      /* noop */
+    }
+  }
+
+  return (
+    <div className="mt-4 rounded-lg border border-zinc-800 bg-zinc-900 p-8">
+      <h3 className="text-lg font-semibold">No analyses yet</h3>
+      <p className="mt-2 text-sm text-zinc-400">
+        Use the API to create your first job. The CSV-upload UI is on the roadmap.
+      </p>
+      <p className="mt-2 text-xs text-zinc-500">
+        Key prefix: <code className="font-mono text-emerald-300">{apiKeyPrefix || "n/a"}</code>
+      </p>
+      <div className="mt-4 flex flex-wrap gap-3">
+        <Link
+          href="/docs"
+          className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+        >
+          View API docs →
+        </Link>
+        <button
+          type="button"
+          onClick={copy}
+          className="rounded border border-zinc-700 px-4 py-2 text-sm hover:border-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+        >
+          {copied ? "✓ Copied" : "Copy example curl"}
+        </button>
+      </div>
+      <pre className="mt-4 overflow-x-auto rounded border border-zinc-800 bg-zinc-950 p-4 font-mono text-xs text-zinc-300">{example}</pre>
+    </div>
   );
 }
 
@@ -153,6 +200,8 @@ function Onboard({ onSet }: { onSet: (k: string) => void }) {
   const [key, setKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [pasteOpen, setPasteOpen] = useState(false);
+  const [pasteKey, setPasteKey] = useState("");
 
   async function register(e: React.FormEvent) {
     e.preventDefault();
@@ -176,20 +225,32 @@ function Onboard({ onSet }: { onSet: (k: string) => void }) {
     }
   }
 
+  function savePastedKey() {
+    const k = pasteKey.trim();
+    if (!k.startsWith("sk_")) {
+      setError("Key should start with sk_live_ or sk_test_");
+      return;
+    }
+    localStorage.setItem("sybilshield_api_key", k);
+    onSet(k);
+  }
+
   if (key) {
     return (
       <main className="space-y-6">
-        <h1 className="text-3xl font-semibold">You're in.</h1>
+        <h1 className="text-3xl font-semibold">You&apos;re in.</h1>
         <p className="text-zinc-400">
-          Save your API key — it cannot be retrieved later. Then reload this page.
+          Save your API key now — it cannot be retrieved later, only rotated.
         </p>
         <div className="rounded border border-emerald-700 bg-emerald-900/20 p-4">
           <div className="text-xs text-emerald-300">Your API key</div>
-          <code className="mt-2 block break-all rounded bg-zinc-950 p-3 font-mono text-sm">{key}</code>
+          <div className="mt-2">
+            <CopyableSecret value={key} />
+          </div>
         </div>
         <button
           onClick={() => onSet(key)}
-          className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500"
+          className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
         >
           I saved it — continue
         </button>
@@ -201,7 +262,7 @@ function Onboard({ onSet }: { onSet: (k: string) => void }) {
     <main className="max-w-md">
       <h1 className="text-3xl font-semibold">Sign up</h1>
       <p className="mt-2 text-sm text-zinc-400">
-        Free tier — 100 API calls/month. No card required. Email is the only required field.
+        Free Sandbox tier — 100 API calls/month. No card. Email is the only required field.
       </p>
       <form onSubmit={register} className="mt-8 space-y-4">
         <div>
@@ -211,7 +272,7 @@ function Onboard({ onSet }: { onSet: (k: string) => void }) {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="mt-1 w-full rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
           />
         </div>
         <div>
@@ -219,33 +280,51 @@ function Onboard({ onSet }: { onSet: (k: string) => void }) {
           <input
             value={name}
             onChange={(e) => setName(e.target.value)}
-            className="mt-1 w-full rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm"
+            className="mt-1 w-full rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
           />
         </div>
         <button
           type="submit"
           disabled={busy}
-          className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50"
+          className="rounded bg-emerald-600 px-4 py-2 text-sm font-medium text-white hover:bg-emerald-500 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
         >
           {busy ? "Creating..." : "Create account"}
         </button>
         {error && <p className="text-sm text-red-400">{error}</p>}
       </form>
-      <p className="mt-8 text-xs text-zinc-500">
-        Already have a key?{" "}
-        <button
-          className="underline"
-          onClick={() => {
-            const k = prompt("Paste your API key (sk_live_...)");
-            if (k) {
-              localStorage.setItem("sybilshield_api_key", k);
-              onSet(k);
-            }
-          }}
-        >
-          Paste it
-        </button>
-      </p>
+
+      <div className="mt-8 border-t border-zinc-900 pt-6">
+        <p className="text-xs text-zinc-500">
+          Already have a key?{" "}
+          <button
+            type="button"
+            className="text-emerald-400 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+            onClick={() => setPasteOpen((v) => !v)}
+            aria-expanded={pasteOpen}
+          >
+            Paste it
+          </button>
+        </p>
+        {pasteOpen && (
+          <div className="mt-3 flex flex-wrap items-center gap-2">
+            <input
+              type="password"
+              autoFocus
+              value={pasteKey}
+              onChange={(e) => setPasteKey(e.target.value)}
+              placeholder="sk_live_..."
+              className="min-w-[260px] flex-1 rounded border border-zinc-800 bg-zinc-950 px-3 py-2 font-mono text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+            />
+            <button
+              type="button"
+              onClick={savePastedKey}
+              className="rounded bg-emerald-600 px-3 py-2 text-xs font-medium text-white hover:bg-emerald-500 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+            >
+              Save
+            </button>
+          </div>
+        )}
+      </div>
     </main>
   );
 }

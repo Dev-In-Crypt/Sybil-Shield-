@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { InlineConfirm } from "../../../components/InlineConfirm";
 
 interface Member {
   id: string;
@@ -52,7 +53,6 @@ export default function TeamPage() {
   }
 
   async function remove(id: string) {
-    if (!confirm("Remove this teammate?")) return;
     const key = localStorage.getItem("sybilshield_api_key");
     await fetch(`${base}/v1/team/members/${id}`, {
       method: "DELETE",
@@ -124,9 +124,14 @@ export default function TeamPage() {
                 </td>
                 <td className="px-4 py-2 text-right">
                   {m.role !== "owner" && (
-                    <button onClick={() => remove(m.id)} className="text-xs text-zinc-500 hover:text-red-400">
-                      remove
-                    </button>
+                    <InlineConfirm
+                      prompt={`Remove ${m.user_email}?`}
+                      cta="Remove"
+                      variant="danger"
+                      triggerLabel="remove"
+                      triggerClass="text-xs text-zinc-500 hover:text-red-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+                      onConfirm={() => remove(m.id)}
+                    />
                   )}
                 </td>
               </tr>

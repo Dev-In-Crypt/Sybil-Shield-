@@ -8,6 +8,7 @@ export default function ScoringPage() {
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+  const [watchMsg, setWatchMsg] = useState<string | null>(null);
 
   const base = process.env.NEXT_PUBLIC_API_URL;
 
@@ -35,12 +36,17 @@ export default function ScoringPage() {
 
   async function watch() {
     const key = localStorage.getItem("sybilshield_api_key");
-    await fetch(`${base}/v1/watchlist`, {
+    const r = await fetch(`${base}/v1/watchlist`, {
       method: "POST",
       headers: { "content-type": "application/json", ...(key ? { Authorization: `Bearer ${key}` } : {}) },
       body: JSON.stringify({ address: addr.toLowerCase(), chain }),
     });
-    alert("Added to watchlist");
+    if (r.ok) {
+      setWatchMsg("✓ Added to watchlist");
+      setTimeout(() => setWatchMsg(null), 3000);
+    } else {
+      setWatchMsg(`Failed: ${r.status}`);
+    }
   }
 
   const s = result?.sybil_score ?? result?.score ?? null;
@@ -112,12 +118,19 @@ export default function ScoringPage() {
               {JSON.stringify(result.evidence ?? result, null, 2)}
             </pre>
           </div>
-          <button
-            onClick={watch}
-            className="rounded border border-emerald-700 px-4 py-2 text-sm text-emerald-400 hover:bg-emerald-900/20"
-          >
-            + Add to watchlist
-          </button>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={watch}
+              className="rounded border border-emerald-700 px-4 py-2 text-sm text-emerald-400 hover:bg-emerald-900/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+            >
+              + Add to watchlist
+            </button>
+            {watchMsg && (
+              <span className={watchMsg.startsWith("✓") ? "text-emerald-400 text-sm" : "text-red-400 text-sm"}>
+                {watchMsg}
+              </span>
+            )}
+          </div>
         </section>
       )}
     </main>
