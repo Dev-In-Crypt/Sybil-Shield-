@@ -145,11 +145,9 @@ sources:
     confidence: 0.80
     description: >
       Addresses that voted on Snapshot.org proposals (>=5 votes across
-      >=3 unique spaces). Snapshot voting requires holding the space's
-      governance token, so prolific voters strongly correlate with human
-      participants. Produced by `python -m sybilshield.data.derive_snapshot_voters`
-      BEFORE curate. Replaces ENS-veterans when the ENS subgraph is
-      unavailable (the hosted thegraph endpoint deprecated in 2024).
+      >=3 unique spaces). Off-chain governance via Snapshot. Currently
+      disabled — Snapshot's hub.snapshot.org GraphQL is unreachable from
+      the prod VPS (timeouts). Kept for future re-enable.
     license: derived
     chains: [ethereum]
     retrieval:
@@ -157,6 +155,27 @@ sources:
       script: derive_snapshot_voters.py
       address_column: address
     expected_count: 2000
+    enabled: false
+
+  - id: governance-voters
+    label_class: genuine
+    tier: G2
+    confidence: 0.85
+    description: >
+      Addresses that voted on Uniswap, Compound, or ENS on-chain governors
+      (>=2 distinct proposals). VoteCast events read directly via Ethereum
+      RPC, no third-party indexer required. Stronger signal than Snapshot
+      because casting an on-chain vote costs gas AND requires holding the
+      governance token at the proposal's snapshot block.
+      Produced by `python -m sybilshield.data.derive_governance_voters`
+      BEFORE curate.
+    license: derived
+    chains: [ethereum]
+    retrieval:
+      method: derived
+      script: derive_governance_voters.py
+      address_column: address
+    expected_count: 1500
     enabled: true
 
 # ============================================================
