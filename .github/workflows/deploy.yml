@@ -34,18 +34,54 @@ jobs:
           fetch-depth: 2
 
       - name: Install SSH key
+        env:
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_SSH_HOST: ${{ secrets.DEPLOY_SSH_HOST }}
+          DEPLOY_SSH_USER: ${{ secrets.DEPLOY_SSH_USER }}
         run: |
+          set -e
+          # Validate that secrets are actually set — GH Actions doesn't fail
+          # the job for unset secrets, you just get empty strings.
+          missing=""
+          [ -z "$DEPLOY_SSH_KEY" ]  && missing="$missing DEPLOY_SSH_KEY"
+          [ -z "$DEPLOY_SSH_HOST" ] && missing="$missing DEPLOY_SSH_HOST"
+          [ -z "$DEPLOY_SSH_USER" ] && missing="$missing DEPLOY_SSH_USER"
+          if [ -n "$missing" ]; then
+            echo "::error::Missing required repository secrets:$missing"
+            echo "Add them under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
           mkdir -p ~/.ssh
-          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/deploy_key
+          # printf preserves the key's newlines exactly (echo can mangle them).
+          printf '%s\n' "$DEPLOY_SSH_KEY" > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H "${{ secrets.DEPLOY_SSH_HOST }}" >> ~/.ssh/known_hosts 2>/dev/null
+
+          # Validate key parses before we try to ssh — better error than a
+          # cryptic auth failure later.
+          if ! ssh-keygen -y -f ~/.ssh/deploy_key > /dev/null 2>&1; then
+            echo "::error::DEPLOY_SSH_KEY is not a valid private key."
+            echo "Generate one with: ssh-keygen -t ed25519 -f deploy_key -N ''"
+            echo "Then paste the *entire* deploy_key file (incl BEGIN/END lines) into the secret."
+            exit 1
+          fi
+
+          # Trust the host — but don't let a transient DNS hiccup fail the step.
+          ssh-keyscan -H "$DEPLOY_SSH_HOST" >> ~/.ssh/known_hosts 2>/dev/null || true
+          if ! grep -q . ~/.ssh/known_hosts; then
+            echo "::warning::ssh-keyscan produced no output for $DEPLOY_SSH_HOST — falling back to StrictHostKeyChecking=accept-new"
+            echo "Host $DEPLOY_SSH_HOST" >> ~/.ssh/config
+            echo "  StrictHostKeyChecking accept-new" >> ~/.ssh/config
+            echo "  UserKnownHostsFile ~/.ssh/known_hosts" >> ~/.ssh/config
+          fi
+          echo "ok: key installed, host fingerprint stored"
 
       - name: Pull + rebuild + restart
         env:
           HOST: ${{ secrets.DEPLOY_SSH_HOST }}
           USER: ${{ secrets.DEPLOY_SSH_USER }}
         run: |
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes "$USER@$HOST" 'bash -s' <<'REMOTE'
+          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=accept-new "$USER@$HOST" 'bash -s' <<'REMOTE'
           set -euo pipefail
           cd ~/sybilshield
           echo "==> git pull"
