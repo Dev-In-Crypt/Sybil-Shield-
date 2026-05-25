@@ -10,7 +10,12 @@ const BatchSchema = z.object({
   chain: z.string().default("ethereum"),
 });
 
-export async function scoringRoutes(app: FastifyInstance): Promise<void> {
+/**
+ * Public read-only score lookup. Promised on the Trust page as a free
+ * public-good endpoint — no API key required. Returns the most recent
+ * cached score for the address (does NOT trigger fresh analysis).
+ */
+export async function publicScoringRoutes(app: FastifyInstance): Promise<void> {
   app.get<{ Params: { address: string }; Querystring: { chain?: string } }>(
     "/v1/score/:address",
     async (request, reply) => {
@@ -40,7 +45,9 @@ export async function scoringRoutes(app: FastifyInstance): Promise<void> {
       });
     },
   );
+}
 
+export async function scoringRoutes(app: FastifyInstance): Promise<void> {
   app.post("/v1/score/batch", async (request, reply) => {
     const parsed = BatchSchema.safeParse(request.body);
     if (!parsed.success) {

@@ -10,7 +10,7 @@ import { authedAccountRoutes, publicAuthRoutes } from "./routes/auth.js";
 import { billingRoutes } from "./routes/billing.js";
 import { feedbackRoutes } from "./routes/feedback.js";
 import { notificationsRoutes } from "./routes/notifications.js";
-import { scoringRoutes } from "./routes/scoring.js";
+import { publicScoringRoutes, scoringRoutes } from "./routes/scoring.js";
 import { publicTeamRoutes, teamRoutes } from "./routes/team.js";
 import { watchlistRoutes } from "./routes/watchlist.js";
 import { webhookDeliveriesRoutes } from "./routes/webhook-deliveries.js";
@@ -48,6 +48,7 @@ export async function buildServer() {
   await app.register(publicAuthRoutes);
   await app.register(appealsRoutes);
   await app.register(publicTeamRoutes);
+  await app.register(publicScoringRoutes);
 
   // Authenticated routes
   await app.register(async (instance) => {
