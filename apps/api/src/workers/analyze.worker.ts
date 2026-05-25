@@ -12,6 +12,7 @@ import { addressScores, analyses, clusters, customers, db, evidenceAuditLog } fr
 import { computeDecision, evidenceToCodes, type DecisionPreset } from "../lib/presets.js";
 import { createNotification } from "../routes/notifications.js";
 import { recordDelivery } from "../routes/webhook-deliveries.js";
+import { emitAlert } from "../services/alerts.js";
 import { deliverWebhook } from "../services/webhooks.js";
 
 const ML_SERVICE_URL = process.env.ML_SERVICE_URL ?? "http://localhost:8001";
@@ -350,6 +351,12 @@ export function startWorker(): Worker {
           .update(analyses)
           .set({ status: "failed" })
           .where(eq(analyses.id, job.data.analysisId));
+        // Fire-and-forget Discord ping so we don't have to tail container
+        // logs to notice a stuck queue / dead ML service.
+        await emitAlert(
+          `🔴 worker exception · analysis=${job.data.analysisId} · attempt=${job.attemptsMade}/${job.opts.attempts ?? 1}\n` +
+            `${(err as Error)?.stack ?? String(err)}`,
+        );
         throw err;
       }
     },

@@ -64,4 +64,6 @@ services:
       WORKER_CONCURRENCY: ${WORKER_CONCURRENCY:-2}
       USE_MOCK_PROVIDERS: ${USE_MOCK_PROVIDERS:-true}
       ALCHEMY_API_KEY: ${ALCHEMY_API_KEY:-}
+      # Optional: Discord webhook pinged on worker exceptions. Unset = silent.
+      WORKER_ALERT_WEBHOOK: ${WORKER_ALERT_WEBHOOK:-}
     restart: unless-stopped
