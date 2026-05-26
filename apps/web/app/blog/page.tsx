@@ -15,6 +15,14 @@ type Post = {
 
 const POSTS: Post[] = [
   {
+    slug: "preset-calibration",
+    title: "Calibrating presets against 600 real wallets — and why we found a 66% false-positive rate before we shipped",
+    excerpt:
+      "Pre-pilot retro on 200 confessed sybils + 200 sybil-list addresses + 200 confirmed governance voters. Initial airdrop preset hit 100% recall — and 66% FP rate from CEX-funding clusters. After 5–10× cluster threshold bump: 100% recall, 0% FP. Real numbers, real fix, real source.",
+    date: "2026-05-26",
+    published: true,
+  },
+  {
     slug: "v05-real-corpus",
     title: "Trained on 1000 real wallets: what we learned",
     excerpt:
