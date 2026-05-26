@@ -1,8 +1,8 @@
 ---
 title: "Replicating Linea's filter — 478K agreement, 45K candidates they missed"
 slug: linea-retro
-date: 2026-06-15
-status: draft
+date: 2026-05-26
+status: published
 tags: [retro, methodology, linea]
 disclaimer: "Aggregate analysis only. No individual addresses published. Per our public policy, individual claims are appealable at /appeal with 48h SLA."
 ---

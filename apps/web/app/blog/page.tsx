@@ -27,7 +27,7 @@ const POSTS: Post[] = [
     title: "Replicating Linea's filter: 478K agreement, 45K candidates they missed",
     excerpt:
       "Public retro-analysis of the Linea airdrop filter results. Aggregate-only. We agree with Linea on 478K addresses, disagree on 39K, and identified 45K candidates their filter missed.",
-    date: "2026-06-15",
+    date: "2026-05-26",
     published: true,
   },
   {

@@ -24,21 +24,29 @@ interface PresetConfig {
   review: { score_gte: number | null; cluster_size_gte: number | null };
 }
 
+// Threshold calibration history:
+//   v1 (initial): cluster_size thresholds were 3-10. Pre-pilot retro on 200
+//   governance voters showed 66% false-positive rate — almost all triggered
+//   by cluster_size_ge_10 from shared CEX hot-wallet funding (Binance,
+//   Coinbase) which is BASELINE NOISE, not sybil signal. v0.5.0 ML model
+//   correctly scored those 0/100 but the cluster rule overrode.
+//   Bumped thresholds 5-10× so only truly large coordinated clusters
+//   trigger; ordinary CEX-funded users are no longer false-flagged.
 export const PRESETS: Record<DecisionPreset, PresetConfig> = {
   airdrop: {
     description: "Aggressive filtering for token distributions",
-    drop: { score_gte: 85, cluster_size_gte: 10 },
-    review: { score_gte: 60, cluster_size_gte: 5 },
+    drop: { score_gte: 85, cluster_size_gte: 50 },
+    review: { score_gte: 60, cluster_size_gte: 20 },
   },
   dao: {
     description: "Conservative — false-positives matter more in governance",
-    drop: { score_gte: 90, cluster_size_gte: 3 },
-    review: { score_gte: 50, cluster_size_gte: 2 },
+    drop: { score_gte: 90, cluster_size_gte: 30 },
+    review: { score_gte: 50, cluster_size_gte: 10 },
   },
   grant: {
     description: "Cluster-first — check if applicants are connected entities",
-    drop: { score_gte: null, cluster_size_gte: 5 },
-    review: { score_gte: 70, cluster_size_gte: 2 },
+    drop: { score_gte: null, cluster_size_gte: 20 },
+    review: { score_gte: 70, cluster_size_gte: 5 },
   },
   balanced: {
     description: "Default symmetric threshold around the model's separability point",

@@ -17,22 +17,22 @@ const PRESETS = [
     key: "airdrop",
     name: "Airdrop",
     desc: "Aggressive filtering for token distributions — both score AND cluster signals trigger DROP.",
-    drop: "score ≥ 85 OR cluster_size ≥ 10",
-    review: "score ≥ 60 OR cluster_size ≥ 5",
+    drop: "score ≥ 85 OR cluster_size ≥ 50",
+    review: "score ≥ 60 OR cluster_size ≥ 20",
   },
   {
     key: "dao",
     name: "DAO voting",
     desc: "Conservative — false-positives matter more in governance contexts. Cluster signal preferred.",
-    drop: "score ≥ 90 OR cluster_size ≥ 3",
-    review: "score ≥ 50 OR cluster_size ≥ 2",
+    drop: "score ≥ 90 OR cluster_size ≥ 30",
+    review: "score ≥ 50 OR cluster_size ≥ 10",
   },
   {
     key: "grant",
     name: "Grant committee",
     desc: "Cluster-first — verify whether applicants are connected entities. Ignores low-volume score signal.",
-    drop: "cluster_size ≥ 5",
-    review: "cluster_size ≥ 2 OR score ≥ 70",
+    drop: "cluster_size ≥ 20",
+    review: "cluster_size ≥ 5 OR score ≥ 70",
   },
 ] as const;
 

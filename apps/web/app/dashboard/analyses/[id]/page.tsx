@@ -46,16 +46,16 @@ interface Analysis {
 // dashboard can render rule descriptions without an extra round-trip.
 const PRESET_RULES: Record<string, { drop: string; review: string }> = {
   airdrop: {
-    drop: "score ≥ 85 OR cluster_size ≥ 10",
-    review: "score ≥ 60 OR cluster_size ≥ 5",
+    drop: "score ≥ 85 OR cluster_size ≥ 50",
+    review: "score ≥ 60 OR cluster_size ≥ 20",
   },
   dao: {
-    drop: "score ≥ 90 OR cluster_size ≥ 3",
-    review: "score ≥ 50 OR cluster_size ≥ 2",
+    drop: "score ≥ 90 OR cluster_size ≥ 30",
+    review: "score ≥ 50 OR cluster_size ≥ 10",
   },
   grant: {
-    drop: "cluster_size ≥ 5",
-    review: "cluster_size ≥ 2 OR score ≥ 70",
+    drop: "cluster_size ≥ 20",
+    review: "cluster_size ≥ 5 OR score ≥ 70",
   },
   balanced: {
     drop: "score ≥ 80",
@@ -285,13 +285,104 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
                 </li>
               ))}
             </ul>
-            <p className="mt-8 text-xs text-zinc-500">
-              Disagree? Submit an appeal at <span className="font-mono">/appeal</span> or email support@sybilshield.org.
+            <FeedbackButtons analysisId={params.id} address={drawer.address} chain={drawer.chain} />
+
+            <p className="mt-6 text-xs text-zinc-500">
+              Disagree publicly? Submit an appeal at <span className="font-mono">/appeal</span> — appeals are recorded
+              in the public audit log with a 48h SLA.
             </p>
           </div>
         </div>
       )}
     </main>
+  );
+}
+
+/**
+ * Thumbs up/down on a score. Hits POST /v1/feedback which writes to the
+ * `feedback` table (already in schema) and an `evidence_audit_log` event
+ * tagged `customer:<id>`. This is the calibration loop that turns customer
+ * disagreements into retraining signal.
+ */
+function FeedbackButtons({
+  analysisId,
+  address,
+  chain,
+}: {
+  analysisId: string;
+  address: string;
+  chain: string;
+}) {
+  const [sent, setSent] = useState<null | "confirmed" | "false_positive" | "false_negative">(null);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  async function submit(verdict: "confirmed" | "false_positive" | "false_negative") {
+    setErr(null);
+    const key = localStorage.getItem("sybilshield_api_key");
+    if (!key) {
+      setErr("API key missing.");
+      return;
+    }
+    setBusy(true);
+    try {
+      const r = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/feedback`, {
+        method: "POST",
+        headers: { "content-type": "application/json", Authorization: `Bearer ${key}` },
+        body: JSON.stringify({ analysis_id: analysisId, address, chain, verdict }),
+      });
+      if (!r.ok) {
+        setErr(`Failed: ${r.status}`);
+        return;
+      }
+      setSent(verdict);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  if (sent) {
+    return (
+      <div className="mt-6 rounded border border-emerald-700/40 bg-emerald-900/10 p-3 text-xs text-emerald-300">
+        ✓ Feedback recorded ({sent.replace("_", " ")}). Logged in the audit trail and used for model calibration.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-6 rounded border border-zinc-800 bg-zinc-950 p-3">
+      <div className="text-xs uppercase tracking-wider text-zinc-500">Was this verdict correct?</div>
+      <div className="mt-2 flex flex-wrap gap-2">
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => submit("confirmed")}
+          className="rounded border border-emerald-700/40 bg-emerald-900/20 px-3 py-1 text-xs text-emerald-300 hover:bg-emerald-900/40 disabled:opacity-50"
+        >
+          ✓ Correct
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => submit("false_positive")}
+          className="rounded border border-rose-700/40 bg-rose-900/20 px-3 py-1 text-xs text-rose-300 hover:bg-rose-900/40 disabled:opacity-50"
+        >
+          ✗ False positive (genuine flagged)
+        </button>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => submit("false_negative")}
+          className="rounded border border-amber-700/40 bg-amber-900/20 px-3 py-1 text-xs text-amber-300 hover:bg-amber-900/40 disabled:opacity-50"
+        >
+          ⚠ False negative (sybil missed)
+        </button>
+      </div>
+      {err && <p className="mt-2 text-xs text-rose-400">{err}</p>}
+      <p className="mt-2 text-[10px] text-zinc-600">
+        Recorded in the public audit log + feedback table. Used to recalibrate preset thresholds.
+      </p>
+    </div>
   );
 }
 

@@ -76,20 +76,20 @@ export default function DocsPage() {
                 </tr>
                 <tr className="border-t border-zinc-800">
                   <td className="py-2 pr-4 text-emerald-300">airdrop</td>
-                  <td>score ≥ 85 OR cluster_size ≥ 10</td>
-                  <td>score ≥ 60 OR cluster_size ≥ 5</td>
+                  <td>score ≥ 85 OR cluster_size ≥ 50</td>
+                  <td>score ≥ 60 OR cluster_size ≥ 20</td>
                   <td className="text-zinc-400">aggressive — token distributions</td>
                 </tr>
                 <tr className="border-t border-zinc-800">
                   <td className="py-2 pr-4 text-emerald-300">dao</td>
-                  <td>score ≥ 90 OR cluster_size ≥ 3</td>
-                  <td>score ≥ 50 OR cluster_size ≥ 2</td>
+                  <td>score ≥ 90 OR cluster_size ≥ 30</td>
+                  <td>score ≥ 50 OR cluster_size ≥ 10</td>
                   <td className="text-zinc-400">conservative — governance voting</td>
                 </tr>
                 <tr className="border-t border-zinc-800">
                   <td className="py-2 pr-4 text-emerald-300">grant</td>
-                  <td>cluster_size ≥ 5</td>
-                  <td>cluster_size ≥ 2 OR score ≥ 70</td>
+                  <td>cluster_size ≥ 20</td>
+                  <td>cluster_size ≥ 5 OR score ≥ 70</td>
                   <td className="text-zinc-400">cluster-first — grant committees</td>
                 </tr>
               </tbody>

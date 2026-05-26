@@ -29,21 +29,27 @@ class PresetConfig:
     review: Threshold
 
 
+# Calibrated against pre-pilot retro on 600 known-tier addresses (2026-05-26):
+# initial cluster_size thresholds were 3-10, which caused 66% false-positive
+# rate on confirmed governance voters because shared-CEX-funding clusters
+# (Binance/Coinbase hot wallets) routinely group ordinary users into 10-50
+# wallet "funding clusters". Bumped 5-10× so only truly large coordinated
+# clusters trigger.
 PRESETS: dict[PresetName, PresetConfig] = {
     "airdrop": PresetConfig(
         description="Aggressive filtering for token distributions",
-        drop=Threshold(score_gte=85, cluster_size_gte=10),
-        review=Threshold(score_gte=60, cluster_size_gte=5),
+        drop=Threshold(score_gte=85, cluster_size_gte=50),
+        review=Threshold(score_gte=60, cluster_size_gte=20),
     ),
     "dao": PresetConfig(
         description="Conservative — false-positives matter more in governance",
-        drop=Threshold(score_gte=90, cluster_size_gte=3),
-        review=Threshold(score_gte=50, cluster_size_gte=2),
+        drop=Threshold(score_gte=90, cluster_size_gte=30),
+        review=Threshold(score_gte=50, cluster_size_gte=10),
     ),
     "grant": PresetConfig(
         description="Cluster-first — check if applicants are connected entities",
-        drop=Threshold(score_gte=None, cluster_size_gte=5),
-        review=Threshold(score_gte=70, cluster_size_gte=2),
+        drop=Threshold(score_gte=None, cluster_size_gte=20),
+        review=Threshold(score_gte=70, cluster_size_gte=5),
     ),
     "balanced": PresetConfig(
         description="Default symmetric threshold around the model's separability point",
