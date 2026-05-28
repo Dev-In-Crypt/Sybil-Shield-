@@ -38,19 +38,21 @@ export const metadata: Metadata = {
     apple: "/favicon.svg",
   },
   manifest: "/manifest.webmanifest",
+  // NOTE: og:image / twitter:image are provided by app/opengraph-image.tsx
+  // (next/og generates a real PNG). We intentionally do NOT set `images`
+  // here — the old /og-image.svg rendered blank in Twitter/Discord/LinkedIn
+  // cards because those platforms ignore SVG og:images.
   openGraph: {
     type: "website",
     siteName: "SybilShield",
     title: "SybilShield — Open-source Sybil detection",
     description: DESCRIPTION,
     url: SITE_URL,
-    images: [{ url: "/og-image.svg", width: 1200, height: 630, alt: "SybilShield" }],
   },
   twitter: {
     card: "summary_large_image",
     title: "SybilShield",
     description: DESCRIPTION,
-    images: ["/og-image.svg"],
   },
   themeColor: "#000000",
   robots: { index: true, follow: true },
