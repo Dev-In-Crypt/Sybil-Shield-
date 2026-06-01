@@ -37,11 +37,11 @@ export default function PricingPage() {
               suffix=""
               status="available"
               features={[
-                "100 API calls / month",
-                "Sandbox API access",
-                "Evidence report format",
-                "Public appeal flow testing",
-                "Read evidence reports",
+                "100 billable POSTs / month",
+                "Dashboard polling + reads are free",
+                "Up to 1,000 addresses / analysis",
+                "1 analysis at a time · 1 MB CSV upload",
+                "Evidence reports · public appeal flow",
               ]}
               footer="Best for testing the product flow"
               cta={{ href: "/dashboard", label: "Start free", style: "primary" }}

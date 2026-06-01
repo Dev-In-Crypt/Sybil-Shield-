@@ -1,7 +1,8 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { addressScores, analyses, clusters, db } from "../db/index.js";
+import { planLimits } from "../middleware/auth.js";
 import { enqueueAnalysis } from "../services/pipeline-client.js";
 
 const CreateAnalysisSchema = z.object({
@@ -31,6 +32,63 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
     }
     const addressCount = body.addresses?.length ?? 0;
     const customerId = request.customer!.id;
+    const planCfg = planLimits(request.customer!.plan);
+
+    // Block 1 — address-count cap. Dashboard /dashboard/new caps at 1000
+    // client-side, but raw API submitters bypass that. When the caller used
+    // addresses_file_url the body array is empty here (addressCount=0) and
+    // the cap is enforced AGAIN in the worker after the URL is fetched —
+    // see fetchAddressesFromUrl in analyze.worker.ts.
+    if (addressCount > planCfg.maxAddressesPerAnalysis) {
+      return reply.code(400).send({
+        error: "too_many_addresses",
+        limit: planCfg.maxAddressesPerAnalysis,
+        submitted: addressCount,
+        plan: request.customer!.plan,
+        upgrade_url: `${process.env.WEB_PUBLIC_URL ?? ""}/pricing`,
+      });
+    }
+
+    // Block 5 — pre-flight CU budget check. Rough heuristic: ~5 CU per
+    // address in full mode (one ML inference + a handful of feature RPCs),
+    // ~3 CU in cluster_only (skips the ML pass). The worker still hard-caps
+    // on the real cu_consumed reported by the Python pipeline.
+    const estimatedCu = addressCount * (body.mode === "cluster_only" ? 3 : 5);
+    if (estimatedCu > planCfg.maxCuPerAnalysis) {
+      return reply.code(400).send({
+        error: "estimated_cu_exceeds_budget",
+        estimated_cu: estimatedCu,
+        limit: planCfg.maxCuPerAnalysis,
+        plan: request.customer!.plan,
+        suggestion: "trim addresses, switch to mode=cluster_only, or upgrade your plan",
+        upgrade_url: `${process.env.WEB_PUBLIC_URL ?? ""}/pricing`,
+      });
+    }
+
+    // Block 2 — concurrent in-flight cap. Excludes rows older than 1 hour
+    // in case the worker died mid-job and left a stale "pending" row; it
+    // would otherwise block the customer forever.
+    const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
+    const inFlight = await db
+      .select({ id: analyses.id })
+      .from(analyses)
+      .where(
+        and(
+          eq(analyses.customerId, customerId),
+          inArray(analyses.status, ["pending", "ingesting"]),
+          gt(analyses.createdAt, oneHourAgo),
+        ),
+      );
+    if (inFlight.length >= planCfg.maxConcurrent) {
+      return reply.code(429).send({
+        error: "concurrent_limit_exceeded",
+        limit: planCfg.maxConcurrent,
+        in_flight: inFlight.length,
+        plan: request.customer!.plan,
+        retry_when: "wait for one of your running analyses to complete",
+        upgrade_url: `${process.env.WEB_PUBLIC_URL ?? ""}/pricing`,
+      });
+    }
 
     const [created] = await db
       .insert(analyses)

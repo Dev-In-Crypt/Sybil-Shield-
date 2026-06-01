@@ -90,14 +90,16 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
         const a = await fetch(`${base}/v1/analyses/${params.id}`, { headers }).then((r) => r.json());
         if (cancelled) return;
         setAnalysis(a);
-        if (a.status === "complete") {
+        // Terminal statuses: complete, complete_over_budget (Block 5 — CU
+        // cap was hit but results were still written), and failed.
+        if (a.status === "complete" || a.status === "complete_over_budget") {
           const q = decisionFilter ? `?decision=${decisionFilter}` : "";
           const r = await fetch(`${base}/v1/analyses/${params.id}/results${q}`, { headers }).then((x) => x.json());
           if (cancelled) return;
           setResults(r.data ?? []);
-          return; // terminal — stop polling
+          return;
         }
-        if (a.status === "failed") return; // also terminal
+        if (a.status === "failed") return;
         // Still in flight — re-poll. 2s is comfortable: tight enough to feel
         // live, loose enough not to hammer the API.
         timer = setTimeout(tick, 2000);
@@ -135,7 +137,9 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
       {error && <p className="text-red-400">{error}</p>}
       {!analysis ? (
         <p className="text-zinc-500">Loading…</p>
-      ) : analysis.status !== "complete" && analysis.status !== "failed" ? (
+      ) : analysis.status !== "complete" &&
+        analysis.status !== "complete_over_budget" &&
+        analysis.status !== "failed" ? (
         <ProgressCard analysis={analysis} tick={tick} />
       ) : analysis.status === "failed" ? (
         <div className="rounded-lg border border-rose-700/40 bg-rose-900/10 p-6 text-rose-200">
@@ -196,7 +200,14 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
           )}
 
           {/* Completion banner — confirms freshness + tells users that the
-              table preview is capped and CSV has the full set. */}
+              table preview is capped and CSV has the full set. amber variant
+              when the analysis hit the CU budget cap (Block 5). */}
+          {analysis.status === "complete_over_budget" && (
+            <div className="mt-6 rounded-lg border border-amber-700/40 bg-amber-900/10 px-4 py-3 text-sm text-amber-200">
+              <strong>⚠ Analysis exceeded your CU budget.</strong> Partial results saved below. Upgrade your plan or trim
+              the address list for a complete run. <a href="/pricing" className="underline">See pricing</a>.
+            </div>
+          )}
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-700/30 bg-emerald-900/[0.07] px-4 py-3">
             <p className="text-sm text-emerald-200">
               ✓ Analysis complete

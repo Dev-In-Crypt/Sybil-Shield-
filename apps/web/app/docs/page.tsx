@@ -275,23 +275,41 @@ X-SybilShield-Signature: sha256=...
               <thead className="text-left text-xs uppercase tracking-wider text-zinc-500">
                 <tr>
                   <th className="py-2">Tier</th>
-                  <th>Per minute</th>
-                  <th>Per month</th>
+                  <th>RPM</th>
+                  <th>Billable POSTs / mo</th>
+                  <th>Addresses / analysis</th>
+                  <th>Concurrent</th>
+                  <th>Upload size</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-900">
-                <tr><td className="py-2">Free Sandbox</td><td>30</td><td>100</td></tr>
-                <tr><td className="py-2">Pilot</td><td>100</td><td>per engagement</td></tr>
-                <tr><td className="py-2">Growth API <span className="text-zinc-500">(coming soon)</span></td><td>300</td><td>250,000</td></tr>
-                <tr><td className="py-2">Enterprise <span className="text-zinc-500">(coming soon)</span></td><td>1,000</td><td>unlimited</td></tr>
+              <tbody className="divide-y divide-zinc-900 font-mono text-xs">
+                <tr><td className="py-2">Free Sandbox</td><td>30</td><td>100</td><td>1,000</td><td>1</td><td>1 MB</td></tr>
+                <tr><td className="py-2">Pilot</td><td>100</td><td>per engagement</td><td>negotiated</td><td>5</td><td>10 MB</td></tr>
+                <tr><td className="py-2">Growth API <span className="text-zinc-500">(coming soon)</span></td><td>300</td><td>250,000</td><td>100,000</td><td>20</td><td>100 MB</td></tr>
+                <tr><td className="py-2">Enterprise <span className="text-zinc-500">(coming soon)</span></td><td>1,000</td><td>unlimited</td><td>1,000,000</td><td>100</td><td>1 GB</td></tr>
               </tbody>
             </table>
           </div>
           <p className="mt-4 text-sm text-zinc-500">
-            Exceeding the monthly quota returns <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 monthly_quota_exceeded</code> with{" "}
-            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">upgrade_url</code> in the body.
-            Exceeding RPM returns <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 rate_limit_exceeded</code> with{" "}
-            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">retry_after_seconds</code>.
+            <strong>What counts as a billable POST.</strong>{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">POST /v1/analyses</code>,{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">POST /v1/score/batch</code>,{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">POST /v1/feedback</code>, and other write
+            endpoints. <strong>What does NOT count:</strong> all GET reads (
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">/v1/analyses/:id</code>,{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">/v1/analyses/:id/results</code>,{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">/v1/account</code>, etc.) — dashboard polling
+            and result viewing are free.
+          </p>
+          <p className="mt-3 text-sm text-zinc-500">
+            <strong>Error codes.</strong>{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 monthly_quota_exceeded</code> with{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">upgrade_url</code>;{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 rate_limit_exceeded</code> with{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">retry_after_seconds</code>;{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 concurrent_limit_exceeded</code>;{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">400 too_many_addresses</code>;{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">400 estimated_cu_exceeds_budget</code>.
           </p>
         </Section>
 

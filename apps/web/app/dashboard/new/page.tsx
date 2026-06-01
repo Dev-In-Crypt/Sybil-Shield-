@@ -262,8 +262,9 @@ export default function NewAnalysisPage() {
           className="block w-full text-sm file:mr-3 file:rounded file:border-0 file:bg-zinc-800 file:px-4 file:py-2 file:text-sm file:text-zinc-200 hover:file:bg-zinc-700"
         />
         <p className="text-xs text-zinc-500">
-          CSV or plain text, one address per line. First comma-separated cell is parsed.
-          Free tier: up to <strong>{MAX_ADDRESSES.toLocaleString()}</strong> addresses per analysis.
+          CSV or plain text, one address per line. First comma-separated cell is parsed.{" "}
+          <strong>Free tier:</strong> up to {MAX_ADDRESSES.toLocaleString()} addresses · 1 analysis at a time · 1 MB
+          upload · 100 billable POSTs / month (dashboard polling + reads are free).
         </p>
         {fileName && (
           <p className="text-xs text-zinc-400">

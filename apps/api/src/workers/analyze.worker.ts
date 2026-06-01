@@ -10,6 +10,7 @@ import { eq } from "drizzle-orm";
 import IORedis from "ioredis";
 import { addressScores, analyses, clusters, customers, db, evidenceAuditLog } from "../db/index.js";
 import { computeDecision, evidenceToCodes, type DecisionPreset } from "../lib/presets.js";
+import { planLimits } from "../middleware/auth.js";
 import { createNotification } from "../routes/notifications.js";
 import { recordDelivery } from "../routes/webhook-deliveries.js";
 import { emitAlert } from "../services/alerts.js";
@@ -61,10 +62,31 @@ interface MLResponse {
   cu_consumed: number;
 }
 
-async function fetchAddressesFromUrl(url: string): Promise<string[]> {
+/**
+ * Fetch a CSV/TXT of addresses from a customer-provided URL.
+ *
+ * Block 4 enforcement:
+ *   - Respect Content-Length when the server sends it — bail BEFORE
+ *     downloading the body if the file exceeds the customer's plan cap.
+ *   - Post-hoc check after .text() in case Content-Length was missing/lying.
+ *
+ * `maxBytes` is the customer's PlanLimits.maxFileBytes (1MB on free).
+ */
+async function fetchAddressesFromUrl(url: string, maxBytes: number): Promise<string[]> {
   const r = await fetch(url);
   if (!r.ok) throw new Error(`fetch ${url} -> ${r.status}`);
+  const contentLength = Number(r.headers.get("content-length") ?? 0);
+  if (contentLength > maxBytes) {
+    throw new Error(
+      `addresses_file_url too large: ${contentLength} bytes (plan limit ${maxBytes}). Use a smaller file or upgrade your plan.`,
+    );
+  }
   const csv = await r.text();
+  if (csv.length > maxBytes) {
+    throw new Error(
+      `addresses_file_url too large after read: ${csv.length} bytes (plan limit ${maxBytes}).`,
+    );
+  }
   const lines = csv.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   // Skip optional header row
   const start = /^0x[0-9a-fA-F]{40}$/.test(lines[0] ?? "") ? 0 : 1;
@@ -83,12 +105,30 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
     .set({ status: "ingesting", startedAt })
     .where(eq(analyses.id, job.analysisId));
 
+  // Need the customer's plan to enforce plan-specific caps on this run
+  // (file size, address count, CU budget). Join now so we don't have to
+  // re-query later.
+  const [meta] = await db
+    .select({ customerId: analyses.customerId, plan: customers.plan })
+    .from(analyses)
+    .innerJoin(customers, eq(analyses.customerId, customers.id))
+    .where(eq(analyses.id, job.analysisId));
+  const planCfg = planLimits(meta?.plan ?? "free");
+
   let addresses = job.addresses;
   if ((!addresses || addresses.length === 0) && job.addressesFileUrl) {
-    addresses = await fetchAddressesFromUrl(job.addressesFileUrl);
+    addresses = await fetchAddressesFromUrl(job.addressesFileUrl, planCfg.maxFileBytes);
   }
   if (!addresses || addresses.length === 0) {
     throw new Error("no addresses to analyze");
+  }
+  // Second-pass address-count check — catches submissions via
+  // addresses_file_url that bypass the route handler's check
+  // (which only sees the empty body array).
+  if (addresses.length > planCfg.maxAddressesPerAnalysis) {
+    throw new Error(
+      `URL contains ${addresses.length} addresses, exceeds plan limit ${planCfg.maxAddressesPerAnalysis}. Trim the file or upgrade your plan.`,
+    );
   }
 
   // Pick the ML endpoint based on requested mode. cluster_only short-circuits
@@ -214,11 +254,16 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
   });
 
   // Phase 2: flip status to 'complete' only after phase 1 has committed.
+  // Block 5 — if ML reported more CU than the customer's plan allows,
+  // we still keep the partial results (already in DB after phase 1) but
+  // mark the row as `complete_over_budget` so the dashboard can surface
+  // a banner instead of pretending everything was fine.
+  const overBudget = result.cu_consumed > planCfg.maxCuPerAnalysis;
   const completedAt = new Date();
   await db
     .update(analyses)
     .set({
-      status: "complete",
+      status: overBudget ? "complete_over_budget" : "complete",
       completedAt,
       processingTimeSeconds: Math.round((completedAt.getTime() - startedAt.getTime()) / 1000),
       totalScored: result.summary.total_scored,
