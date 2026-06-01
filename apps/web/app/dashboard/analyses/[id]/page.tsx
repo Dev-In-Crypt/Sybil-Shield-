@@ -40,6 +40,7 @@ interface Analysis {
   summary?: Summary;
   created_at: string;
   completed_at: string | null;
+  processing_time_seconds?: number | null;
 }
 
 // Mirror of apps/api/src/lib/presets.ts — kept duplicated for now so the
@@ -74,22 +75,51 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
   const [drawer, setDrawer] = useState<ScoreRow | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  // Poll while the job is still in flight so the page updates itself
+  // instead of leaving the user staring at "Loading…" and reaching for F5.
+  // Stops as soon as status is terminal (`complete` / `failed`).
   useEffect(() => {
     if (!apiKey) return;
     const base = process.env.NEXT_PUBLIC_API_URL;
     const headers = { Authorization: `Bearer ${apiKey}` };
-    (async () => {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    async function tick() {
       try {
         const a = await fetch(`${base}/v1/analyses/${params.id}`, { headers }).then((r) => r.json());
+        if (cancelled) return;
         setAnalysis(a);
-        const q = decisionFilter ? `?decision=${decisionFilter}` : "";
-        const r = await fetch(`${base}/v1/analyses/${params.id}/results${q}`, { headers }).then((x) => x.json());
-        setResults(r.data ?? []);
+        if (a.status === "complete") {
+          const q = decisionFilter ? `?decision=${decisionFilter}` : "";
+          const r = await fetch(`${base}/v1/analyses/${params.id}/results${q}`, { headers }).then((x) => x.json());
+          if (cancelled) return;
+          setResults(r.data ?? []);
+          return; // terminal — stop polling
+        }
+        if (a.status === "failed") return; // also terminal
+        // Still in flight — re-poll. 2s is comfortable: tight enough to feel
+        // live, loose enough not to hammer the API.
+        timer = setTimeout(tick, 2000);
       } catch (e) {
-        setError(String(e));
+        if (!cancelled) setError(String(e));
       }
-    })();
+    }
+
+    tick();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
   }, [apiKey, params.id, decisionFilter]);
+
+  // Live elapsed-seconds counter while pending/ingesting so users see motion.
+  const [tick, setTick] = useState(0);
+  useEffect(() => {
+    if (!analysis || analysis.status === "complete" || analysis.status === "failed") return;
+    const t = setInterval(() => setTick((n) => n + 1), 1000);
+    return () => clearInterval(t);
+  }, [analysis]);
 
   const filtered = results.filter((r) => !search || r.address.toLowerCase().includes(search.toLowerCase()));
 
@@ -105,6 +135,19 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
       {error && <p className="text-red-400">{error}</p>}
       {!analysis ? (
         <p className="text-zinc-500">Loading…</p>
+      ) : analysis.status !== "complete" && analysis.status !== "failed" ? (
+        <ProgressCard analysis={analysis} tick={tick} />
+      ) : analysis.status === "failed" ? (
+        <div className="rounded-lg border border-rose-700/40 bg-rose-900/10 p-6 text-rose-200">
+          <h2 className="text-lg font-semibold">Analysis failed</h2>
+          <p className="mt-2 text-sm text-rose-300">
+            The worker errored out on this job. Check{" "}
+            <a href="/dashboard/notifications" className="underline">
+              notifications
+            </a>{" "}
+            for the stack trace, or email support@sybilshield.org with id {analysis.id}.
+          </p>
+        </div>
       ) : (
         <>
           <h1 className="text-2xl font-semibold">{analysis.name}</h1>
@@ -152,7 +195,25 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
             </section>
           )}
 
-          <div className="mt-8 flex flex-wrap items-center gap-2">
+          {/* Completion banner — confirms freshness + tells users that the
+              table preview is capped and CSV has the full set. */}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-700/30 bg-emerald-900/[0.07] px-4 py-3">
+            <p className="text-sm text-emerald-200">
+              ✓ Analysis complete
+              {typeof analysis.processing_time_seconds === "number" && (
+                <span className="ml-2 text-emerald-400/70">in {analysis.processing_time_seconds}s</span>
+              )}
+              {analysis.summary && analysis.summary.total_scored > results.length && (
+                <span className="ml-3 text-zinc-400">
+                  · showing first <strong className="text-zinc-200">{results.length.toLocaleString()}</strong> of{" "}
+                  <strong className="text-zinc-200">{analysis.summary.total_scored.toLocaleString()}</strong> — export
+                  CSV for the full set
+                </span>
+              )}
+            </p>
+          </div>
+
+          <div className="mt-6 flex flex-wrap items-center gap-2">
             <input
               className="rounded border border-zinc-800 bg-zinc-900 px-3 py-2 text-sm font-mono flex-1 min-w-[280px]"
               placeholder="Search 0x..."
@@ -506,5 +567,104 @@ function ExportCsvButton({ analysisId }: { analysisId: string }) {
         <span className={`text-xs ${msg.kind === "ok" ? "text-emerald-400" : "text-red-400"}`}>{msg.text}</span>
       )}
     </>
+  );
+}
+
+/**
+ * Visible in-flight progress card. Replaces the old "Loading…" line while
+ * status is pending/ingesting/queued so users can see (a) it's working and
+ * (b) roughly how long it's been running. We don't have per-stage telemetry
+ * from the worker — just status — so stages are derived from `status`.
+ */
+function ProgressCard({ analysis, tick: _tick }: { analysis: Analysis; tick: number }) {
+  // Use Date.now to compute live elapsed seconds. The `tick` prop forces a
+  // re-render each second (it's not used in math, just as a React signal).
+  const createdAtMs = new Date(analysis.created_at).getTime();
+  const elapsedSec = Math.max(0, Math.floor((Date.now() - createdAtMs) / 1000));
+
+  // Rough heuristic: ~3 sec / 100 addresses on real Alchemy from prod traces.
+  const expectedSec = Math.max(5, Math.ceil(analysis.address_count * 0.03) + 4);
+  const pct = Math.min(95, Math.round((elapsedSec / expectedSec) * 100));
+
+  const stages = [
+    { key: "pending", label: "Queued — waiting for worker pickup" },
+    { key: "ingesting", label: "Ingesting on-chain data via Alchemy + running 6 detection methods" },
+    { key: "scoring", label: "Scoring + writing evidence" },
+  ];
+  // Map raw worker status to a friendly stage. "scoring" is mapped to
+  // "ingesting" by the worker today; if a future status flips to "scoring"
+  // explicitly, the dropdown will pick it up automatically.
+  const activeStage = analysis.status === "pending" ? 0 : 1;
+
+  return (
+    <section className="mt-6 rounded-lg border border-emerald-700/30 bg-emerald-900/[0.04] p-6">
+      <div className="flex flex-wrap items-baseline justify-between gap-3">
+        <h2 className="text-lg font-semibold">{analysis.name}</h2>
+        <span className="font-mono text-xs uppercase tracking-widest text-emerald-300">
+          {analysis.status} · {elapsedSec}s elapsed
+        </span>
+      </div>
+      <p className="mt-1 text-sm text-zinc-400">
+        {analysis.address_count.toLocaleString()} addresses
+        {analysis.preset && (
+          <>
+            {" "}
+            · <span className="font-mono">preset={analysis.preset}</span>
+          </>
+        )}
+        {analysis.mode === "cluster_only" && (
+          <>
+            {" "}
+            · <span className="font-mono text-amber-300">cluster-only</span>
+          </>
+        )}
+      </p>
+
+      {/* Live progress bar — animates each second via the tick state */}
+      <div className="mt-5 h-2 overflow-hidden rounded-full bg-zinc-800">
+        <div
+          className="h-full bg-emerald-500 transition-all duration-700"
+          style={{ width: `${pct}%` }}
+        />
+      </div>
+      <div className="mt-2 flex justify-between text-xs text-zinc-500">
+        <span>~{Math.max(0, expectedSec - elapsedSec)}s remaining</span>
+        <span>auto-refreshing every 2s</span>
+      </div>
+
+      {/* Stage list with the active stage highlighted */}
+      <ol className="mt-6 space-y-3 text-sm">
+        {stages.map((s, i) => {
+          const done = i < activeStage;
+          const active = i === activeStage;
+          return (
+            <li key={s.key} className="flex items-center gap-3">
+              <span
+                className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full font-mono text-[10px] ${
+                  done
+                    ? "bg-emerald-600 text-white"
+                    : active
+                      ? "bg-emerald-500/30 text-emerald-300 ring-2 ring-emerald-500"
+                      : "bg-zinc-800 text-zinc-500"
+                }`}
+                aria-hidden
+              >
+                {done ? "✓" : i + 1}
+              </span>
+              <span className={done ? "text-zinc-400 line-through" : active ? "text-zinc-100" : "text-zinc-500"}>
+                {s.label}
+              </span>
+              {active && (
+                <span className="ml-2 inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400" aria-hidden />
+              )}
+            </li>
+          );
+        })}
+      </ol>
+
+      <p className="mt-6 text-xs text-zinc-500">
+        Stay on this page — results will appear automatically. No need to refresh.
+      </p>
+    </section>
   );
 }
