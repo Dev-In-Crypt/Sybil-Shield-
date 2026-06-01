@@ -231,7 +231,10 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
               <option value="REVIEW">Review only</option>
               <option value="KEEP">Keep only</option>
             </select>
-            <ExportCsvButton analysisId={params.id} />
+            <ExportCsvButton
+              analysisId={params.id}
+              rowCount={analysis.summary?.total_scored ?? null}
+            />
           </div>
           <div className="mt-2 min-h-[18px] text-xs"></div>
 
@@ -517,7 +520,19 @@ function DecisionChip({
   );
 }
 
-function ExportCsvButton({ analysisId }: { analysisId: string }) {
+/**
+ * CSV download CTA. Genesis aesthetic — mono, lime accent, hover-invert.
+ * Shows row count BEFORE click so the user knows what they're getting,
+ * and real byte size + filename AFTER download lands so it doesn't feel
+ * silent ("did it work? what did I get?").
+ */
+function ExportCsvButton({
+  analysisId,
+  rowCount,
+}: {
+  analysisId: string;
+  rowCount: number | null;
+}) {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<{ kind: "ok" | "err"; text: string } | null>(null);
 
@@ -539,34 +554,67 @@ function ExportCsvButton({ analysisId }: { analysisId: string }) {
       }
       const blob = await r.blob();
       const url = URL.createObjectURL(blob);
+      const filename = `sybilshield-${analysisId.slice(0, 8)}.csv`;
       const a = document.createElement("a");
       a.href = url;
-      a.download = `sybilshield-${analysisId}.csv`;
+      a.download = filename;
       document.body.appendChild(a);
       a.click();
       a.remove();
       URL.revokeObjectURL(url);
-      setMsg({ kind: "ok", text: "✓ Downloaded" });
-      setTimeout(() => setMsg(null), 2500);
+      const kb = (blob.size / 1024).toFixed(1);
+      setMsg({ kind: "ok", text: `✓ Saved ${filename} · ${kb} KB` });
+      setTimeout(() => setMsg(null), 4000);
     } finally {
       setBusy(false);
     }
   }
 
+  // Rough KB estimate: header (~90 chars) + ~120 chars/row at decision-aware
+  // CSV width. Only shown when we know the row count.
+  const estimateKb =
+    rowCount != null && rowCount > 0 ? Math.max(1, Math.round((90 + rowCount * 120) / 1024)) : null;
+
   return (
-    <>
+    <div className="flex flex-wrap items-center gap-3">
       <button
         type="button"
         onClick={go}
         disabled={busy}
-        className="rounded bg-zinc-800 px-3 py-2 text-sm hover:bg-zinc-700 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime"
+        aria-label="Download all results as CSV"
+        className="group relative inline-flex items-center gap-2 border border-lime/60 bg-black px-4 py-2 font-mono text-xs uppercase tracking-[0.18em] text-lime transition hover:bg-lime hover:text-black disabled:cursor-not-allowed disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-lime focus-visible:ring-offset-2 focus-visible:ring-offset-black"
       >
-        {busy ? "Exporting…" : "Export CSV"}
+        {busy ? (
+          <>
+            <span
+              className="inline-block h-1.5 w-1.5 animate-pulse rounded-full bg-lime group-hover:bg-black"
+              aria-hidden
+            />
+            Exporting…
+          </>
+        ) : (
+          <>
+            <span aria-hidden>↓</span>
+            Download.csv
+          </>
+        )}
       </button>
-      {msg && (
-        <span className={`text-xs ${msg.kind === "ok" ? "text-emerald-400" : "text-red-400"}`}>{msg.text}</span>
+      {rowCount != null && rowCount > 0 && !busy && !msg && (
+        <span className="font-mono text-[10px] uppercase tracking-widest text-zinc-500">
+          {rowCount.toLocaleString()} rows
+          {estimateKb && estimateKb >= 1 && ` · ~${estimateKb} KB`}
+        </span>
       )}
-    </>
+      {msg && (
+        <span
+          className={`font-mono text-[10px] uppercase tracking-widest ${
+            msg.kind === "ok" ? "text-lime" : "text-rose-400"
+          }`}
+        >
+          {msg.text}
+        </span>
+      )}
+    </div>
   );
 }
 
