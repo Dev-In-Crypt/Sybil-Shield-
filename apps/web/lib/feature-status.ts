@@ -32,7 +32,7 @@ export const FEATURES = {
   graphClustering: "available",
   crossChainLinking: "beta",
   temporalFeatures: "available",
-  mlScoring: "beta",
+  mlScoring: "sandbox",
 
   // Data
   ensVeterans: "available",

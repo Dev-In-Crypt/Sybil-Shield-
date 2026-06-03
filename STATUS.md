@@ -2,7 +2,7 @@
 
 **Source of truth:** `apps/web/lib/feature-status.ts`. Public mirror at <https://sybilshield.org/status>.
 
-**Last synced:** 2026-05-25 (ML v0.5.0-gov-expanded on 1000+125 corpus; governance-voters G2 source live; backup+monitor cron on Hetzner; deploy automation queued)
+**Last synced:** 2026-06-01 (decision-ready API + cluster_only mode + 4 presets calibrated against 600 real wallets; CSV-upload form on /dashboard/new; feedback loop wired; free-tier enforcement live; OG image + auto-deploy + Discord pings active)
 
 ## Legend
 
@@ -136,25 +136,41 @@ production calibration on wild-traffic feedback is the next milestone.
 
 ## Roadmap milestones
 
-### Now
+### Now (active work)
 
-- Hardening the v0.5.0 model: wild-traffic feedback loop, drift cron, real precision/recall once an external holdout exists
-- Activate off-site B2 sync on existing backup script (env file already in place, just needs B2 application key + `rclone config`)
-- Wire deploy.yml secrets so pushes auto-deploy to Hetzner (DEPLOY_SSH_*, DEPLOY_DISCORD_WEBHOOK)
-- Gitcoin Passport G1 integration for true ground-truth genuine signal
+- **Pilot calibration on real labelled corpus** — pre-pilot retro on 600 wallets is done (100% recall, 0% FP after threshold tune). Next: a real airdrop team's post-hoc verified list to validate against external data.
+- **Exchange-wallet entity table** — proper fix for the funding-clusterer FP that we worked around in the preset-calibration retro. Excludes known-CEX hot wallets from the funding clusterer.
+- **Per-customer preset overrides** — pilots will get `cluster_size_gte` + `score_gte` overrides in their analysis config. Manual `psql UPDATE` today.
+- **Wild-traffic drift cron** — weekly PSI check on prod feature distribution vs training set. Manual today; auto-retrain on alert is in Later.
+- **Off-site B2 backup activation** — `rclone` + Backblaze B2; env placeholders ready, awaiting B2 application key. Local pg_dump rotation works today.
+- **Gitcoin Passport G1 integration** — strongest "verified human" signal. Per-address API needs caching layer. Bumps genuine pool ~1,700 → ~50,000.
 
-### Next
+### Next (blocked / queued)
 
-- CSV-upload UI for analyses creation
-- Resend email integration (team invites + analysis-complete notifications)
-- Multi-chain Alchemy: enable BSC + Avalanche + Linea (Growth tier)
-- Stripe products + production billing once Delaware C-corp is incorporated
+- **Resend email** — account confirmations + analysis-complete notifications + monthly usage. Needs Resend account + DNS records.
+- **TypeScript + Python SDK** — auto-generate from OpenAPI. Removes raw-curl friction for developer customers.
+- **Stripe self-serve billing** — Subscription + invoicing. Blocked on incorporation.
+- **Multi-chain Alchemy: enable BSC + Avalanche + Linea** for Growth tier — code path exists, just need to enable in provider config + add to chains array.
 
-### Later
+### Later (after entity / first enterprise customer)
 
-- Self-hosted Erigon/Reth node (when Alchemy CU stops being enough)
-- SOC 2 Type I (after first enterprise customer asks)
-- Pentest (after SOC 2 Type I)
-- Cluster network visualization (D3/Sigma)
-- TypeScript + Python SDK packages on npm/PyPI
-- Auto-retrain cron triggered by drift alerts
+- **Auto-retrain on drift alert** — PSI > 0.25 → retrain pipeline + ship new model with audit-log entry.
+- **Cluster network visualization** — interactive D3/Sigma graph in analysis detail page.
+- **Self-hosted Erigon/Reth node** — when Alchemy CU bill justifies ops cost.
+- **SOC 2 Type I + pentest** — after first enterprise customer asks.
+- **Galxe / Gitcoin Passport credential** — score-as-credential embedded in airdrop campaign platforms.
+
+### Recently shipped (since the last STATUS sync — was 2026-05-25)
+
+- **Decision-ready API** (preset + mode params, decision/decision_confidence/rationale_codes per row, drop/review/keep counts)
+- **Cluster-only mode** (`POST /v1/analyses` with `mode: "cluster_only"` + new ML `/cluster-only` endpoint)
+- **Four named presets** (airdrop / dao / grant / balanced) — calibrated against 600 real wallets, blog post at /blog/preset-calibration
+- **CSV-upload form on `/dashboard/new`** — replaces the roadmap-stub, parses .csv/.txt client-side, dedupes addresses, picks preset + mode
+- **Live progress card + auto-refresh on analysis detail** — replaces static "Loading…", polls every 2s, stages shown
+- **Customer feedback loop** — thumbs-up / false-positive / false-negative buttons → `feedback` table + audit-log
+- **Free-tier enforcement** (5 caps: addresses per analysis, concurrent, file size, CU budget, polling-free reads)
+- **Auto-deploy from main → Hetzner** with Discord pings on deploy + monitor probes + worker exceptions
+- **OG image** as real PNG via next/og (Twitter/Discord cards now actually render)
+- **3 blog posts published**: linea-retro, v05-real-corpus, preset-calibration
+- **Public score lookup unauth** (`GET /v1/score/:address`) matching Trust page promise
+- **Legal pages** (`/privacy`, `/terms`, `/cookies`) live
