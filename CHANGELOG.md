@@ -4,6 +4,35 @@ All notable changes to SybilShield are documented here.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
+## [0.6.0] — 2026-06-01
+
+### Added
+- Free-tier enforcement: per-plan caps on addresses per analysis, concurrent in-flight jobs, `addresses_file_url` size, and per-analysis Alchemy CU budget. Structured `400`/`429` responses with `limit` + `upgrade_url`.
+- `complete_over_budget` terminal status — partial results kept + dashboard upgrade banner when a run exceeds its CU budget.
+
+### Changed
+- Dashboard polling + read GETs no longer count toward the monthly quota. The free 100/mo is now 100 billable POSTs, not 100 status polls.
+
+## [0.5.0] — 2026-05-26
+
+### Added
+- Decision-ready API: `decision` (DROP/REVIEW/KEEP) + `decision_confidence` + `rationale_codes` per address, computed from a named preset.
+- Four presets (`airdrop` / `dao` / `grant` / `balanced`) calibrated against 600 real wallets — 100% recall on confessed sybils, 0% FP on confirmed governance voters. Retro at `/blog/preset-calibration`.
+- Cluster-only mode (`mode: cluster_only`) + new ML `/cluster-only` endpoint.
+- CSV-upload form on `/dashboard/new`, live progress card with auto-refresh, per-address feedback loop (thumbs-up / false-positive / false-negative).
+
+### Changed
+- ML model retrained on real Alchemy corpus (`v0.5.0-gov-expanded`); genuine pool ~10× via on-chain governance-voters source; adversarial recall 0.0 → 1.0.
+
+## [0.4.3] — 2026-05-25
+
+### Changed
+- Honesty pass across the public surface: Trust page set to real compliance state (SOC 2 not started, pentest not scheduled), homepage de-hyped, pricing restructured to Free Sandbox / Pilot / Growth (coming soon) / Enterprise (coming soon).
+- Crypto checkout (Atlos) marked beta — manual Pilot flow only; self-serve billing remains roadmap.
+
+### Added
+- Legal pages (`/privacy`, `/terms`, `/cookies`), public unauth `GET /v1/score/:address`, and `GET /v1/audit-log`.
+
 ## [0.4.0] — 2026-05-24
 
 ### Added

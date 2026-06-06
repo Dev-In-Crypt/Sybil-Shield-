@@ -13,13 +13,44 @@ interface Entry {
 
 const ENTRIES: Entry[] = [
   {
+    version: "0.6.0",
+    date: "2026-06-01",
+    title: "free_tier_enforcement",
+    changes: [
+      { tag: "added", body: "Per-plan caps enforced server-side: max addresses per analysis, max concurrent in-flight jobs, addresses_file_url size limit, and per-analysis Alchemy CU budget. Returns structured 400/429 with limit + upgrade_url." },
+      { tag: "changed", body: "Dashboard polling + read endpoints (GET /v1/analyses/:id, /results, /account, etc.) no longer count against the monthly quota. The 100/mo free budget is now 100 billable POSTs, not 100 of anything-including-status-polls." },
+      { tag: "added", body: "complete_over_budget terminal status — if a run exceeds its CU budget, partial results are kept and the dashboard shows an amber upgrade banner instead of pretending it finished clean." },
+    ],
+  },
+  {
+    version: "0.5.0",
+    date: "2026-05-26",
+    title: "decision_ready_api + presets",
+    changes: [
+      { tag: "added", body: "Decision-ready results: every address gets decision (DROP/REVIEW/KEEP) + decision_confidence + rationale_codes, computed server-side from a named preset. No more threshold-picking by the customer." },
+      { tag: "added", body: "Four presets — airdrop / dao / grant / balanced — calibrated against 600 real wallets. Pre-pilot retro: 100% recall on confessed sybils, 0% false-positive on confirmed governance voters after a cluster-threshold tune. Full numbers at /blog/preset-calibration." },
+      { tag: "added", body: "Cluster-only mode (POST /v1/analyses with mode: cluster_only) — skips ML scoring, returns multi-wallet farm groupings only. New ML /cluster-only endpoint." },
+      { tag: "added", body: "CSV-upload form on /dashboard/new (replaces the API-only flow), live progress card with auto-refresh, and a per-address feedback loop (thumbs-up / false-positive / false-negative) wired to the feedback table + audit log." },
+      { tag: "changed", body: "ML model retrained on a real Alchemy corpus (v0.5.0-gov-expanded) — genuine pool grew ~10x via a new on-chain governance-voters source. Adversarial recall 0.0 → 1.0." },
+    ],
+  },
+  {
+    version: "0.4.3",
+    date: "2026-05-25",
+    title: "honesty_pass",
+    changes: [
+      { tag: "changed", body: "Walked back over-claims across the public surface: Trust page compliance set to real state (SOC 2 not started, pentest not scheduled), homepage drops aggressive copy, pricing restructured to Free Sandbox / Pilot / Growth (coming soon) / Enterprise (coming soon)." },
+      { tag: "changed", body: "Crypto checkout (Atlos) marked beta — works in code, used on the manual Pilot flow only. Self-serve production billing is on the roadmap, not live." },
+      { tag: "added", body: "Legal pages (/privacy, /terms, /cookies), public unauth score lookup (GET /v1/score/:address), and the GET /v1/audit-log endpoint the Trust page promises." },
+    ],
+  },
+  {
     version: "0.4.2",
     date: "2026-05-24",
-    title: "production_billing_live",
+    title: "alchemy_live + quota_enforcement",
     changes: [
       { tag: "changed", body: "Switched crypto rail from NowPayments to Atlos. Non-custodial wallet→wallet, 0% fees, no KYC for buyer or merchant." },
-      { tag: "added", body: "Real per-plan quota enforcement: api_calls_this_month counter increments on every authed request, 429 monthly_quota_exceeded once limit hit, per-customer RPM rate-limit." },
-      { tag: "added", body: "Pay $X in crypto buttons on /pricing and /dashboard/billing (Developer/Growth/Enterprise — all live)." },
+      { tag: "added", body: "Real per-plan quota enforcement: api_calls_this_month counter, 429 monthly_quota_exceeded once limit hit, per-customer RPM rate-limit." },
       { tag: "added", body: "Real Alchemy provider on production — Ethereum mainnet live, MockProvider only in tests." },
       { tag: "added", body: "Monthly quota reset cron (00:05 on the 1st)." },
     ],
@@ -123,7 +154,7 @@ export default function ChangelogPage() {
           <h1 className="mt-2 text-5xl font-bold">Changelog</h1>
           <p className="mt-3 text-zinc-400">
             <a href="https://keepachangelog.com" className="text-emerald-400 hover:underline">Keep a Changelog</a> format. Subscribe via{" "}
-            <a href="https://github.com/sybilshield/sybilshield/releases.atom" className="text-emerald-400 hover:underline">RSS</a>.
+            <a href="https://github.com/Dev-In-Crypt/Sybil-Shield-/releases.atom" className="text-emerald-400 hover:underline">RSS</a>.
           </p>
         </header>
 
