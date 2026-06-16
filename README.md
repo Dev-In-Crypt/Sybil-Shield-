@@ -3,10 +3,10 @@
 > The open-source trust layer for token distributions.
 > Evidence-based Sybil detection. MIT licensed.
 
-[![CI](https://github.com/USER/sybilshield/actions/workflows/ci.yml/badge.svg)](https://github.com/USER/sybilshield/actions/workflows/ci.yml)
+[![CI](https://github.com/Dev-In-Crypt/Sybil-Shield-/actions/workflows/ci.yml/badge.svg)](https://github.com/Dev-In-Crypt/Sybil-Shield-/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-c0ff00.svg)](LICENSE)
-[![Public beta](https://img.shields.io/badge/status-public%20beta-c0ff00)](STATUS.md)
-[![Tests](https://img.shields.io/badge/tests-63%20passing-c0ff00)](docker-compose.test.yml)
+[![Public sandbox](https://img.shields.io/badge/status-public%20sandbox-c0ff00)](STATUS.md)
+[![Decision API](https://img.shields.io/badge/API-DROP%2FREVIEW%2FKEEP-c0ff00)](https://www.sybilshield.org/docs)
 
 ---
 
@@ -14,7 +14,7 @@
 
 Airdrops lose 20–40% of value to industrial Sybil farming. Every project either overspends on detection consulting ($150K+) or underspends and ships broken filters.
 
-**SybilShield is the open-source detection engine.** Submit wallet addresses, get back evidence-backed scores in hours. Six independent detection methods. Open methodology. Public appeal flow. Immutable audit log.
+**SybilShield is the open-source detection engine.** Submit wallet addresses, get back a decision-ready verdict — `DROP` / `REVIEW` / `KEEP` per address — computed from a named preset (airdrop / dao / grant / balanced), with per-address evidence and rationale codes. Six independent detection methods. Open methodology. Public appeal flow. Immutable audit log. Live sandbox at [sybilshield.org](https://www.sybilshield.org).
 
 See [project description](SybilShield_Project_Description.md) for context. See [technical spec](SybilShield_Technical_Spec.md) for design rationale.
 
@@ -34,8 +34,8 @@ Source: `apps/ml/sybilshield/clustering/` and `apps/ml/sybilshield/features/`.
 ## Quick start (Docker, one command)
 
 ```bash
-git clone https://github.com/USER/sybilshield.git
-cd sybilshield
+git clone https://github.com/Dev-In-Crypt/Sybil-Shield-.git
+cd Sybil-Shield-
 docker compose up -d --build
 # wait ~30s for migrations
 
