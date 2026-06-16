@@ -390,37 +390,32 @@ function CyberBackground() {
 }
 
 function Marquee() {
-  // Mock telemetry strip — illustrative numbers showing what a production
-  // deployment dashboard would look like. Real sandbox traffic is in the
-  // single-digit thousands; we don't fake live counters. Labelled clearly
-  // below the strip so visitors don't read it as our real telemetry.
+  // Capability ticker — every item is a true, verifiable fact about what the
+  // product does today. Replaces the old vanity-metrics strip (fake
+  // ANALYSES_RUN counts) so there's nothing "mock" to disclaim. No live
+  // numbers here on purpose: real sandbox counts are small and a scrolling
+  // counter would either lie or underwhelm. Facts age gracefully; vanity
+  // metrics don't.
   const items = [
-    "ANALYSES_RUN: 12,847",
-    "ADDRESSES_SCORED: 28.4M",
-    "CLUSTERS_DETECTED: 412,099",
-    "APPEALS_PROCESSED: 8,231",
-    "MODEL_VERSION: v0.5.0-gov-expanded",
-    "UPTIME: 99.97%",
+    "6 DETECTION METHODS",
+    "5 CHAINS — ETH · ARBITRUM · OP · BASE · POLYGON",
+    "DROP / REVIEW / KEEP VERDICTS",
+    "EVIDENCE-BACKED · PER ADDRESS",
+    "MODEL v0.5.0-GOV-EXPANDED",
+    "APPEND-ONLY AUDIT LOG",
+    "PUBLIC APPEALS · 48H SLA",
+    "MIT LICENSED · OPEN SOURCE",
   ];
   const doubled = [...items, ...items];
   return (
-    <div className="mt-20">
-      <div className="overflow-hidden border-y border-lime/20 bg-lime/[0.02] py-4">
-        <div className="animate-marquee flex gap-12 whitespace-nowrap font-mono text-xs uppercase tracking-[0.2em] text-lime/70">
-          {doubled.map((it, i) => (
-            <span key={i} className="shrink-0">
-              {it} <span className="ml-12 text-zinc-700">·</span>
-            </span>
-          ))}
-        </div>
+    <div className="mt-20 overflow-hidden border-y border-lime/20 bg-lime/[0.02] py-4">
+      <div className="animate-marquee flex gap-12 whitespace-nowrap font-mono text-xs uppercase tracking-[0.2em] text-lime/70">
+        {doubled.map((it, i) => (
+          <span key={i} className="shrink-0">
+            {it} <span className="ml-12 text-zinc-700">·</span>
+          </span>
+        ))}
       </div>
-      <p className="mt-2 px-6 text-center font-mono text-[10px] uppercase tracking-[0.25em] text-zinc-600">
-        // mock telemetry · illustrative numbers · real sandbox traffic is much smaller — see{" "}
-        <a href="/status" className="underline decoration-zinc-700 hover:text-zinc-400">
-          /status
-        </a>{" "}
-        for actuals
-      </p>
     </div>
   );
 }
