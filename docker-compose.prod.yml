@@ -47,6 +47,8 @@ services:
       STRIPE_PRICE_ENTERPRISE: ${STRIPE_PRICE_ENTERPRISE:-}
       ATLOS_MERCHANT_ID: ${ATLOS_MERCHANT_ID:-}
       ATLOS_API_SECRET: ${ATLOS_API_SECRET:-}
+      # Surfaced on GET /health so ops can confirm the live model version.
+      ML_MODEL_VERSION: ${ML_MODEL_VERSION:-rule_based}
       LOG_LEVEL: ${LOG_LEVEL:-info}
     restart: unless-stopped
 

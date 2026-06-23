@@ -41,6 +41,9 @@ export async function buildServer() {
   app.get("/health", async () => ({
     status: "ok",
     service: "sybilshield-api",
+    // Surface the deployed model version so ops/monitoring can confirm
+    // which model is live without SSHing into the box and reading .env.
+    model_version: process.env.ML_MODEL_VERSION ?? "unknown",
     time: new Date().toISOString(),
   }));
 
