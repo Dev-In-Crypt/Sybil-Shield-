@@ -47,6 +47,58 @@ def test_funding_cluster_filters_exchange_funded() -> None:
     assert clusters == []
 
 
+def test_known_exchanges_well_formed_and_expanded() -> None:
+    """The curated CEX set must be lowercase 42-char hex and cover the major
+    exchanges that caused the pre-pilot false-positive (Binance especially)."""
+    import re
+
+    from sybilshield.data.known_exchanges import (
+        EXCHANGE_LABELS,
+        KNOWN_EXCHANGES,
+        is_known_exchange,
+    )
+
+    # Every address well-formed + lowercase (the funding clusterer lowercases
+    # funders before the membership check, so a mixed-case entry would silently
+    # never match).
+    for a in KNOWN_EXCHANGES:
+        assert re.fullmatch(r"0x[0-9a-f]{40}", a), f"malformed exchange address: {a}"
+
+    # Set + label map stay in sync.
+    assert set(EXCHANGE_LABELS) == KNOWN_EXCHANGES
+
+    # Must be materially larger than the old 12-address list, and cover the
+    # exchanges the retro flagged.
+    assert len(KNOWN_EXCHANGES) >= 50
+    labels = " ".join(EXCHANGE_LABELS.values()).lower()
+    for exch in ("binance", "coinbase", "okx", "kraken", "bybit"):
+        assert exch in labels, f"missing major exchange: {exch}"
+
+    # Helper is case-insensitive and rejects non-exchange addresses.
+    binance14 = "0x28C6c06298d514Db089934071355E5743bf21d60"
+    assert is_known_exchange(binance14) is True
+    assert is_known_exchange("0xd8da6bf26964af9d7eed9e03e53415d37aa96045") is False  # vitalik.eth
+    assert is_known_exchange(None) is False
+
+
+def test_cex_funded_cluster_filtered_even_at_min_size() -> None:
+    """Regression for the preset-calibration retro: 10 addresses sharing a
+    Binance hot wallet must NOT form a funding cluster, even though the count
+    is well above min_cluster_size."""
+    from sybilshield.data.known_exchanges import KNOWN_EXCHANGES
+
+    binance = "0x28c6c06298d514db089934071355e5743bf21d60"  # Binance 14
+    assert binance in KNOWN_EXCHANGES
+    batch = [
+        RawAddressData(
+            address=f"0x{i:040x}", chain="ethereum", funding_source=binance, funding_timestamp=1700000000 + i
+        )
+        for i in range(1, 11)  # 10 — way over min_cluster_size
+    ]
+    clusters = cluster_by_funding_source(batch, min_cluster_size=3)
+    assert clusters == []
+
+
 def test_funding_cluster_single_address_filtered_out() -> None:
     batch = [
         RawAddressData(

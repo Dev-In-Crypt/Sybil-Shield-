@@ -7,27 +7,14 @@ from __future__ import annotations
 import logging
 from collections.abc import Callable
 
+# KNOWN_EXCHANGES is the curated CEX hot-wallet + bridge set. Sourced from
+# data/known_exchanges.py (single source of truth) and re-exported here so the
+# existing `from sybilshield.ingest import KNOWN_EXCHANGES` imports keep working.
+from sybilshield.data.known_exchanges import KNOWN_EXCHANGES  # noqa: F401  (re-export)
 from sybilshield.providers.base import OnChainProvider
 from sybilshield.types import RawAddressData
 
 log = logging.getLogger(__name__)
-
-# Heuristic: known exchange / aggregator addresses. In production this list
-# is sourced from Etherscan labels + curated by analysts.
-KNOWN_EXCHANGES: set[str] = {
-    "0x28c6c06298d514db089934071355e5743bf21d60",  # binance
-    "0x21a31ee1afc51d94c2efccaa2092ad1028285549",  # binance 15
-    "0xdfd5293d8e347dfe59e90efd55b2956a1343963d",  # binance 16
-    "0x56eddb7aa87536c09ccc2793473599fd21a8b17f",  # binance 17
-    "0xa9d1e08c7793af67e9d92fe308d5697fb81d3e43",  # coinbase
-    "0x71660c4005ba85c37ccec55d0c4493e66fe775d3",  # coinbase 1
-    "0x503828976d22510aad0201ac7ec88293211d23da",  # coinbase 2
-    "0xddfabcdc4d8ffc6d5beaf154f18b778f892a0740",  # coinbase 3
-    "0x3cd751e6b0078be393132286c442345e5dc49699",  # coinbase 4
-    "0x59a5208b32e627891c389ebafc644145224006e8",  # huobi
-    "0xab5c66752a9e8167967685f1450532fb96d5d24f",  # huobi 2
-    "0xfe9e8709d3215310075d67e3ed32a380ccf451c8",  # bitfinex
-}
 
 
 def ingest_address(
