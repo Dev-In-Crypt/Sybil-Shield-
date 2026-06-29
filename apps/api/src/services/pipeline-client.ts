@@ -29,6 +29,11 @@ export interface AnalysisJob {
   preset?: "airdrop" | "dao" | "grant" | "balanced";
   /** "full" runs ML scoring; "cluster_only" skips ML and returns clusters only. */
   mode?: "full" | "cluster_only";
+  /** Optional per-analysis threshold overrides applied on top of the preset. */
+  thresholdOverrides?: {
+    drop?: { score_gte?: number | null; cluster_size_gte?: number | null };
+    review?: { score_gte?: number | null; cluster_size_gte?: number | null };
+  };
 }
 
 export async function enqueueAnalysis(job: AnalysisJob): Promise<void> {

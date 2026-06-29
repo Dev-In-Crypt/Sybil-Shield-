@@ -18,6 +18,25 @@ const CreateAnalysisSchema = z.object({
   // "full" runs the ML scoring pipeline; "cluster_only" short-circuits it
   // and returns only multi-wallet cluster groupings.
   mode: z.enum(["full", "cluster_only"]).default("full"),
+  // Optional per-analysis threshold overrides on top of the preset (pilot
+  // tuning). Each key is optional; a numeric value tightens/loosens that
+  // knob, `null` disables it, omitting it keeps the preset's value.
+  threshold_overrides: z
+    .object({
+      drop: z
+        .object({
+          score_gte: z.number().min(0).max(100).nullable().optional(),
+          cluster_size_gte: z.number().int().min(0).nullable().optional(),
+        })
+        .optional(),
+      review: z
+        .object({
+          score_gte: z.number().min(0).max(100).nullable().optional(),
+          cluster_size_gte: z.number().int().min(0).nullable().optional(),
+        })
+        .optional(),
+    })
+    .optional(),
 });
 
 export async function analysesRoutes(app: FastifyInstance): Promise<void> {
@@ -102,6 +121,7 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
         includeEvidence: body.include_evidence,
         preset: body.preset,
         mode: body.mode,
+        thresholdOverrides: body.threshold_overrides ?? null,
         status: "pending",
       })
       .returning();
@@ -113,6 +133,7 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
       chains: body.chains,
       sensitivity: body.sensitivity,
       preset: body.preset,
+      thresholdOverrides: body.threshold_overrides,
       mode: body.mode,
     });
 
@@ -148,6 +169,7 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
       address_count: row.addressCount,
       preset: row.preset,
       mode: row.mode,
+      threshold_overrides: row.thresholdOverrides,
       summary: row.status === "complete"
         ? {
             total_scored: row.totalScored,

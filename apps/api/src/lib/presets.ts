@@ -15,13 +15,31 @@ export type DecisionPreset = "airdrop" | "dao" | "grant" | "balanced";
 export type Decision = "DROP" | "REVIEW" | "KEEP";
 export type DecisionConfidence = "high" | "medium" | "low";
 
+interface ThresholdRule {
+  score_gte: number | null;
+  cluster_size_gte: number | null;
+}
+
 interface PresetConfig {
   description: string;
   // DROP rule: a score threshold OR a cluster-size threshold (any of the
   // conditions satisfied → DROP). null disables that side.
-  drop: { score_gte: number | null; cluster_size_gte: number | null };
+  drop: ThresholdRule;
   // REVIEW threshold sits between DROP and KEEP; same shape.
-  review: { score_gte: number | null; cluster_size_gte: number | null };
+  review: ThresholdRule;
+}
+
+/**
+ * Per-analysis threshold overrides. A pilot customer can tighten or loosen
+ * any of the four threshold knobs on top of a named preset — e.g. drop the
+ * cluster_size_gte from 50 to 12 because they've already excluded their own
+ * CEX deposit wallets. Only the keys provided are overridden; the rest fall
+ * back to the preset. `null` explicitly disables a threshold; omitting a key
+ * keeps the preset's value.
+ */
+export interface PresetOverrides {
+  drop?: Partial<ThresholdRule>;
+  review?: Partial<ThresholdRule>;
 }
 
 // Threshold calibration history:
@@ -63,6 +81,33 @@ interface DecisionResult {
 }
 
 /**
+ * Resolve the effective threshold config = preset merged with any per-analysis
+ * overrides. Override keys win; absent keys fall back to the preset. A key set
+ * to `null` disables that threshold.
+ */
+function resolveConfig(preset: DecisionPreset, overrides?: PresetOverrides): PresetConfig {
+  const base = PRESETS[preset];
+  if (!overrides) return base;
+  return {
+    description: base.description,
+    drop: {
+      score_gte: overrides.drop?.score_gte !== undefined ? overrides.drop.score_gte : base.drop.score_gte,
+      cluster_size_gte:
+        overrides.drop?.cluster_size_gte !== undefined
+          ? overrides.drop.cluster_size_gte
+          : base.drop.cluster_size_gte,
+    },
+    review: {
+      score_gte: overrides.review?.score_gte !== undefined ? overrides.review.score_gte : base.review.score_gte,
+      cluster_size_gte:
+        overrides.review?.cluster_size_gte !== undefined
+          ? overrides.review.cluster_size_gte
+          : base.review.cluster_size_gte,
+    },
+  };
+}
+
+/**
  * Apply a preset to a single address's score + cluster signals.
  *
  * @param score - raw 0-100 model output
@@ -70,15 +115,18 @@ interface DecisionResult {
  * @param preset - which preset's thresholds to apply
  * @param extraCodes - rationale codes already derived from evidence
  *   (e.g. "scripted_timing", "shared_funder_3w")
+ * @param overrides - optional per-analysis threshold overrides (pilot tuning)
  */
 export function computeDecision(
   score: number,
   clusterSize: number | null,
   preset: DecisionPreset,
   extraCodes: string[] = [],
+  overrides?: PresetOverrides,
 ): DecisionResult {
-  const cfg = PRESETS[preset];
+  const cfg = resolveConfig(preset, overrides);
   const codes: string[] = [...extraCodes];
+  if (overrides) codes.push("custom_thresholds");
 
   const scoreDrops = cfg.drop.score_gte !== null && score >= cfg.drop.score_gte;
   const clusterDrops =

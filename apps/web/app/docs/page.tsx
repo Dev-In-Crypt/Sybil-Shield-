@@ -113,6 +113,29 @@ curl -X POST ${API}/v1/analyses \\
     "mode": "full",
     "addresses": ["0xabc...", "0xdef..."]
   }'`}</Code>
+          <p>
+            <strong>Threshold overrides.</strong> Tune a preset for one analysis with{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">threshold_overrides</code>.
+            Each knob is optional — a number tightens/loosens it, <code className="rounded bg-zinc-900 px-1 font-mono text-xs">null</code>{" "}
+            disables it, omitting it keeps the preset value. Rows decided with an override carry a{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">custom_thresholds</code> rationale code, and the
+            override is stored on the analysis so the decision is reproducible.
+          </p>
+          <Code lang="bash">{`# Airdrop preset, but I've already excluded my own CEX
+# deposit wallets, so tighten the cluster knob from 50 -> 12
+curl -X POST ${API}/v1/analyses \\
+  -H "Authorization: Bearer $KEY" \\
+  -H 'content-type: application/json' \\
+  -d '{
+    "name": "wave-2 (cex-excluded)",
+    "chains": ["ethereum"],
+    "preset": "airdrop",
+    "threshold_overrides": {
+      "drop":   { "cluster_size_gte": 12 },
+      "review": { "cluster_size_gte": 5 }
+    },
+    "addresses": ["0xabc...", "0xdef..."]
+  }'`}</Code>
           <p className="text-zinc-500 text-sm">
             Decision rules live in{" "}
             <code className="font-mono">apps/api/src/lib/presets.ts</code> (canonical) and{" "}

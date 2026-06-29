@@ -69,6 +69,10 @@ export const analyses = pgTable(
     // mode = full|cluster_only — when cluster_only, ML scoring is skipped
     preset: text("preset").default("balanced"),
     mode: text("mode").default("full"),
+    // Per-analysis threshold overrides on top of the preset (pilot tuning).
+    // Shape: { drop?: {score_gte?, cluster_size_gte?}, review?: {...} }.
+    // Stored so the decision is reproducible from the row alone.
+    thresholdOverrides: jsonb("threshold_overrides"),
     totalScored: integer("total_scored"),
     sybilCount: integer("sybil_count"),
     suspiciousCount: integer("suspicious_count"),

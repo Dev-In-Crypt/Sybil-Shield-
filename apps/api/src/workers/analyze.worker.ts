@@ -9,7 +9,12 @@ import { Worker } from "bullmq";
 import { eq } from "drizzle-orm";
 import IORedis from "ioredis";
 import { addressScores, analyses, clusters, customers, db, evidenceAuditLog } from "../db/index.js";
-import { computeDecision, evidenceToCodes, type DecisionPreset } from "../lib/presets.js";
+import {
+  computeDecision,
+  evidenceToCodes,
+  type DecisionPreset,
+  type PresetOverrides,
+} from "../lib/presets.js";
 import { planLimits } from "../middleware/auth.js";
 import { createNotification } from "../routes/notifications.js";
 import { recordDelivery } from "../routes/webhook-deliveries.js";
@@ -26,6 +31,7 @@ interface AnalysisJob {
   sensitivity: string;
   preset?: DecisionPreset;
   mode?: "full" | "cluster_only";
+  thresholdOverrides?: PresetOverrides;
 }
 
 interface MLScore {
@@ -158,6 +164,7 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
 
   // Compute decisions per row using the preset (only meaningful for full mode).
   const preset: DecisionPreset = job.preset ?? "balanced";
+  const overrides = job.thresholdOverrides;
   const enrichedScores = result.scores.map((s) => {
     if (mode === "cluster_only") {
       // No per-address verdict in cluster-only — null decision, but we still
@@ -165,7 +172,7 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
       return { ...s, decision: null, decisionConfidence: null, rationaleCodes: [] as string[] };
     }
     const extraCodes = evidenceToCodes(s.evidence);
-    const d = computeDecision(s.sybil_score, s.cluster_size, preset, extraCodes);
+    const d = computeDecision(s.sybil_score, s.cluster_size, preset, extraCodes, overrides);
     return {
       ...s,
       decision: d.decision,
