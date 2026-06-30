@@ -40,6 +40,25 @@ type PresetKey = (typeof PRESETS)[number]["key"];
 
 const CHAINS = ["ethereum", "arbitrum", "optimism", "base", "polygon"] as const;
 
+/**
+ * Parse addresses out of free text (file contents OR a pasted textarea).
+ * CSV-tolerant: takes the first comma-separated cell of each line, lowercases,
+ * validates against the EVM address regex, and dedupes. Shared by both the
+ * file-upload and paste inputs so they behave identically.
+ */
+function parseAddresses(text: string): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const line of text.split(/\r?\n/)) {
+    const cell = (line.split(",")[0] ?? "").trim().toLowerCase();
+    if (/^0x[0-9a-f]{40}$/.test(cell) && !seen.has(cell)) {
+      seen.add(cell);
+      out.push(cell);
+    }
+  }
+  return out;
+}
+
 export default function NewAnalysisPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -48,6 +67,8 @@ export default function NewAnalysisPage() {
   const [mode, setMode] = useState<"full" | "cluster_only">("full");
   const [addresses, setAddresses] = useState<string[]>([]);
   const [fileName, setFileName] = useState<string>("");
+  const [pasteText, setPasteText] = useState<string>("");
+  const [inputMode, setInputMode] = useState<"file" | "paste">("file");
   const [parseError, setParseError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -63,18 +84,7 @@ export default function NewAnalysisPage() {
     setParseError(null);
     const reader = new FileReader();
     reader.onload = () => {
-      const text = String(reader.result ?? "");
-      const lines = text.split(/\r?\n/);
-      const out: string[] = [];
-      const seen = new Set<string>();
-      for (const line of lines) {
-        // CSV-tolerant: take the first comma-separated cell.
-        const cell = (line.split(",")[0] ?? "").trim().toLowerCase();
-        if (/^0x[0-9a-f]{40}$/.test(cell) && !seen.has(cell)) {
-          seen.add(cell);
-          out.push(cell);
-        }
-      }
+      const out = parseAddresses(String(reader.result ?? ""));
       if (out.length === 0) {
         setParseError("No valid Ethereum addresses found. Each line should start with 0x… (40 hex).");
       }
@@ -82,6 +92,16 @@ export default function NewAnalysisPage() {
     };
     reader.onerror = () => setParseError("Could not read file.");
     reader.readAsText(f);
+  }
+
+  function handlePaste(text: string) {
+    setPasteText(text);
+    setParseError(null);
+    const out = parseAddresses(text);
+    if (text.trim() && out.length === 0) {
+      setParseError("No valid Ethereum addresses found. One 0x… (40 hex) per line.");
+    }
+    setAddresses(out);
   }
 
   function toggleChain(c: string) {
@@ -255,20 +275,61 @@ export default function NewAnalysisPage() {
 
       <section className="mt-6 space-y-2">
         <label className="text-xs uppercase tracking-wider text-zinc-500">Addresses</label>
-        <input
-          type="file"
-          accept=".csv,.txt"
-          onChange={handleFile}
-          className="block w-full text-sm file:mr-3 file:rounded file:border-0 file:bg-zinc-800 file:px-4 file:py-2 file:text-sm file:text-zinc-200 hover:file:bg-zinc-700"
-        />
+
+        {/* Input-mode tabs: upload a file, or paste addresses directly. */}
+        <div className="flex gap-2">
+          {(["file", "paste"] as const).map((m) => (
+            <button
+              key={m}
+              type="button"
+              onClick={() => {
+                setInputMode(m);
+                setParseError(null);
+              }}
+              className={`rounded px-3 py-1 text-xs font-mono uppercase tracking-wider ${
+                inputMode === m
+                  ? "bg-emerald-900/30 text-emerald-300 border border-emerald-700"
+                  : "bg-zinc-900 text-zinc-500 border border-zinc-800 hover:border-zinc-700"
+              }`}
+            >
+              {m === "file" ? "Upload file" : "Paste"}
+            </button>
+          ))}
+        </div>
+
+        {inputMode === "file" ? (
+          <input
+            type="file"
+            accept=".csv,.txt"
+            onChange={handleFile}
+            className="block w-full text-sm file:mr-3 file:rounded file:border-0 file:bg-zinc-800 file:px-4 file:py-2 file:text-sm file:text-zinc-200 hover:file:bg-zinc-700"
+          />
+        ) : (
+          <textarea
+            value={pasteText}
+            onChange={(e) => handlePaste(e.target.value)}
+            rows={6}
+            spellCheck={false}
+            placeholder={"0xd8da6bf26964af9d7eed9e03e53415d37aa96045\n0xab5801a7d398351b8be11c439e05c5b3259aec9b\n…"}
+            className="block w-full rounded border border-zinc-800 bg-zinc-900 px-3 py-2 font-mono text-xs text-zinc-200 placeholder:text-zinc-600"
+          />
+        )}
+
         <p className="text-xs text-zinc-500">
           CSV or plain text, one address per line. First comma-separated cell is parsed.{" "}
           <strong>Free tier:</strong> up to {MAX_ADDRESSES.toLocaleString()} addresses · 1 analysis at a time · 1 MB
           upload · 100 billable POSTs / month (dashboard polling + reads are free).
         </p>
-        {fileName && (
+        {inputMode === "file" && fileName && (
           <p className="text-xs text-zinc-400">
             <span className="font-mono">{fileName}</span> — parsed{" "}
+            <span className={overLimit ? "text-rose-400" : "text-emerald-400"}>{validCount.toLocaleString()}</span>{" "}
+            valid addresses {overLimit && <span className="text-rose-400">(over limit)</span>}
+          </p>
+        )}
+        {inputMode === "paste" && validCount > 0 && (
+          <p className="text-xs text-zinc-400">
+            parsed{" "}
             <span className={overLimit ? "text-rose-400" : "text-emerald-400"}>{validCount.toLocaleString()}</span>{" "}
             valid addresses {overLimit && <span className="text-rose-400">(over limit)</span>}
           </p>
