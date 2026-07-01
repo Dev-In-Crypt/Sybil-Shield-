@@ -38,6 +38,22 @@ const PRESETS = [
 
 type PresetKey = (typeof PRESETS)[number]["key"];
 
+// Structured preset thresholds — mirror of apps/api/src/lib/presets.ts, used
+// only to show the current preset's value as a placeholder in the advanced
+// override inputs. `null` = that knob is disabled by the preset.
+const PRESET_THRESHOLDS: Record<
+  PresetKey,
+  {
+    drop: { score_gte: number | null; cluster_size_gte: number | null };
+    review: { score_gte: number | null; cluster_size_gte: number | null };
+  }
+> = {
+  balanced: { drop: { score_gte: 80, cluster_size_gte: null }, review: { score_gte: 50, cluster_size_gte: null } },
+  airdrop: { drop: { score_gte: 85, cluster_size_gte: 50 }, review: { score_gte: 60, cluster_size_gte: 20 } },
+  dao: { drop: { score_gte: 90, cluster_size_gte: 30 }, review: { score_gte: 50, cluster_size_gte: 10 } },
+  grant: { drop: { score_gte: null, cluster_size_gte: 20 }, review: { score_gte: 70, cluster_size_gte: 5 } },
+};
+
 const CHAINS = ["ethereum", "arbitrum", "optimism", "base", "polygon"] as const;
 
 /**
@@ -72,6 +88,15 @@ export default function NewAnalysisPage() {
   const [parseError, setParseError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  // Advanced per-analysis threshold overrides. Empty string = leave at the
+  // preset default. Keyed as drop/review × score/cluster.
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [ovr, setOvr] = useState({
+    dropScore: "",
+    dropCluster: "",
+    reviewScore: "",
+    reviewCluster: "",
+  });
 
   const MAX_ADDRESSES = 1000;
   const validCount = addresses.length;
@@ -131,6 +156,19 @@ export default function NewAnalysisPage() {
       setSubmitError(`Free tier limit is ${MAX_ADDRESSES} addresses. Trim the file or contact us for higher.`);
       return;
     }
+    // Build threshold_overrides from any non-empty advanced inputs. A blank
+    // field is omitted (preset default wins). Only include the object if at
+    // least one knob was set.
+    const num = (s: string) => (s.trim() === "" ? undefined : Number(s));
+    const drop = { score_gte: num(ovr.dropScore), cluster_size_gte: num(ovr.dropCluster) };
+    const review = { score_gte: num(ovr.reviewScore), cluster_size_gte: num(ovr.reviewCluster) };
+    const dropSet = drop.score_gte !== undefined || drop.cluster_size_gte !== undefined;
+    const reviewSet = review.score_gte !== undefined || review.cluster_size_gte !== undefined;
+    const thresholdOverrides =
+      dropSet || reviewSet
+        ? { ...(dropSet ? { drop } : {}), ...(reviewSet ? { review } : {}) }
+        : undefined;
+
     setSubmitting(true);
     try {
       const base = process.env.NEXT_PUBLIC_API_URL;
@@ -146,6 +184,7 @@ export default function NewAnalysisPage() {
           addresses,
           preset,
           mode,
+          ...(thresholdOverrides ? { threshold_overrides: thresholdOverrides } : {}),
         }),
       });
       const body = await r.json();
@@ -272,6 +311,55 @@ export default function NewAnalysisPage() {
           </label>
         </div>
       </section>
+
+      {/* Advanced threshold overrides — collapsed by default so the simple
+          flow is unchanged. Maps to threshold_overrides in the POST body;
+          blank fields fall back to the preset. Hidden in cluster-only mode
+          (no per-address decision there). */}
+      {mode === "full" && (
+        <section className="mt-6">
+          <button
+            type="button"
+            onClick={() => setShowAdvanced((v) => !v)}
+            className="flex items-center gap-2 text-xs uppercase tracking-wider text-zinc-500 hover:text-zinc-300"
+          >
+            <span>{showAdvanced ? "▾" : "▸"}</span> Advanced thresholds (optional)
+          </button>
+          {showAdvanced && (
+            <div className="mt-3 space-y-4 rounded border border-zinc-800 bg-zinc-950 p-4">
+              <p className="text-xs text-zinc-500">
+                Override the <span className="font-mono text-zinc-400">{preset}</span> preset for this analysis only.
+                Leave a field blank to keep the preset default (shown as placeholder). Set{" "}
+                <code className="font-mono">0</code> to effectively disable a knob via a lower bound.
+              </p>
+              {(
+                [
+                  { label: "DROP if score ≥", key: "dropScore", def: PRESET_THRESHOLDS[preset].drop.score_gte },
+                  { label: "DROP if cluster_size ≥", key: "dropCluster", def: PRESET_THRESHOLDS[preset].drop.cluster_size_gte },
+                  { label: "REVIEW if score ≥", key: "reviewScore", def: PRESET_THRESHOLDS[preset].review.score_gte },
+                  { label: "REVIEW if cluster_size ≥", key: "reviewCluster", def: PRESET_THRESHOLDS[preset].review.cluster_size_gte },
+                ] as const
+              ).map((row) => (
+                <div key={row.key} className="flex items-center justify-between gap-3">
+                  <label className="font-mono text-xs text-zinc-400">{row.label}</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={ovr[row.key]}
+                    onChange={(e) => setOvr((o) => ({ ...o, [row.key]: e.target.value }))}
+                    placeholder={row.def === null ? "disabled" : String(row.def)}
+                    className="w-28 rounded border border-zinc-800 bg-zinc-900 px-2 py-1 text-right font-mono text-xs text-zinc-200 placeholder:text-zinc-600"
+                  />
+                </div>
+              ))}
+              <p className="text-[10px] text-zinc-600">
+                Rows decided with an override carry a <code className="font-mono">custom_thresholds</code> rationale
+                code and the override is stored on the analysis.
+              </p>
+            </div>
+          )}
+        </section>
+      )}
 
       <section className="mt-6 space-y-2">
         <label className="text-xs uppercase tracking-wider text-zinc-500">Addresses</label>
