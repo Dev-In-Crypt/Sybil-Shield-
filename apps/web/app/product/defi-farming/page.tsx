@@ -30,7 +30,7 @@ export default function DefiFarmingPage() {
           title: "DeFi protocol: $1.8M saved from 380-wallet farm",
           body: "A yield-farming protocol with per-wallet reward caps wired /v1/score into its deposit webhook. Over 90 days we attributed 380 freshly-funded wallets to a single coordinator. Rewards escrowed, redistributed to legitimate LPs after a 14-day appeal window.",
         },
-        tier: { name: "Scale", price: "$2,500-$15k/mo", reason: "Real-time scoring requires the Scale plan: 99.9% SLA, dedicated rate limit pool, priority support.", href: "/pricing" },
+        tier: { name: "Free public sandbox", price: "Free", reason: "Score farming rings with the full evidence pipeline at no cost. Running continuous, high-volume scoring? Email us for research access.", href: "/pricing" },
       }} />
       <SiteFooter />
     </>

@@ -204,8 +204,8 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
               when the analysis hit the CU budget cap (Block 5). */}
           {analysis.status === "complete_over_budget" && (
             <div className="mt-6 rounded-lg border border-amber-700/40 bg-amber-900/10 px-4 py-3 text-sm text-amber-200">
-              <strong>⚠ Analysis exceeded your CU budget.</strong> Partial results saved below. Upgrade your plan or trim
-              the address list for a complete run. <a href="/pricing" className="underline">See pricing</a>.
+              <strong>⚠ Analysis hit the sandbox compute limit.</strong> Partial results saved below. Trim the
+              address list and re-run for a complete pass.
             </div>
           )}
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-emerald-700/30 bg-emerald-900/[0.07] px-4 py-3">

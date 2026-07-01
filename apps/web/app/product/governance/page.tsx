@@ -17,7 +17,7 @@ export default function GovernancePage() {
         stats: [
           { value: "~33%", label: "median wallet-to-entity ratio in DAO votes" },
           { value: "4h", label: "turnaround on typical proposal voter set" },
-          { value: "$0", label: "free tier covers most DAO votes" },
+          { value: "free", label: "the public sandbox covers most DAO votes" },
           { value: "open", label: "scores publishable for community review" },
         ],
         methods: [
@@ -30,7 +30,7 @@ export default function GovernancePage() {
           title: "DAO-X: 614 wallets → 412 entities",
           body: "A treasury proposal was passing 53/47. We scored the voter set; two clusters of 78 and 53 wallets were aligned YES. Removing their weight flipped the result to 49/51. The DAO re-ran the vote with one-entity-one-vote weighting — the proposal failed by 18 points.",
         },
-        tier: { name: "Free → Starter", price: "$0 → $99/mo", reason: "Most DAO votes fit in the free tier (100 calls/month). Starter when you need webhook delivery into Snapshot.", href: "/pricing" },
+        tier: { name: "Free public sandbox", price: "Free", reason: "Most DAO votes fit comfortably within the public sandbox (100 calls/month, fair use), including webhook delivery into Snapshot.", href: "/pricing" },
       }} />
       <SiteFooter />
     </>

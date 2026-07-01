@@ -21,8 +21,7 @@ export default function TermsPage() {
         <section className="mt-10 space-y-4 text-sm text-zinc-300">
           <p>
             By creating an account and using the SybilShield sandbox, you agree to these terms.
-            Paid pilots and production customers will sign a separate, legally-reviewed
-            agreement.
+            SybilShield is a free public good — there is no paid plan, invoice, or contract.
           </p>
         </section>
 
@@ -39,7 +38,7 @@ export default function TermsPage() {
           <li>· Submit only public on-chain addresses</li>
           <li>· Don&apos;t use the service to dox individuals or violate any privacy law</li>
           <li>
-            · Don&apos;t exceed the rate limit on your tier (100 calls/month on free sandbox).
+            · Stay within the public sandbox fair-use limits (100 calls/month).
             Repeated overshoot may result in API key suspension
           </li>
           <li>· Don&apos;t share your API key or use it for &gt;1 production system</li>

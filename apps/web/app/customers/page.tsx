@@ -8,7 +8,7 @@ export const metadata = { title: "Customers · SybilShield" };
 const CASES = [
   { slug: "linea", tag: "L2 · airdrop", title: "Linea retro", body: "Re-scored the May 2024 airdrop. 23% sybil rate confirmed. Methodology now public." },
   { slug: "dao-x", tag: "dao · governance", title: "DAO-X (anon)", body: "Pre-vote Sybil scan on a contentious proposal. 614 voting wallets reduced to 412 unique entities." },
-  { slug: "defi-protocol", tag: "defi · farming", title: "DeFi protocol (anon)", body: "Real-time score on every LP deposit. Caught a 380-wallet farm. $1.8M reward saved." },
+  { slug: "defi-protocol", tag: "defi · farming", title: "DeFi protocol (anon)", body: "Real-time score on every LP deposit. Caught a 380-wallet farm. ~$1.8M reward saved." },
 ];
 
 export default function CustomersPage() {
@@ -70,14 +70,14 @@ export default function CustomersPage() {
         </section>
 
         <section className="rounded border border-zinc-800 bg-zinc-900 p-8 text-center">
-          <h3 className="font-mono text-lg text-emerald-400">RUN A PILOT WITH US</h3>
+          <h3 className="font-mono text-lg text-emerald-400">SCORE YOUR COHORT — FREE</h3>
           <p className="mt-3 text-zinc-400">
-            We run paid pilots manually until production billing is enabled. If you have a
-            distribution to filter or an airdrop to score, we&apos;d love to be your first
-            published reference.
+            SybilShield is a free public good. If you have a distribution to filter or an
+            airdrop to score, start in the sandbox — and we&apos;d love to feature your results
+            as a published reference.
           </p>
-          <a href="mailto:support@sybilshield.org?subject=Pilot%20inquiry" className="mt-6 inline-block rounded bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-500">
-            Request pilot
+          <a href="/dashboard" className="mt-6 inline-block rounded bg-emerald-600 px-5 py-2 text-sm font-medium text-white hover:bg-emerald-500">
+            Start free
           </a>
         </section>
       </main>

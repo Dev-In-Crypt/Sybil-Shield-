@@ -153,7 +153,7 @@ export default function NewAnalysisPage() {
       return;
     }
     if (overLimit) {
-      setSubmitError(`Free tier limit is ${MAX_ADDRESSES} addresses. Trim the file or contact us for higher.`);
+      setSubmitError(`Fair-use limit is ${MAX_ADDRESSES} addresses per analysis. Trim the file, or email us for research access.`);
       return;
     }
     // Build threshold_overrides from any non-empty advanced inputs. A blank
@@ -405,8 +405,8 @@ export default function NewAnalysisPage() {
 
         <p className="text-xs text-zinc-500">
           CSV or plain text, one address per line. First comma-separated cell is parsed.{" "}
-          <strong>Free tier:</strong> up to {MAX_ADDRESSES.toLocaleString()} addresses · 1 analysis at a time · 1 MB
-          upload · 100 billable POSTs / month (dashboard polling + reads are free).
+          <strong>Public sandbox (fair use):</strong> up to {MAX_ADDRESSES.toLocaleString()} addresses · 1 analysis at a time · 1 MB
+          upload · 100 write calls / month (dashboard polling + reads are free).
         </p>
         {inputMode === "file" && fileName && (
           <p className="text-xs text-zinc-400">

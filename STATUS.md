@@ -102,7 +102,7 @@ production calibration on wild-traffic feedback is the next milestone.
 | `/dashboard/analyses/[id]` | ✅ Live |
 | `/dashboard/api-keys` | ✅ Live |
 | `/dashboard/new` | 🗓️ Roadmap (CSV upload UI) |
-| `/dashboard/billing` | 🟡 Beta |
+| `/dashboard/billing` | ✅ Live (usage view — no billing) |
 | `/dashboard/settings` | 🗓️ Roadmap |
 | `/pricing` | ✅ Live |
 | `/roadmap` | ✅ Live |
@@ -117,17 +117,15 @@ production calibration on wild-traffic feedback is the next milestone.
 | `/trust`, `/sub-processors`, `/changelog`, `/status` | ✅ Live |
 | Cluster network visualisation | 🗓️ Roadmap |
 
-## Billing & accounts
+## Access & accounts
+
+SybilShield is a free public good — no billing, no plans. Payment code (Stripe/Atlos)
+remains in the repo but dormant (disabled when env unset).
 
 | Capability | Status |
 |---|---|
-| Free Sandbox (100 calls/mo) | ✅ Live |
-| Developer plan ($499/mo) | ⏳ Coming soon |
-| Growth plan ($1,499/mo) | ⏳ Coming soon |
-| Enterprise plan | ⏳ Coming soon |
-| Per-analysis pricing | ⏳ Coming soon (manual pilot today via support@) |
-| Stripe card payments | 🗓️ Roadmap (post-incorporation) |
-| Crypto checkout (Atlos) | 🟡 Beta (works in code; one pilot flow uses it) |
+| Free public sandbox (100 calls/mo, fair use) | ✅ Live |
+| Billing / paid plans | ❌ None (free public good) |
 | API key rotation | ✅ Live |
 | Webhook subscriptions | ✅ Live |
 | Usage tracking | ✅ Live |
@@ -149,8 +147,7 @@ production calibration on wild-traffic feedback is the next milestone.
 
 - **Resend email** — account confirmations + analysis-complete notifications + monthly usage. Needs Resend account + DNS records.
 - **TypeScript + Python SDK** — auto-generate from OpenAPI. Removes raw-curl friction for developer customers.
-- **Stripe self-serve billing** — Subscription + invoicing. Blocked on incorporation.
-- **Multi-chain Alchemy: enable BSC + Avalanche + Linea** for Growth tier — code path exists, just need to enable in provider config + add to chains array.
+- **Multi-chain Alchemy: enable BSC + Avalanche + Linea** — code path exists, just need to enable in provider config + add to chains array.
 
 ### Later (after entity / first enterprise customer)
 

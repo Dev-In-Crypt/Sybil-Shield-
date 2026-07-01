@@ -55,7 +55,7 @@ export default function PrivacyPage() {
         <ul className="mt-3 space-y-2 text-sm text-zinc-300">
           <li>· Cookies (we use one functional cookie for session, no analytics/ads)</li>
           <li>· Browser fingerprints, IP geolocation logs, device IDs</li>
-          <li>· Card details (we don&apos;t process card payments — crypto via Atlos only)</li>
+          <li>· Payment data of any kind — SybilShield is a free public good with no billing</li>
           <li>· Third-party tracking pixels, Google Analytics, Hotjar, FB pixel — none</li>
         </ul>
 
@@ -77,7 +77,7 @@ export default function PrivacyPage() {
         <h2 className="mt-10 text-xl font-semibold">5. Sub-processors</h2>
         <p className="mt-3 text-sm text-zinc-300">
           See <a href="/sub-processors" className="text-emerald-400 hover:underline">/sub-processors</a>{" "}
-          for the canonical list (Hetzner, Vercel, Alchemy, Atlos).
+          for the canonical list (Hetzner, Vercel, Alchemy).
         </p>
 
         <h2 className="mt-10 text-xl font-semibold">6. Your rights (GDPR / CCPA)</h2>

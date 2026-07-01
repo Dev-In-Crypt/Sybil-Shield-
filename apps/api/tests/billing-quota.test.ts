@@ -85,9 +85,9 @@ describeMaybe("billing quota enforcement", () => {
       headers: { authorization: `Bearer ${api_key}` },
     });
     expect(blocked.statusCode).toBe(429);
-    const body = blocked.json() as { error: string; limit: number; plan: string };
+    const body = blocked.json() as { error: string; limit: number; used: number };
     expect(body.error).toBe("monthly_quota_exceeded");
     expect(body.limit).toBe(100);
-    expect(body.plan).toBe("free");
+    expect(body.used).toBeGreaterThanOrEqual(100);
   });
 });

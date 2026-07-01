@@ -75,7 +75,7 @@ export default function DashboardOverview() {
 
       {account && (
         <section className="mt-6 grid gap-4 sm:grid-cols-3">
-          <Card title="Plan" value={account.plan} subtitle={account.api_key_prefix ?? "no key"} />
+          <Card title="Access" value="Free sandbox" subtitle={account.api_key_prefix ?? "no key"} />
           <Card
             title="Usage this month"
             value={account.usage.calls_this_month.toLocaleString()}
@@ -262,7 +262,7 @@ function Onboard({ onSet }: { onSet: (k: string) => void }) {
     <main className="max-w-md">
       <h1 className="text-3xl font-semibold">Sign up</h1>
       <p className="mt-2 text-sm text-zinc-400">
-        Free Sandbox tier — 100 API calls/month. No card. Email is the only required field.
+        Free public sandbox — 100 API calls/month (fair use). No card. Email is the only required field.
       </p>
       <form onSubmit={register} className="mt-8 space-y-4">
         <div>

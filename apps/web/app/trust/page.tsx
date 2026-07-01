@@ -11,7 +11,7 @@ const COMPLIANCE = [
   { fw: "SOC 2 Type I", scope: "Service org controls", status: "Not started", color: "text-zinc-500", art: [null, "Planned after incorporation"] },
   { fw: "SOC 2 Type II", scope: "Operating effectiveness", status: "Planned", color: "text-zinc-500", art: [null, "After SOC 2 Type I"] },
   { fw: "ISO 27001", scope: "InfoSec mgmt", status: "Backlog", color: "text-zinc-500", art: [null, "2027+"] },
-  { fw: "PCI-DSS", scope: "Card data", status: "Out of scope", color: "text-emerald-400", art: [null, "Stripe-hosted (when wired)"] },
+  { fw: "PCI-DSS", scope: "Card data", status: "Out of scope", color: "text-emerald-400", art: [null, "No payments — free public good"] },
 ] as const;
 
 export default function TrustPage() {
@@ -38,7 +38,7 @@ export default function TrustPage() {
             </li>
             <li className="flex gap-3">
               <span className="text-emerald-400">▸</span>
-              <span>No production customer data is processed in the public sandbox. Pilot customers are onboarded manually with a separate engagement.</span>
+              <span>No production customer data is processed in the public sandbox. SybilShield is a free public good — there is no paid engagement or billing.</span>
             </li>
             <li className="flex gap-3">
               <span className="text-emerald-400">▸</span>

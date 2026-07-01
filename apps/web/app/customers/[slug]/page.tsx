@@ -21,7 +21,7 @@ const CASES: Record<string, CaseStudy> = {
     metrics: [
       { label: "Addresses scored", value: "1,247,000" },
       { label: "Sybils flagged", value: "287,000 (23%)" },
-      { label: "Cost", value: "$5,200" },
+      { label: "Cost", value: "free" },
       { label: "Turnaround", value: "11 hours" },
     ],
     sections: [

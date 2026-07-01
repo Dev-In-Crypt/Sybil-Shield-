@@ -72,7 +72,7 @@ export const FEATURES = {
   pageAnalysesDetail: "available",
   pageApiKeys: "available",
   pageNewAnalysis: "available",
-  pageBilling: "beta",
+  pageBilling: "available",
   pageSettings: "roadmap",
   pagePricing: "available",
   pageRoadmap: "available",
@@ -86,14 +86,8 @@ export const FEATURES = {
   pageCookies: "available",
   clusterViz: "roadmap",
 
-  // Billing
+  // Access & accounts (free public good — no billing)
   freeTier: "available",
-  developerPlan: "coming-soon",
-  growthPlan: "coming-soon",
-  enterprisePlan: "coming-soon",
-  perAnalysisPricing: "coming-soon",
-  stripeCards: "roadmap",
-  cryptoCheckout: "beta",
   apiKeyRotation: "available",
   webhookSubscriptions: "available",
   usageTracking: "available",

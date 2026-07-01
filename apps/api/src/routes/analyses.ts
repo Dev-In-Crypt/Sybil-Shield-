@@ -63,8 +63,7 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
         error: "too_many_addresses",
         limit: planCfg.maxAddressesPerAnalysis,
         submitted: addressCount,
-        plan: request.customer!.plan,
-        upgrade_url: `${process.env.WEB_PUBLIC_URL ?? ""}/pricing`,
+        message: "Public sandbox fair-use limit. Trim the list, or email support@sybilshield.org for research access.",
       });
     }
 
@@ -78,9 +77,7 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
         error: "estimated_cu_exceeds_budget",
         estimated_cu: estimatedCu,
         limit: planCfg.maxCuPerAnalysis,
-        plan: request.customer!.plan,
-        suggestion: "trim addresses, switch to mode=cluster_only, or upgrade your plan",
-        upgrade_url: `${process.env.WEB_PUBLIC_URL ?? ""}/pricing`,
+        suggestion: "trim addresses or switch to mode=cluster_only",
       });
     }
 
@@ -103,9 +100,7 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
         error: "concurrent_limit_exceeded",
         limit: planCfg.maxConcurrent,
         in_flight: inFlight.length,
-        plan: request.customer!.plan,
         retry_when: "wait for one of your running analyses to complete",
-        upgrade_url: `${process.env.WEB_PUBLIC_URL ?? ""}/pricing`,
       });
     }
 

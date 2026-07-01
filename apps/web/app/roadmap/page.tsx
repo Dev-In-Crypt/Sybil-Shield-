@@ -24,7 +24,7 @@ const NOW: Item[] = [
   { title: "Public appeal flow", desc: "Anyone can dispute a score. 48h response policy. Immutable audit log per event. POST /v1/appeals + GET /v1/audit-log.", status: "available" },
   { title: "Webhook delivery", desc: "HMAC-SHA256 signed on analysis.completed. Per-customer URL + secret. Retries + delivery log.", status: "available" },
   { title: "Customer feedback loop", desc: "Thumbs-up / false-positive / false-negative buttons per address. Writes to feedback table + audit-log. Will feed auto-retrain.", status: "available" },
-  { title: "Free-tier enforcement", desc: "Per-plan caps on addresses, concurrent jobs, file size, CU budget. Dashboard polling is free — 100/mo quota is 100 meaningful operations.", status: "available" },
+  { title: "Fair-use limits", desc: "Sandbox caps on addresses, concurrent jobs, file size, CU budget to keep the shared service healthy. Dashboard polling is free — the monthly cap is 100 meaningful operations.", status: "available" },
   { title: "Auto-deploy + monitoring", desc: "Push to main → CI → deploy → health check. Discord pings on deploy result, uptime probes, worker exceptions.", status: "available" },
   { title: "Daily Postgres backup", desc: "pg_dump cron with 7-day local rotation. Off-site B2 sync wired but awaiting credentials.", status: "available" },
   { title: "Open-source MIT", desc: "All detection code, presets, audit-log schema, appeal protocol on GitHub. Reproducible from public methodology.", status: "available" },
@@ -44,7 +44,6 @@ const NEXT: Item[] = [
 // Blocked or large-scale work — most depends on incorporation or a first
 // enterprise customer.
 const LATER: Item[] = [
-  { title: "Stripe self-serve billing", desc: "Subscription + invoicing. Requires incorporation (Stripe needs a registered entity).", status: "roadmap" },
   { title: "Resend email integration", desc: "Account confirmations, analysis-complete notifications, monthly usage. Needs Resend account + DNS.", status: "roadmap" },
   { title: "TypeScript + Python SDK", desc: "Auto-generated from OpenAPI. Removes raw-curl friction for developer-customers.", status: "roadmap" },
   { title: "Auto-retrain on drift alert", desc: "PSI > 0.25 → kick off retrain pipeline automatically + ship new model with audit-log entry.", status: "roadmap" },

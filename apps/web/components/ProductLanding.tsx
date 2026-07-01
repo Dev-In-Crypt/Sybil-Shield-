@@ -60,7 +60,7 @@ export function ProductLanding({ spec }: { spec: ProductSpec }) {
       </section>
 
       <section>
-        <h2 className="text-2xl font-semibold">Suggested plan</h2>
+        <h2 className="text-2xl font-semibold">Free &amp; open</h2>
         <div className="mt-6 flex flex-col items-start gap-4 rounded border border-emerald-700 bg-emerald-900/10 p-6 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h3 className="font-mono text-lg text-emerald-400">{spec.tier.name}</h3>
@@ -68,7 +68,7 @@ export function ProductLanding({ spec }: { spec: ProductSpec }) {
             <p className="mt-2 max-w-xl text-sm text-zinc-400">{spec.tier.reason}</p>
           </div>
           <Link href={spec.tier.href} className="rounded bg-emerald-600 px-5 py-2.5 text-sm font-medium text-white hover:bg-emerald-500">
-            See pricing →
+            Start free →
           </Link>
         </div>
       </section>

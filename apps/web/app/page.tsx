@@ -228,7 +228,7 @@ export default function HomePage() {
             <tbody className="divide-y divide-white/5">
               {[
                 ["api_first", "true", "false", "false", "true"],
-                ["price/analysis", "$1-3K", "$50-150K", "free+4w", "$2.5-15K"],
+                ["price/analysis", "$1-3K", "$50-150K", "free+4w", "free"],
                 ["evidence", "—", "PDF", "—", "per-addr"],
                 ["audit_log", "—", "—", "—", "immutable"],
                 ["public_appeal", "—", "—", "—", "live"],
@@ -248,53 +248,39 @@ export default function HomePage() {
         </div>
       </SectionCyber>
 
-      {/* PRICING */}
-      <SectionCyber eyebrow="plans.json" title="// PRICING">
-        <div className="grid gap-px bg-white/5 md:grid-cols-3">
-          {[
-            { name: "FREE SANDBOX", price: "$0", suffix: "", desc: "// sandbox", features: ["100 calls/mo", "Evidence format", "Public appeals testing"], cta: { href: "/dashboard", label: "RUN" } },
-            { name: "PILOT", price: "From $2,500", suffix: "/ analysis", desc: "// manual onboarding", features: ["Real data ingestion", "Evidence-backed report", "Appeal flow support"], highlight: true, cta: { href: "/pricing", label: "REQUEST PILOT →" } },
-            { name: "GROWTH API", price: "—", suffix: "", desc: "// coming soon", features: ["Ongoing scoring", "Webhooks", "Production support"], cta: { href: "/pricing", label: "JOIN WAITLIST →" } },
-          ].map((p) => (
-            <div
-              key={p.name}
-              className={`relative flex flex-col bg-black p-8 ${p.highlight ? "bg-gradient-to-b from-lime/[0.05] to-transparent" : ""}`}
+      {/* ACCESS */}
+      <SectionCyber eyebrow="access.json" title="// FREE & OPEN">
+        <div className="relative flex flex-col items-start bg-gradient-to-b from-lime/[0.05] to-transparent p-8 md:p-12">
+          <div className="font-mono text-sm uppercase tracking-[0.2em] text-zinc-500">// a public good, not a product</div>
+          <h3 className="mt-2 max-w-2xl font-mono text-3xl font-bold text-lime">
+            Free for everyone. MIT-licensed. Grant-funded.
+          </h3>
+          <p className="mt-6 max-w-2xl text-zinc-400">
+            No prices, no plans, no checkout. Register with an email and score address
+            cohorts with the full evidence pipeline. Fair-use limits keep the shared sandbox
+            healthy, not a paywall.
+          </p>
+          <ul className="mt-8 grid gap-2 text-sm md:grid-cols-3">
+            {["100 calls/mo (reads free)", "Up to 1,000 addresses/analysis", "Public methodology + appeals"].map((f) => (
+              <li key={f} className="flex gap-2 text-zinc-400">
+                <span className="text-lime">-</span> {f}
+              </li>
+            ))}
+          </ul>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <Link
+              href="/dashboard"
+              className="border-2 border-lime bg-lime px-6 py-3 text-center font-mono text-sm font-bold uppercase tracking-wider text-black transition hover:bg-transparent hover:text-lime hover:shadow-[0_0_20px_rgba(192,255,0,0.4)]"
             >
-              {p.highlight && (
-                <span className="absolute -top-3 right-6 bg-lime px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-[0.2em] text-black">
-                  POPULAR
-                </span>
-              )}
-              <div className="font-mono text-sm uppercase tracking-[0.2em] text-zinc-500">{p.desc}</div>
-              <h3 className="mt-2 font-mono text-2xl font-bold text-lime">{p.name}</h3>
-              <div className="mt-6 flex items-baseline gap-1">
-                <span className="font-mono text-5xl font-bold">{p.price}</span>
-                <span className="text-sm text-zinc-500">{p.suffix || " "}</span>
-              </div>
-              <ul className="mt-8 flex-1 space-y-2 text-sm">
-                {p.features.map((f) => (
-                  <li key={f} className="flex gap-2 text-zinc-400">
-                    <span className="text-lime">›</span> {f}
-                  </li>
-                ))}
-              </ul>
-              {p.cta ? (
-                <Link
-                  href={p.cta.href}
-                  className="mt-8 block border-2 border-lime bg-lime px-4 py-3 text-center font-mono text-sm font-bold uppercase tracking-wider text-black transition hover:bg-transparent hover:text-lime hover:shadow-[0_0_20px_rgba(192,255,0,0.4)]"
-                >
-                  {p.cta.label}
-                </Link>
-              ) : (
-                <button
-                  disabled
-                  className="mt-8 block w-full cursor-not-allowed border border-white/10 px-4 py-3 font-mono text-xs uppercase tracking-wider text-zinc-600"
-                >
-                  // coming soon
-                </button>
-              )}
-            </div>
-          ))}
+              RUN FREE
+            </Link>
+            <Link
+              href="/pricing"
+              className="border border-white/15 px-6 py-3 text-center font-mono text-sm font-bold uppercase tracking-wider text-zinc-300 transition hover:border-lime hover:text-lime"
+            >
+              HOW IT IS FUNDED
+            </Link>
+          </div>
         </div>
       </SectionCyber>
 

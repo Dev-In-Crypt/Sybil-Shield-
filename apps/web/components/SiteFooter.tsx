@@ -16,7 +16,7 @@ export function SiteFooter() {
             </p>
           </div>
           {[
-            { t: "/product", l: [["pricing", "/pricing"], ["docs", "/docs"], ["roadmap", "/roadmap"], ["status", "/status"]] },
+            { t: "/product", l: [["access", "/pricing"], ["docs", "/docs"], ["roadmap", "/roadmap"], ["status", "/status"]] },
             { t: "/public", l: [["methods", "/methodology"], ["appeal", "/appeal"], ["security", "/security"]] },
             { t: "/co", l: [["about", "/about"], ["blog", "/blog"], ["contact", "mailto:support@sybilshield.org"]] },
           ].map((c) => (

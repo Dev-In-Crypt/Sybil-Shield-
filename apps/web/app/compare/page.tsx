@@ -6,7 +6,7 @@ export const metadata = { title: "Compare · SybilShield" };
 
 const ROWS: Array<[string, string, string, string, string, string]> = [
   ["api_first", "✓", "—", "—", "—", "✓"],
-  ["price_per_analysis", "$1-3K", "$50-150K", "$80-200K", "4 weeks", "$2.5-15K"],
+  ["price_per_analysis", "$1-3K", "$50-150K", "$80-200K", "4 weeks", "free"],
   ["turnaround", "hours", "4-8 weeks", "4-8 weeks", "2-4 weeks", "hours"],
   ["open_methodology", "—", "—", "—", "(your own)", "MIT"],
   ["evidence_per_address", "—", "manual PDF", "manual PDF", "—", "structured JSON"],

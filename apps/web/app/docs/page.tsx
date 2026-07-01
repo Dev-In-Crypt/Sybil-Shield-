@@ -27,9 +27,9 @@ export default function DocsPage() {
         <Section title="1 · Getting started">
           <p>
             Sign up at <Link className="text-emerald-400 hover:underline" href="/dashboard">/dashboard</Link>{" "}
-            with an email — no card required. You get an API key with a Free Sandbox quota
-            of 100 calls/month. Store the key somewhere safe; it cannot be retrieved later
-            (only rotated).
+            with an email — no card required. SybilShield is a free public good: you get an
+            API key with a public-sandbox fair-use limit of 100 calls/month. Store the key
+            somewhere safe; it cannot be retrieved later (only rotated).
           </p>
         </Section>
 
@@ -292,29 +292,34 @@ X-SybilShield-Signature: sha256=...
   "${API}/v1/audit-log?analysis_id=$ID&limit=100"`}</Code>
         </Section>
 
-        <Section title="10 · Rate limits & quotas">
+        <Section title="10 · Fair-use limits">
+          <p className="text-sm text-zinc-400">
+            SybilShield is a free public good. These fair-use limits keep the shared sandbox
+            healthy — they are not a paywall. Running heavier research?{" "}
+            <a className="text-emerald-400 hover:underline" href="mailto:support@sybilshield.org">
+              Email us
+            </a>{" "}
+            for more headroom.
+          </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full text-sm">
               <thead className="text-left text-xs uppercase tracking-wider text-zinc-500">
                 <tr>
-                  <th className="py-2">Tier</th>
-                  <th>RPM</th>
-                  <th>Billable POSTs / mo</th>
-                  <th>Addresses / analysis</th>
-                  <th>Concurrent</th>
-                  <th>Upload size</th>
+                  <th className="py-2">Limit</th>
+                  <th>Value</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-900 font-mono text-xs">
-                <tr><td className="py-2">Free Sandbox</td><td>30</td><td>100</td><td>1,000</td><td>1</td><td>1 MB</td></tr>
-                <tr><td className="py-2">Pilot</td><td>100</td><td>per engagement</td><td>negotiated</td><td>5</td><td>10 MB</td></tr>
-                <tr><td className="py-2">Growth API <span className="text-zinc-500">(coming soon)</span></td><td>300</td><td>250,000</td><td>100,000</td><td>20</td><td>100 MB</td></tr>
-                <tr><td className="py-2">Enterprise <span className="text-zinc-500">(coming soon)</span></td><td>1,000</td><td>unlimited</td><td>1,000,000</td><td>100</td><td>1 GB</td></tr>
+                <tr><td className="py-2">Requests / minute</td><td>30</td></tr>
+                <tr><td className="py-2">Write calls / month</td><td>100</td></tr>
+                <tr><td className="py-2">Addresses / analysis</td><td>1,000</td></tr>
+                <tr><td className="py-2">Concurrent analyses</td><td>1</td></tr>
+                <tr><td className="py-2">Upload size</td><td>1 MB</td></tr>
               </tbody>
             </table>
           </div>
           <p className="mt-4 text-sm text-zinc-500">
-            <strong>What counts as a billable POST.</strong>{" "}
+            <strong>What counts toward the monthly limit.</strong> Write calls —{" "}
             <code className="rounded bg-zinc-900 px-1 font-mono text-xs">POST /v1/analyses</code>,{" "}
             <code className="rounded bg-zinc-900 px-1 font-mono text-xs">POST /v1/score/batch</code>,{" "}
             <code className="rounded bg-zinc-900 px-1 font-mono text-xs">POST /v1/feedback</code>, and other write
@@ -326,8 +331,8 @@ X-SybilShield-Signature: sha256=...
           </p>
           <p className="mt-3 text-sm text-zinc-500">
             <strong>Error codes.</strong>{" "}
-            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 monthly_quota_exceeded</code> with{" "}
-            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">upgrade_url</code>;{" "}
+            <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 monthly_quota_exceeded</code> (fair-use
+            monthly limit, resets monthly);{" "}
             <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 rate_limit_exceeded</code> with{" "}
             <code className="rounded bg-zinc-900 px-1 font-mono text-xs">retry_after_seconds</code>;{" "}
             <code className="rounded bg-zinc-900 px-1 font-mono text-xs">429 concurrent_limit_exceeded</code>;{" "}

@@ -30,7 +30,7 @@ export default function DaoTreasuryPage() {
           title: "DAO treasury audit: 12 sybil applicants in 100",
           body: "An L2-aligned DAO ran their last 100 grant recipients through SybilShield. 12 scored ≥70: same funder, no prior contribution history, applied via 3 different pseudonyms. Treasury saved an estimated $340k over 6 months. Public appeal flow reversed 1 false positive (real contributor with funky funding history).",
         },
-        tier: { name: "Growth", price: "$2,500/mo", reason: "Quarterly grant batches and contributor retros fit easily. Includes evidence export for community publication.", href: "/pricing" },
+        tier: { name: "Free public sandbox", price: "Free", reason: "Quarterly grant batches and contributor retros fit easily, with evidence export for community publication — all free.", href: "/pricing" },
       }} />
       <SiteFooter />
     </>

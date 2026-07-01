@@ -11,8 +11,6 @@ const VENDORS = [
   ["Upstash", "Managed Redis (queue)", "Job payloads", "EU (Frankfurt)", "https://upstash.com/dpa"],
   ["Cloudflare", "CDN, DNS, WAF", "Request metadata", "Global edge", "https://www.cloudflare.com/cloudflare-customer-dpa/"],
   ["Alchemy", "RPC provider", "Public on-chain queries", "USA", "https://www.alchemy.com/policies/dpa"],
-  ["Stripe", "Card payments (USD)", "Billing email, last4", "USA + global", "https://stripe.com/legal/dpa"],
-  ["Atlos", "Crypto checkout (non-custodial)", "Wallet address, order ID", "Global (settles on-chain)", "https://atlos.io/legal"],
   ["Postmark", "Transactional email", "Email addr, subject", "USA", "https://postmarkapp.com/eu-privacy"],
   ["GitGuardian", "Secret leak scanning", "Public repo content", "EU (France)", "https://www.gitguardian.com/legal"],
   ["PostHog", "Product analytics", "Pseudonymous events", "EU (Germany)", "https://posthog.com/dpa"],
@@ -77,7 +75,7 @@ export default function SubProcessorsPage() {
             </div>
             <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
               <h3 className="font-mono text-sm text-emerald-400">BILLING</h3>
-              <p className="mt-2 text-sm text-zinc-400">Cards — Stripe (PCI-DSS L1, post-incorporation). Crypto — Atlos (non-custodial, settles direct to merchant wallet).</p>
+              <p className="mt-2 text-sm text-zinc-400">None. SybilShield is a free public good — no payment processors, no billing data.</p>
             </div>
           </div>
         </section>

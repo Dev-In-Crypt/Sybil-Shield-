@@ -17,7 +17,7 @@ export default function AirdropsPage() {
         stats: [
           { value: "23%", label: "median sybil rate in recent L2 airdrops" },
           { value: "11h", label: "typical turnaround on 1M addresses" },
-          { value: "$5k", label: "vs $50k-$200k for a Big 4 audit" },
+          { value: "free", label: "vs $50k-$200k for a Big 4 audit" },
           { value: "0.4%", label: "median false-positive rate in retros" },
         ],
         methods: [
@@ -30,7 +30,7 @@ export default function AirdropsPage() {
           title: "Linea airdrop retro: 287k sybils confirmed",
           body: "We re-scored the May 2024 Linea airdrop and confirmed 23% sybil rate against the Foundation's anchor set — plus surfaced 41,000 additional addresses they missed. Full methodology + reproducible scores in the case study.",
         },
-        tier: { name: "Growth", price: "$2,500/mo or $0.005 per address", reason: "Right for one airdrop campaign or three medium ones. Includes evidence export, webhook, public appeal page.", href: "/pricing" },
+        tier: { name: "Free public sandbox", price: "Free", reason: "Everything a campaign needs — evidence export, webhooks, and the public appeal page — at no cost. Fair-use limits keep the shared sandbox healthy.", href: "/pricing" },
       }} />
       <SiteFooter />
     </>

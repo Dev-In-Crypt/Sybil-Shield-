@@ -92,8 +92,9 @@ export async function requireApiKey(request: FastifyRequest, reply: FastifyReply
       error: "monthly_quota_exceeded",
       limit: plan.monthlyCalls,
       used: customer.apiCallsThisMonth,
-      plan: customer.plan,
-      upgrade_url: `${process.env.WEB_PUBLIC_URL ?? ""}/pricing`,
+      message:
+        "Public sandbox fair-use limit reached. Resets at the start of next month. " +
+        "Email support@sybilshield.org for research access.",
     });
   }
   request.customer = customer;

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 
 const NAV: { href: string; label: string }[] = [
-  { href: "/pricing", label: "pricing" },
+  { href: "/pricing", label: "access" },
   { href: "/methodology", label: "methods" },
   { href: "/docs", label: "docs" },
   { href: "/compare", label: "compare" },

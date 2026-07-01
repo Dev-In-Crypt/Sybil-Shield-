@@ -261,8 +261,8 @@ Pages shipped:
 
 | Route | Purpose |
 |---|---|
-| `/` | Landing — hero, problem, six methods, evidence demo, comparison table, pricing teaser, FAQ |
-| `/pricing` | Full pricing: 4 subscription tiers + 3 per-analysis tiers, payment-method cards, FAQ |
+| `/` | Landing — hero, problem, six methods, evidence demo, comparison table, "free & open" section, FAQ |
+| `/pricing` | Free & open — public-good page (fair-use limits + how it's funded). No prices or plans. |
 | `/roadmap` | Now / Next / Later view with status badges |
 | `/status` | Per-feature status flags (single source of truth) |
 | `/methodology` | All 6 detection methods documented with source file references |
@@ -276,7 +276,7 @@ Pages shipped:
 | `/dashboard/analyses/[id]` | Summary cards + scored-address table + evidence drawer + CSV export |
 | `/dashboard/api-keys` | Rotate keys + manage webhook URL + secret |
 | `/dashboard/new` | Roadmap placeholder with API-as-curl instructions |
-| `/dashboard/billing` | Live usage + tier comparison + crypto-checkout coming-soon notice |
+| `/dashboard/billing` | Usage view (free public sandbox — fair-use limits, no billing) |
 | `/dashboard/settings` | Roadmap placeholder |
 
 Feature flags live at `apps/web/lib/feature-status.ts` and rendered as badges throughout. Update both that file and `STATUS.md` when shipping a feature.
@@ -332,7 +332,7 @@ A bootstrap pipeline has already run with 100 real ENS-veteran addresses + synth
 ### Infra (need ops decisions)
 
 4. **Alchemy account at Scale tier** ($199/mo) — set `ALCHEMY_API_KEY` and `USE_MOCK_PROVIDERS=false`. For analyses >100K addresses, provision a self-hosted Erigon/Reth node and point `SELF_HOSTED_NODE_URL` at it.
-5. **Stripe account** — create the three Price IDs for developer/growth/enterprise plans, set them in env (`STRIPE_PRICE_DEVELOPER`, etc.), set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`.
+5. **Billing (dormant)** — SybilShield runs as a free public good, so Stripe/Atlos are left unconfigured and the billing routes 503. The code is retained for a possible future pivot; leave the `STRIPE_*` / `ATLOS_*` env vars empty.
 6. **Hosting**: API + worker → Railway or Fly.io. ML service → Railway with at least 2GB RAM for HDBSCAN. Frontend → Vercel. Postgres → Supabase or Neon. Redis → Upstash.
 7. **Domain + TLS + appeals@ inbox** — required by the legal policy in the project description.
 8. **Defamation insurance** (~$2K-5K/yr) — non-optional for the public-retro GTM strategy.

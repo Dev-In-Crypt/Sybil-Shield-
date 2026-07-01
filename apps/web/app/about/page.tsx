@@ -55,17 +55,14 @@ export default function AboutPage() {
           <h2 className="text-2xl font-semibold">How we sustain</h2>
           <ul className="mt-3 space-y-2 text-zinc-300">
             <li>
-              <strong className="text-zinc-100">Public-good tier</strong> — free single-address
-              scoring API, free CSV export of public retros (aggregate only).
+              <strong className="text-zinc-100">Free for everyone</strong> — the full scoring
+              API, dashboard, evidence reports, and public methodology are free. No prices, no
+              plans, no checkout. Fair-use limits keep the shared sandbox healthy.
             </li>
             <li>
-              <strong className="text-zinc-100">Paid tier</strong> — hosted analyses, dedicated
-              SLA, custom models, on-call support.
-            </li>
-            <li>
-              <strong className="text-zinc-100">Grants</strong> — applying to Ethereum
-              Foundation ESP, Arbitrum DAO, Octant, Optimism RetroPGF for the public-good
-              components.
+              <strong className="text-zinc-100">Grants</strong> — funded by public-goods
+              grants: Ethereum Foundation ESP, Arbitrum DAO, Octant, Optimism RetroPGF,
+              Gitcoin. Sybil resistance is shared infrastructure, so we fund it like it.
             </li>
             <li>
               <strong className="text-zinc-100">No token</strong> — we have no plans to launch
@@ -77,10 +74,9 @@ export default function AboutPage() {
         <section className="mt-12">
           <h2 className="text-2xl font-semibold">Legal posture</h2>
           <p className="mt-3 text-zinc-300">
-            Pre-incorporation. Will register a Delaware C-corp (Stripe Atlas) after first grant
-            lands. Until then we accept crypto via Atlos (non-custodial, 0% fees) and operate as a public-beta
-            indie project. Customers using SybilShield scores in any public filter list are
-            contractually required to provide an appeal flow.
+            An open, grant-funded public-good project — free to use, MIT-licensed, no
+            monetization. Anyone using SybilShield scores in a public filter list is
+            expected to provide an appeal flow so scored parties can dispute a result.
           </p>
         </section>
       </main>
