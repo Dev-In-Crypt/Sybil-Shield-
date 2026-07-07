@@ -43,6 +43,14 @@ interface Analysis {
   processing_time_seconds?: number | null;
 }
 
+interface ClusterNode {
+  cluster_id: string;
+  size: number;
+  detection_method: string;
+  evidence?: string | null;
+  avg_sybil_score: number | string | null;
+}
+
 // Mirror of apps/api/src/lib/presets.ts — kept duplicated for now so the
 // dashboard can render rule descriptions without an extra round-trip.
 const PRESET_RULES: Record<string, { drop: string; review: string }> = {
@@ -73,6 +81,7 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
   const [decisionFilter, setDecisionFilter] = useState<string>("");
   const [search, setSearch] = useState<string>("");
   const [drawer, setDrawer] = useState<ScoreRow | null>(null);
+  const [clusters, setClusters] = useState<ClusterNode[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   // Poll while the job is still in flight so the page updates itself
@@ -114,6 +123,29 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
       if (timer) clearTimeout(timer);
     };
   }, [apiKey, params.id, decisionFilter]);
+
+  // Fetch detected clusters once the analysis is terminal. Separate from the
+  // results poll so the graph degrades independently: if the clusters endpoint
+  // errors or returns none, the rest of the page is unaffected.
+  useEffect(() => {
+    if (!apiKey) return;
+    const status = analysis?.status;
+    if (status !== "complete" && status !== "complete_over_budget") return;
+    let cancelled = false;
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/v1/analyses/${params.id}/clusters`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
+    })
+      .then((r) => (r.ok ? r.json() : { data: [] }))
+      .then((j) => {
+        if (!cancelled) setClusters(Array.isArray(j?.data) ? j.data : []);
+      })
+      .catch(() => {
+        /* graph is best-effort — swallow */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiKey, analysis?.status, params.id]);
 
   // Live elapsed-seconds counter while pending/ingesting so users see motion.
   const [tick, setTick] = useState(0);
@@ -223,6 +255,8 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
               )}
             </p>
           </div>
+
+          <ClusterGraph clusters={clusters} />
 
           <div className="mt-6 flex flex-wrap items-center gap-2">
             <input
@@ -370,6 +404,111 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
         </div>
       )}
     </main>
+  );
+}
+
+/** Colour a cluster node by its average sybil score (signal, not verdict). */
+function clusterScoreColor(score: number): string {
+  if (score >= 70) return "#fb7185"; // rose — high avg score
+  if (score >= 40) return "#fbbf24"; // amber — mixed
+  return "#34d399"; // emerald — low avg score
+}
+
+/**
+ * Node-link graph of detected clusters, rendered from
+ * GET /v1/analyses/:id/clusters. The endpoint returns cluster-level
+ * aggregates (size / method / avg score), not address-level edges, so this is
+ * a star topology: a central "analysis" hub linked to one node per cluster.
+ * Node radius encodes cluster size; fill encodes the average sybil score.
+ * Degrades gracefully: no clusters → a plain note, never a broken canvas.
+ */
+function ClusterGraph({ clusters }: { clusters: ClusterNode[] }) {
+  if (clusters.length === 0) {
+    return (
+      <section className="mt-8">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Cluster network</h2>
+        <p className="mt-2 rounded border border-zinc-800 bg-zinc-950 px-4 py-3 text-sm text-zinc-500">
+          No clusters detected — every scored address looks independent under the current method set.
+        </p>
+      </section>
+    );
+  }
+
+  // Cap the drawn nodes so a pathological analysis can't render 500 circles.
+  // The API already orders by size desc, so we keep the biggest clusters.
+  const MAX_NODES = 40;
+  const shown = clusters.slice(0, MAX_NODES);
+  const hidden = clusters.length - shown.length;
+
+  const W = 760;
+  const H = 480;
+  const cx = W / 2;
+  const cy = H / 2;
+  const ringR = 170;
+
+  const nodes = shown.map((c, i) => {
+    const score = Math.max(0, Math.min(100, Math.round(Number(c.avg_sybil_score ?? 0))));
+    const r = Math.max(10, Math.min(30, 9 + Math.sqrt(Math.max(1, c.size)) * 2.5));
+    // Evenly space clusters on a ring; start at the top (−90°). A single
+    // cluster sits dead-centre-top rather than off to the right.
+    const angle = (i / shown.length) * Math.PI * 2 - Math.PI / 2;
+    const x = cx + ringR * Math.cos(angle);
+    const y = cy + ringR * Math.sin(angle);
+    return { c, score, r, x, y };
+  });
+
+  return (
+    <section className="mt-8">
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-400">Cluster network</h2>
+        <p className="text-xs text-zinc-600">
+          {clusters.length} cluster{clusters.length === 1 ? "" : "s"}
+          {hidden > 0 && <> · showing the {MAX_NODES} largest</>} · node size ∝ members · colour ∝ avg score
+        </p>
+      </div>
+      <div className="mt-3 overflow-x-auto rounded-lg border border-zinc-800 bg-zinc-950">
+        <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full min-w-[520px]" role="img" aria-label="Cluster network graph">
+          {/* Links: hub → each cluster. */}
+          {nodes.map((n) => (
+            <line
+              key={`l-${n.c.cluster_id}`}
+              x1={cx}
+              y1={cy}
+              x2={n.x}
+              y2={n.y}
+              stroke="#3f3f46"
+              strokeWidth={1}
+            />
+          ))}
+          {/* Cluster nodes. */}
+          {nodes.map((n) => (
+            <g key={`n-${n.c.cluster_id}`}>
+              <title>
+                {`${n.c.detection_method} · ${n.c.size} address${n.c.size === 1 ? "" : "es"} · avg score ${n.score}`}
+              </title>
+              <circle cx={n.x} cy={n.y} r={n.r} fill={clusterScoreColor(n.score)} fillOpacity={0.25} stroke={clusterScoreColor(n.score)} strokeWidth={1.5} />
+              <text x={n.x} y={n.y} textAnchor="middle" dominantBaseline="central" className="fill-zinc-200 font-mono" fontSize={11}>
+                {n.c.size}
+              </text>
+              <text x={n.x} y={n.y + n.r + 12} textAnchor="middle" className="fill-zinc-500 font-mono" fontSize={9}>
+                {n.c.detection_method}
+              </text>
+            </g>
+          ))}
+          {/* Central analysis hub, drawn last so it sits on top of the links. */}
+          <circle cx={cx} cy={cy} r={16} fill="#18181b" stroke="#52525b" strokeWidth={1.5} />
+          <text x={cx} y={cy} textAnchor="middle" dominantBaseline="central" className="fill-zinc-400 font-mono" fontSize={8}>
+            analysis
+          </text>
+        </svg>
+      </div>
+      <div className="mt-2 flex flex-wrap items-center gap-4 text-[10px] uppercase tracking-wider text-zinc-500">
+        <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#34d399" }} /> low avg score</span>
+        <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#fbbf24" }} /> mixed</span>
+        <span className="flex items-center gap-1"><span className="inline-block h-2 w-2 rounded-full" style={{ background: "#fb7185" }} /> high avg score</span>
+        <span className="text-zinc-600 normal-case">Clusters are signals, not verdicts — see each address&apos;s evidence below.</span>
+      </div>
+    </section>
   );
 }
 
