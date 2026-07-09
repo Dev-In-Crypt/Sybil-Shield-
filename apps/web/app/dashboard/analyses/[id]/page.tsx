@@ -36,6 +36,9 @@ interface Analysis {
   name: string;
   address_count: number;
   preset?: string | null;
+  // Canonical drop/review rule strings from the API (derived from the server's
+  // presets.ts) so the dashboard never keeps its own drifting copy.
+  preset_rules?: { drop: string; review: string } | null;
   mode?: string | null;
   summary?: Summary;
   created_at: string;
@@ -50,27 +53,6 @@ interface ClusterNode {
   evidence?: string | null;
   avg_sybil_score: number | string | null;
 }
-
-// Mirror of apps/api/src/lib/presets.ts — kept duplicated for now so the
-// dashboard can render rule descriptions without an extra round-trip.
-const PRESET_RULES: Record<string, { drop: string; review: string }> = {
-  airdrop: {
-    drop: "score ≥ 85 OR cluster_size ≥ 50",
-    review: "score ≥ 60 OR cluster_size ≥ 20",
-  },
-  dao: {
-    drop: "score ≥ 90 OR cluster_size ≥ 30",
-    review: "score ≥ 50 OR cluster_size ≥ 10",
-  },
-  grant: {
-    drop: "cluster_size ≥ 20",
-    review: "cluster_size ≥ 5 OR score ≥ 70",
-  },
-  balanced: {
-    drop: "score ≥ 80",
-    review: "score ≥ 50",
-  },
-};
 
 export default function AnalysisDetail({ params }: { params: { id: string } }) {
   const [apiKey] = useState<string>(
@@ -354,7 +336,7 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
               <p className="mt-3 rounded border border-zinc-800 bg-zinc-950 p-3 text-xs text-zinc-400">
                 <span className="text-zinc-500">preset</span>{" "}
                 <span className="font-mono text-emerald-300">{analysis.preset}</span>
-                {PRESET_RULES[analysis.preset] && (
+                {analysis.preset_rules && (
                   <>
                     {" · "}
                     <span className="text-zinc-500">
@@ -362,9 +344,9 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
                     </span>{" "}
                     <span className="font-mono text-zinc-300">
                       {drawer.decision === "DROP"
-                        ? PRESET_RULES[analysis.preset]!.drop
+                        ? analysis.preset_rules.drop
                         : drawer.decision === "REVIEW"
-                          ? PRESET_RULES[analysis.preset]!.review
+                          ? analysis.preset_rules.review
                           : "below review threshold"}
                     </span>
                   </>

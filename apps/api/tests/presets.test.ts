@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeDecision, PRESETS } from "../src/lib/presets.js";
+import { computeDecision, PRESETS, presetRuleText } from "../src/lib/presets.js";
 
 describe("computeDecision — preset baseline", () => {
   it("airdrop drops a high score", () => {
@@ -77,6 +77,40 @@ describe("computeDecision — per-analysis threshold overrides", () => {
       const a = computeDecision(72, 25, preset);
       const b = computeDecision(72, 25, preset, [], undefined);
       expect(b.decision).toBe(a.decision);
+    }
+  });
+});
+
+describe("presetRuleText — canonical rule strings (no dashboard drift)", () => {
+  it("formats both threshold sides when set", () => {
+    expect(presetRuleText("airdrop")).toEqual({
+      drop: "score ≥ 85 OR cluster_size ≥ 50",
+      review: "score ≥ 60 OR cluster_size ≥ 20",
+    });
+  });
+
+  it("omits a disabled (null) side — grant drop is cluster-only", () => {
+    expect(presetRuleText("grant")!.drop).toBe("cluster_size ≥ 20");
+  });
+
+  it("omits the cluster side when it is null — balanced is score-only", () => {
+    expect(presetRuleText("balanced")).toEqual({ drop: "score ≥ 80", review: "score ≥ 50" });
+  });
+
+  it("returns null for an unknown or absent preset", () => {
+    expect(presetRuleText(null)).toBeNull();
+    expect(presetRuleText(undefined)).toBeNull();
+    expect(presetRuleText("nonsense")).toBeNull();
+  });
+
+  it("stays in lockstep with the canonical PRESETS thresholds", () => {
+    // If someone edits a PRESETS number, this derived string must move with it —
+    // that is the whole point of sourcing the dashboard copy from here.
+    for (const [name, cfg] of Object.entries(PRESETS)) {
+      const text = presetRuleText(name)!;
+      if (cfg.drop.score_gte !== null) expect(text.drop).toContain(`score ≥ ${cfg.drop.score_gte}`);
+      if (cfg.drop.cluster_size_gte !== null)
+        expect(text.drop).toContain(`cluster_size ≥ ${cfg.drop.cluster_size_gte}`);
     }
   });
 });

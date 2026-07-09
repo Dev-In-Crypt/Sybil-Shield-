@@ -73,6 +73,27 @@ export const PRESETS: Record<DecisionPreset, PresetConfig> = {
   },
 };
 
+/** Human-readable rule string for one threshold side, from the canonical config. */
+function describeRule(rule: ThresholdRule): string {
+  const parts: string[] = [];
+  if (rule.score_gte !== null) parts.push(`score ≥ ${rule.score_gte}`);
+  if (rule.cluster_size_gte !== null) parts.push(`cluster_size ≥ ${rule.cluster_size_gte}`);
+  return parts.length > 0 ? parts.join(" OR ") : "—";
+}
+
+/**
+ * Canonical drop/review rule strings for a preset, derived from PRESETS so the
+ * dashboard renders the real thresholds instead of hard-coding a second copy
+ * that can silently drift. Returns null for an unknown/absent preset name.
+ */
+export function presetRuleText(
+  preset: string | null | undefined,
+): { drop: string; review: string } | null {
+  if (!preset || !(preset in PRESETS)) return null;
+  const cfg = PRESETS[preset as DecisionPreset];
+  return { drop: describeRule(cfg.drop), review: describeRule(cfg.review) };
+}
+
 interface DecisionResult {
   decision: Decision;
   confidence: DecisionConfidence;

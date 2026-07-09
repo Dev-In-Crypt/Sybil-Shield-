@@ -2,6 +2,7 @@ import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { addressScores, analyses, clusters, db } from "../db/index.js";
+import { presetRuleText } from "../lib/presets.js";
 import { planLimits } from "../middleware/auth.js";
 import { enqueueAnalysis } from "../services/pipeline-client.js";
 
@@ -163,6 +164,9 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
       chains: row.chains,
       address_count: row.addressCount,
       preset: row.preset,
+      // Canonical drop/review rule strings for this preset, derived from
+      // apps/api/src/lib/presets.ts so the dashboard doesn't keep its own copy.
+      preset_rules: presetRuleText(row.preset),
       mode: row.mode,
       threshold_overrides: row.thresholdOverrides,
       summary: row.status === "complete"
