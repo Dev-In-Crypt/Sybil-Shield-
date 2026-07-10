@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { PRESETS } from "../src/lib/presets.js";
@@ -20,11 +20,17 @@ import { PRESETS } from "../src/lib/presets.js";
  *
  * If `presets.py` is heavily reformatted the regex below may need a touch-up;
  * that is intentional friction on the one file pair that must stay identical.
+ *
+ * The api CI job runs this suite inside an api-only container that does NOT
+ * ship `apps/ml`, so when the Python mirror isn't reachable the suite skips
+ * (same pattern as the DB tests skipping without DATABASE_URL). It still runs
+ * locally and in any full-repo checkout, which is where drift gets introduced.
  */
 
 const PY_PATH = fileURLToPath(
   new URL("../../ml/sybilshield/scoring/presets.py", import.meta.url),
 );
+const PY_PRESENT = existsSync(PY_PATH);
 
 function num(raw: string): number | null {
   return raw === "None" ? null : Number(raw);
@@ -54,8 +60,11 @@ function parsePyPreset(src: string, name: string): PyPreset | null {
   };
 }
 
-describe("preset TS↔Python sync guard", () => {
-  const pySrc = readFileSync(PY_PATH, "utf8");
+describe.skipIf(!PY_PRESENT)("preset TS↔Python sync guard", () => {
+  // Read only when present: describe.skipIf still runs this callback body at
+  // collection time (it registers the skipped tests), so an unconditional read
+  // would throw ENOENT in the api-only container even though the tests skip.
+  const pySrc = PY_PRESENT ? readFileSync(PY_PATH, "utf8") : "";
 
   it("every canonical preset exists in the Python mirror", () => {
     for (const name of Object.keys(PRESETS)) {
