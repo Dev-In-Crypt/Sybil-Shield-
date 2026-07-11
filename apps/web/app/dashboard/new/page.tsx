@@ -3,44 +3,15 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-// Mirror of apps/api/src/lib/presets.ts descriptions — duplicated here so the
-// form can render preset summaries without an extra round-trip.
-const PRESETS = [
-  {
-    key: "balanced",
-    name: "Balanced",
-    desc: "Default symmetric threshold around the model's separability point. Pick this if unsure.",
-    drop: "score ≥ 80",
-    review: "score ≥ 50",
-  },
-  {
-    key: "airdrop",
-    name: "Airdrop",
-    desc: "Aggressive filtering for token distributions — both score AND cluster signals trigger DROP.",
-    drop: "score ≥ 85 OR cluster_size ≥ 50",
-    review: "score ≥ 60 OR cluster_size ≥ 20",
-  },
-  {
-    key: "dao",
-    name: "DAO voting",
-    desc: "Conservative — false-positives matter more in governance contexts. Cluster signal preferred.",
-    drop: "score ≥ 90 OR cluster_size ≥ 30",
-    review: "score ≥ 50 OR cluster_size ≥ 10",
-  },
-  {
-    key: "grant",
-    name: "Grant committee",
-    desc: "Cluster-first — verify whether applicants are connected entities. Ignores low-volume score signal.",
-    drop: "cluster_size ≥ 20",
-    review: "cluster_size ≥ 5 OR score ≥ 70",
-  },
-] as const;
-
-type PresetKey = (typeof PRESETS)[number]["key"];
+type PresetKey = "balanced" | "airdrop" | "dao" | "grant";
 
 // Structured preset thresholds — mirror of apps/api/src/lib/presets.ts, used
-// only to show the current preset's value as a placeholder in the advanced
-// override inputs. `null` = that knob is disabled by the preset.
+// both as the placeholder source for the advanced override inputs AND (via
+// describeRule below) to derive the human-readable drop/review strings. This
+// is the ONLY hand-copied source; previously a second, separately hand-typed
+// copy of the display strings existed here and had already drifted from
+// canonical (grant.review order was reversed). Single source now — see
+// TODO-206 / the same class of bug TODO-205 fixed on the analysis detail page.
 const PRESET_THRESHOLDS: Record<
   PresetKey,
   {
@@ -53,6 +24,41 @@ const PRESET_THRESHOLDS: Record<
   dao: { drop: { score_gte: 90, cluster_size_gte: 30 }, review: { score_gte: 50, cluster_size_gte: 10 } },
   grant: { drop: { score_gte: null, cluster_size_gte: 20 }, review: { score_gte: 70, cluster_size_gte: 5 } },
 };
+
+/** Mirror of apps/api/src/lib/presets.ts describeRule — keep the algorithm identical. */
+function describeRule(rule: { score_gte: number | null; cluster_size_gte: number | null }): string {
+  const parts: string[] = [];
+  if (rule.score_gte !== null) parts.push(`score ≥ ${rule.score_gte}`);
+  if (rule.cluster_size_gte !== null) parts.push(`cluster_size ≥ ${rule.cluster_size_gte}`);
+  return parts.length > 0 ? parts.join(" OR ") : "—";
+}
+
+const PRESETS = [
+  {
+    key: "balanced" as PresetKey,
+    name: "Balanced",
+    desc: "Default symmetric threshold around the model's separability point. Pick this if unsure.",
+  },
+  {
+    key: "airdrop" as PresetKey,
+    name: "Airdrop",
+    desc: "Aggressive filtering for token distributions — both score AND cluster signals trigger DROP.",
+  },
+  {
+    key: "dao" as PresetKey,
+    name: "DAO voting",
+    desc: "Conservative — false-positives matter more in governance contexts. Cluster signal preferred.",
+  },
+  {
+    key: "grant" as PresetKey,
+    name: "Grant committee",
+    desc: "Cluster-first — verify whether applicants are connected entities. Ignores low-volume score signal.",
+  },
+].map((p) => ({
+  ...p,
+  drop: describeRule(PRESET_THRESHOLDS[p.key].drop),
+  review: describeRule(PRESET_THRESHOLDS[p.key].review),
+}));
 
 const CHAINS = ["ethereum", "arbitrum", "optimism", "base", "polygon"] as const;
 
