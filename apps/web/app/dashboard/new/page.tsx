@@ -81,6 +81,53 @@ function parseAddresses(text: string): string[] {
   return out;
 }
 
+const ENS_NAME_RE = /^[a-z0-9-]+(\.[a-z0-9-]+)*\.eth$/i;
+// Deliberately conservative (TODO-104 note): resolving each name costs a
+// server-side Alchemy RPC call (rate-limited to 20/min on that route), and
+// resolution only ever runs on an explicit button click, never on keystroke.
+const MAX_ENS_PER_RESOLVE = 20;
+
+/** Extract unique *.eth candidates from the same cell-parsed lines as parseAddresses. */
+function extractEnsNames(text: string): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const line of text.split(/\r?\n/)) {
+    const cell = (line.split(",")[0] ?? "").trim().toLowerCase();
+    if (ENS_NAME_RE.test(cell) && !seen.has(cell)) {
+      seen.add(cell);
+      out.push(cell);
+    }
+  }
+  return out;
+}
+
+/**
+ * Resolve ENS names via GET /v1/resolve/:name (public, mainnet-only, no API
+ * key). Ethereum-mainnet ENS is the only supported chain per TODO-104.
+ */
+async function resolveEnsNames(
+  names: string[],
+): Promise<{ addresses: string[]; failed: string[] }> {
+  const base = process.env.NEXT_PUBLIC_API_URL;
+  const attempted = names.slice(0, MAX_ENS_PER_RESOLVE);
+  const results = await Promise.all(
+    attempted.map(async (name) => {
+      try {
+        const r = await fetch(`${base}/v1/resolve/${encodeURIComponent(name)}`);
+        if (!r.ok) return { name, address: null as string | null };
+        const j = (await r.json()) as { address?: string };
+        return { name, address: typeof j.address === "string" ? j.address.toLowerCase() : null };
+      } catch {
+        return { name, address: null as string | null };
+      }
+    }),
+  );
+  return {
+    addresses: results.filter((r) => r.address).map((r) => r.address!),
+    failed: results.filter((r) => !r.address).map((r) => r.name),
+  };
+}
+
 export default function NewAnalysisPage() {
   const router = useRouter();
   const [name, setName] = useState("");
@@ -92,6 +139,12 @@ export default function NewAnalysisPage() {
   const [pasteText, setPasteText] = useState<string>("");
   const [inputMode, setInputMode] = useState<"file" | "paste">("file");
   const [parseError, setParseError] = useState<string | null>(null);
+  // ENS names (*.eth) found in the input. Never resolved automatically — only
+  // on explicit "Resolve" click, so pasting/typing never fires a network call.
+  const [ensCandidates, setEnsCandidates] = useState<string[]>([]);
+  const [ensResolving, setEnsResolving] = useState(false);
+  const [ensFailed, setEnsFailed] = useState<string[]>([]);
+  const [ensResolvedCount, setEnsResolvedCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   // Advanced per-analysis threshold overrides. Empty string = leave at the
@@ -108,18 +161,27 @@ export default function NewAnalysisPage() {
   const validCount = addresses.length;
   const overLimit = validCount > MAX_ADDRESSES;
 
+  function resetEnsState() {
+    setEnsCandidates([]);
+    setEnsFailed([]);
+    setEnsResolvedCount(0);
+  }
+
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
     if (!f) return;
     setFileName(f.name);
     setParseError(null);
+    resetEnsState();
     const reader = new FileReader();
     reader.onload = () => {
-      const out = parseAddresses(String(reader.result ?? ""));
+      const text = String(reader.result ?? "");
+      const out = parseAddresses(text);
       if (out.length === 0) {
         setParseError("No valid Ethereum addresses found. Each line should start with 0x… (40 hex).");
       }
       setAddresses(out);
+      setEnsCandidates(extractEnsNames(text));
     };
     reader.onerror = () => setParseError("Could not read file.");
     reader.readAsText(f);
@@ -129,10 +191,44 @@ export default function NewAnalysisPage() {
     setPasteText(text);
     setParseError(null);
     const out = parseAddresses(text);
-    if (text.trim() && out.length === 0) {
+    const ensNames = extractEnsNames(text);
+    // Only complain about "no valid addresses" when there's nothing at all to
+    // work with — a paste of pure *.eth names is valid input, just pending
+    // resolution, not an error.
+    if (text.trim() && out.length === 0 && ensNames.length === 0) {
       setParseError("No valid Ethereum addresses found. One 0x… (40 hex) per line.");
     }
     setAddresses(out);
+    setEnsCandidates(ensNames);
+    setEnsFailed([]);
+    setEnsResolvedCount(0);
+  }
+
+  async function handleResolveEns() {
+    if (ensCandidates.length === 0) return;
+    setEnsResolving(true);
+    try {
+      const { addresses: resolved, failed } = await resolveEnsNames(ensCandidates);
+      setAddresses((cur) => {
+        const seen = new Set(cur);
+        const merged = [...cur];
+        for (const addr of resolved) {
+          if (!seen.has(addr)) {
+            seen.add(addr);
+            merged.push(addr);
+          }
+        }
+        return merged;
+      });
+      setEnsResolvedCount(resolved.length);
+      setEnsFailed(failed);
+      // Drop resolved (and attempted-but-failed) names from the candidate
+      // list; anything past MAX_ENS_PER_RESOLVE stays queued for a re-click.
+      const attempted = new Set(ensCandidates.slice(0, MAX_ENS_PER_RESOLVE));
+      setEnsCandidates((cur) => cur.filter((n) => !attempted.has(n)));
+    } finally {
+      setEnsResolving(false);
+    }
   }
 
   function toggleChain(c: string) {
@@ -429,6 +525,38 @@ export default function NewAnalysisPage() {
           </p>
         )}
         {parseError && <p className="text-xs text-rose-400">{parseError}</p>}
+
+        {ensCandidates.length > 0 && (
+          <div className="rounded border border-zinc-800 bg-zinc-950 px-3 py-2 text-xs text-zinc-400">
+            <span>
+              {ensCandidates.length} ENS name{ensCandidates.length === 1 ? "" : "s"} detected (Ethereum mainnet only)
+              {ensCandidates.length > MAX_ENS_PER_RESOLVE && (
+                <> — resolving {MAX_ENS_PER_RESOLVE} at a time</>
+              )}
+              .
+            </span>{" "}
+            <button
+              type="button"
+              onClick={handleResolveEns}
+              disabled={ensResolving}
+              className="rounded border border-emerald-700/50 bg-emerald-900/20 px-2 py-0.5 text-emerald-300 hover:bg-emerald-900/40 disabled:opacity-50"
+            >
+              {ensResolving ? "Resolving…" : "Resolve"}
+            </button>
+          </div>
+        )}
+        {ensResolvedCount > 0 && (
+          <p className="text-xs text-emerald-400">
+            ✓ Resolved {ensResolvedCount} ENS name{ensResolvedCount === 1 ? "" : "s"} to address
+            {ensResolvedCount === 1 ? "" : "es"}.
+          </p>
+        )}
+        {ensFailed.length > 0 && (
+          <p className="text-xs text-amber-400">
+            Could not resolve: {ensFailed.join(", ")} — no address record, or ENS resolution isn&apos;t
+            configured on this deployment.
+          </p>
+        )}
       </section>
 
       <section className="mt-8 flex flex-wrap items-center gap-4">

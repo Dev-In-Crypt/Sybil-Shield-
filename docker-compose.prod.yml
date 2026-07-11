@@ -40,6 +40,9 @@ services:
       API_HOST: "0.0.0.0"
       API_PUBLIC_URL: ${API_PUBLIC_URL}
       WEB_PUBLIC_URL: ${WEB_PUBLIC_URL}
+      # GET /v1/resolve/:name (ENS, mainnet-only). Same key already used by
+      # worker/ml above; the api service didn't have it until TODO-104.
+      ALCHEMY_API_KEY: ${ALCHEMY_API_KEY:-}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY:-}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET:-}
       STRIPE_PRICE_DEVELOPER: ${STRIPE_PRICE_DEVELOPER:-}
