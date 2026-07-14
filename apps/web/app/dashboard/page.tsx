@@ -73,6 +73,8 @@ export default function DashboardOverview() {
 
       {error && <p className="mt-4 text-sm text-red-400">{error}</p>}
 
+      {account && <QuotaBanner usage={account.usage} />}
+
       {account && (
         <section className="mt-6 grid gap-4 sm:grid-cols-3">
           <Card title="Access" value="Free sandbox" subtitle={account.api_key_prefix ?? "no key"} />
@@ -172,6 +174,37 @@ curl -X POST https://api.sybilshield.org/v1/analyses \\
         </button>
       </div>
       <pre className="mt-4 overflow-x-auto rounded border border-zinc-800 bg-zinc-950 p-4 font-mono text-xs text-zinc-300">{example}</pre>
+    </div>
+  );
+}
+
+/**
+ * Warns at >=80% of the monthly fair-use write-call limit. Computed entirely
+ * from data /v1/account already returns — no backend change needed. Reads
+ * and polling are free (don't count toward this), so this only ever reflects
+ * write-call volume; see /docs "Fair-use limits".
+ */
+function QuotaBanner({ usage }: { usage: { calls_this_month: number; limit: number } }) {
+  if (usage.limit <= 0) return null;
+  const pct = Math.round((usage.calls_this_month / usage.limit) * 100);
+  if (pct < 80) return null;
+  const atLimit = usage.calls_this_month >= usage.limit;
+
+  return (
+    <div className="mt-4 rounded-lg border border-amber-700/40 bg-amber-900/10 px-4 py-3 text-sm text-amber-200">
+      {atLimit ? (
+        <>
+          <strong>You&apos;ve reached this month&apos;s fair-use limit</strong> ({usage.calls_this_month.toLocaleString()}{" "}
+          of {usage.limit.toLocaleString()} write calls). It resets next month — dashboard polling and reads stay
+          free in the meantime.
+        </>
+      ) : (
+        <>
+          <strong>You&apos;re at {pct}% of this month&apos;s fair-use limit</strong> (
+          {usage.calls_this_month.toLocaleString()} of {usage.limit.toLocaleString()} write calls). Reads and
+          dashboard polling don&apos;t count against it.
+        </>
+      )}
     </div>
   );
 }
