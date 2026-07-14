@@ -65,7 +65,15 @@ export async function buildServer() {
       keyGenerator: (req) => req.customer?.id ?? req.ip,
       max: (req) => (req.customer ? planLimits(req.customer.plan).rpm : 30),
       timeWindow: "1 minute",
+      // @fastify/rate-limit does `throw errorResponseBuilder(...)` internally
+      // (see its own defaultErrorResponse, which sets `err.statusCode` on a
+      // real Error before throwing). A plain object with no statusCode falls
+      // through to Fastify's generic error handler and becomes a 500 instead
+      // of 429 — found via the TODO-302 load test, which caught every
+      // authenticated customer's 31st request/minute silently 500ing instead
+      // of getting a clean, retryable rate_limit_exceeded response.
       errorResponseBuilder: (_req, ctx) => ({
+        statusCode: 429,
         error: "rate_limit_exceeded",
         limit: ctx.max,
         retry_after_seconds: Math.ceil(ctx.ttl / 1000),
