@@ -38,15 +38,37 @@ Without B2 config, the script just does local rotation — no errors.
 
 ### Verifying restore
 
-Backup is only as good as the restore test. Run quarterly:
+Backup is only as good as the restore test. Run `restore-drill.sh` quarterly
+(or after any Postgres major-version bump):
 
 ```bash
-docker run --rm -v /home/sybil/backups/postgres:/b -v $(mktemp -d):/restore \
-  postgres:16-alpine sh -c \
-  'gunzip < /b/$(ls /b | tail -1) | psql -h /restore/test_only.sock'
+# Drill the latest local backup file:
+scripts/restore-drill.sh /home/sybil/backups/postgres/$(ls -t /home/sybil/backups/postgres | head -1)
+
+# Or, on a dev box with the stack running, drill a freshly-generated dump
+# (same pg_dump command backup.sh uses) with no arguments:
+scripts/restore-drill.sh
 ```
 
-If that errors, your backups are decorative.
+It restores into a brand-new, throwaway `docker run postgres:16-alpine`
+container (never the real dev/prod database), checks that `customers` and
+`analyses` actually have rows afterward, and removes the throwaway container
+on exit either way. Exits non-zero — with the last 40 lines of `psql`
+output — if anything fails, so it's a real pass/fail gate, not just a manual
+eyeball check.
+
+Last executed: 2026-07-15 (TODO-002), against a locally-generated dump — 13
+`customers` / 2 `analyses` rows restored correctly. The restore drill has
+NOT yet been run against a real Hetzner-produced backup file pulled over SSH
+(that step needs separate approval — see AGENTS.md's Forbidden list); this
+drill validates that the backup FORMAT + restore PROCEDURE genuinely work,
+which is the part that was previously undocumented and untested. See
+STATE.md for the full writeup.
+
+(The previous version of this snippet piped a restore into a phantom
+`/restore/test_only.sock` that nothing ever started a server on — it would
+have failed if anyone had actually run it. Replaced with a version that
+was.)
 
 ## `monitor.sh`
 
