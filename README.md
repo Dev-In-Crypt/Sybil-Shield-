@@ -31,37 +31,79 @@ See [project description](SybilShield_Project_Description.md) for context. See [
 
 Source: `apps/ml/sybilshield/clustering/` and `apps/ml/sybilshield/features/`.
 
-## Quick start (Docker, one command)
+## Self-host
+
+SybilShield is MIT-licensed and grant-funded — anyone can run their own copy,
+not just use the hosted sandbox at sybilshield.org. This is the full,
+tested path from `git clone` to a working local instance.
+
+**Prerequisites:** Docker + Docker Compose. Nothing else — no API keys, no
+account, no payment method required for the path below.
 
 ```bash
 git clone https://github.com/Dev-In-Crypt/Sybil-Shield-.git
 cd Sybil-Shield-
 docker compose up -d --build
-# wait ~30s for migrations
+# wait ~30s for the migrate container to finish
 
-# Try it
-curl -X POST http://localhost:3001/v1/account/register \
-  -H 'content-type: application/json' \
-  -d '{"email":"you@example.com"}'
+curl http://localhost:3001/health
+curl http://localhost:8001/health
 ```
 
 Services that come up:
 
-| Service | Port | What |
+| Service | Port | Purpose |
 |---|---|---|
-| postgres | 5432 | DB (migrations auto-applied) |
+| postgres | 5432 | Primary DB (migrations auto-applied) |
 | redis | 6379 | BullMQ queue |
 | ml | 8001 | Python pipeline (FastAPI) |
 | api | 3001 | Fastify gateway |
-| worker | — | Drains analyses queue |
+| worker | — | Drains the analyses queue |
+
+Register a key and run a real analysis end-to-end:
+
+```bash
+KEY=$(curl -s -X POST http://localhost:3001/v1/account/register \
+  -H 'content-type: application/json' \
+  -d '{"email":"you@example.com"}' | python -c "import sys,json;print(json.load(sys.stdin)['api_key'])")
+
+ADDRS=$(python -c "import json;print(json.dumps(['0x'+format(i,'040x') for i in range(1,21)]))")
+curl -X POST http://localhost:3001/v1/analyses \
+  -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
+  -d "{\"name\":\"hello\",\"chains\":[\"ethereum\"],\"addresses\":$ADDRS}"
+```
+
+By default (`USE_MOCK_PROVIDERS=true`) this runs against a synthetic
+on-chain provider — no external API key needed for the quick-start path
+above. For real on-chain ingestion, set `ALCHEMY_API_KEY` and
+`USE_MOCK_PROVIDERS=false` in your `.env` (copy `.env.example` first); see
+"What's left for production" below for the full real-data path.
+
+**Frontend:** the Next.js dashboard runs separately from the Docker stack:
+
+```bash
+cd apps/web && npm install && npm run dev
+# → http://localhost:3000
+```
 
 ## Tests
 
+Recommended path — Docker (handles the hdbscan/leidenalg C extensions
+automatically):
+
 ```bash
-docker compose -f docker-compose.test.yml up --build
+docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
 ```
 
-**47 ML tests + 16 API tests = 63 green** (including 4 real-DB integration).
+Both suites must exit 0. Current state: **47 ML tests + 16 API tests = 63
+green** (including 4 real-DB integration tests).
+
+Native, if you already have the build toolchain:
+
+```bash
+cd apps/api && npm install && npm test
+cd apps/ml  && pip install -e ".[dev]" && pytest -q
+```
 
 ## Preview the website
 
@@ -82,6 +124,8 @@ apps/
   api/                     Fastify API + workers (TypeScript)
   ml/                      Python pipeline (FastAPI service + CLI scripts)
   web/                     Next.js production frontend
+packages/
+  shared/                  Shared TS types
 previews/                  Static HTML mockups (Genesis design system)
 grants/                    Grant application materials
 content/blog/              Blog post drafts
@@ -142,68 +186,6 @@ MIT. See [LICENSE](LICENSE).
 - Email: support@sybilshield.org
 - Security: security@sybilshield.org
 - Appeals: support@sybilshield.org
-
-## Layout
-
-```
-apps/
-  api/    Fastify + Drizzle + BullMQ (TypeScript)
-  ml/     Python ML pipeline (FastAPI service + worker logic)
-  web/    Next.js 14 dashboard
-packages/
-  shared/ Shared TS types
-```
-
-## Quick start (one command full stack)
-
-```bash
-docker compose up -d --build
-# wait ~30s for migrate to finish
-
-curl http://localhost:3001/health
-curl http://localhost:8001/health
-
-# Register and try an analysis
-KEY=$(curl -s -X POST http://localhost:3001/v1/account/register \
-  -H 'content-type: application/json' \
-  -d '{"email":"you@example.com"}' | python -c "import sys,json;print(json.load(sys.stdin)['api_key'])")
-
-ADDRS=$(python -c "import json;print(json.dumps(['0x'+format(i,'040x') for i in range(1,21)]))")
-curl -X POST http://localhost:3001/v1/analyses \
-  -H "Authorization: Bearer $KEY" -H 'content-type: application/json' \
-  -d "{\"name\":\"hello\",\"chains\":[\"ethereum\"],\"addresses\":$ADDRS}"
-```
-
-Services that come up:
-
-| Service | Port | Purpose |
-|---|---|---|
-| postgres | 5432 | Primary DB (migrations auto-applied) |
-| redis | 6379 | BullMQ queue |
-| ml | 8001 | Python pipeline (FastAPI) |
-| api | 3001 | Fastify gateway |
-| worker | — | Drains the analyses queue |
-
-Set `USE_MOCK_PROVIDERS=true` (default in dev) to use the synthetic on-chain provider. Real Alchemy ingestion needs `ALCHEMY_API_KEY` and `USE_MOCK_PROVIDERS=false`.
-
-Frontend (Next.js) is separate — run `cd apps/web && npm install && npm run dev` to get the dashboard at `http://localhost:3000`.
-
-## Tests
-
-Recommended path — Docker (handles hdbscan/leidenalg C extensions automatically):
-
-```bash
-docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
-```
-
-Both suites must exit 0. Current state: **47 ML tests + 16 API tests = 63 green** (including 4 real-DB integration tests).
-
-Native, if you have the build toolchain:
-
-```bash
-cd apps/api && npm install && npm test
-cd apps/ml  && pip install -e ".[dev]" && pytest -q
-```
 
 ## Scheduled jobs
 
@@ -340,7 +322,7 @@ A bootstrap pipeline has already run with 100 real ENS-veteran addresses + synth
 ### Polish (nice-to-haves)
 
 9. Playwright E2E covering the dashboard flow (signup → upload CSV → see results → export). Repository has a sample CSV-to-analysis curl flow that proves the backend; UI E2E left as follow-up.
-10. Cluster visualisation in the analyses detail page (currently table-only).
+10. ~~Cluster visualisation in the analyses detail page~~ — shipped: an inline-SVG cluster network graph on `/dashboard/analyses/[id]`.
 11. Real Etherscan/Dune integration for contract labels — currently `contract_labels` is empty when not passed, which degrades behavioral feature richness.
 12. Replace the inline label map in `derive_power_users.py` with a live Etherscan label fetch (it currently uses ~20 hardcoded top contracts).
 
