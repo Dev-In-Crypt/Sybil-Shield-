@@ -1,0 +1,15 @@
+{
+  "name": "@sybilshield/snapshot-strategy",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Prep package for a Snapshot Score API validation strategy (TODO-306). Not published — the strategy/ folder is meant to be copied into snapshot-labs/score-api as a PR.",
+  "scripts": {
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.4.5",
+    "vitest": "^1.6.0"
+  }
+}

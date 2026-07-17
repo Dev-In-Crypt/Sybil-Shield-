@@ -1,4 +1,6 @@
 export type SybilLabel = "genuine" | "suspicious" | "sybil";
+export type Decision = "DROP" | "REVIEW" | "KEEP";
+export type DecisionConfidence = "high" | "medium" | "low";
 
 export interface EvidenceItem {
   type: string;
@@ -14,6 +16,11 @@ export interface ScoreResponse {
   sybil_score: number;
   label: SybilLabel;
   confidence: number;
+  // Null when the address was scored in cluster_only mode (no per-address
+  // verdict, just cluster membership).
+  decision: Decision | null;
+  decision_confidence: DecisionConfidence | null;
+  rationale_codes: string[] | null;
   cluster_id: string | null;
   cluster_size: number | null;
   evidence: EvidenceItem[];

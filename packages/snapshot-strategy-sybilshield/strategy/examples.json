@@ -1,0 +1,13 @@
+[
+  {
+    "name": "Unscored address defaults to valid (unscoredIsValid)",
+    "author": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
+    "space": "fabien.eth",
+    "network": "1",
+    "snapshot": "latest",
+    "params": {
+      "scoreThreshold": 70
+    },
+    "valid": true
+  }
+]

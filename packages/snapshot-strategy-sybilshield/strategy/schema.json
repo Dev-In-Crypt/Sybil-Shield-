@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$ref": "#/definitions/Validation",
+  "definitions": {
+    "Validation": {
+      "title": "SybilShield",
+      "type": "object",
+      "properties": {
+        "scoreThreshold": {
+          "type": "number",
+          "title": "Fallback sybil-score threshold",
+          "description": "Used only when the address has no DROP/REVIEW/KEEP decision on record (e.g. a cluster_only-mode analysis). Below this raw sybil_score (0-100) counts as valid.",
+          "minimum": 0,
+          "maximum": 100,
+          "default": 70
+        },
+        "blockReview": {
+          "type": "boolean",
+          "title": "Block REVIEW-decision addresses too",
+          "description": "By default only DROP blocks eligibility; REVIEW (uncertain) is treated as valid. Set true for stricter gating.",
+          "default": false
+        },
+        "unscoredIsValid": {
+          "type": "boolean",
+          "title": "Treat never-analyzed addresses as valid",
+          "description": "An address SybilShield has never scored is unknown, not guilty. Set false to require every voter to already have a SybilShield score.",
+          "default": true
+        },
+        "apiUrl": {
+          "type": "string",
+          "title": "SybilShield API URL override",
+          "description": "For self-hosted SybilShield deployments. Defaults to the public sandbox.",
+          "default": "https://api.sybilshield.org"
+        }
+      },
+      "required": [],
+      "additionalProperties": false
+    }
+  }
+}

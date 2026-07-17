@@ -39,6 +39,16 @@ export async function publicScoringRoutes(app: FastifyInstance): Promise<void> {
         sybil_score: score.sybilScore,
         confidence: score.confidence,
         label: score.label,
+        // Decision (DROP/REVIEW/KEEP) + its confidence/rationale, computed
+        // at worker time from the analysis's preset. Null when the analysis
+        // ran in cluster_only mode (no per-address verdict). Was stored on
+        // this row all along but not previously surfaced on the public
+        // lookup — added so external consumers (e.g. a Snapshot governance
+        // strategy) can gate on the actual decision instead of re-deriving
+        // a threshold heuristic from sybil_score.
+        decision: score.decision,
+        decision_confidence: score.decisionConfidence,
+        rationale_codes: score.rationaleCodes,
         cluster_id: score.clusterId,
         cluster_size: score.clusterSize,
         evidence: score.evidence,
