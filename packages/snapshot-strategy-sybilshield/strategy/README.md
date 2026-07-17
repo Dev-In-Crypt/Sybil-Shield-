@@ -55,12 +55,14 @@ loudly, not silently pass or silently block. Matches this repository's
   change `index.ts`'s import to `../validation.js` before merging (see that
   file's header comment; the constructor signature and `doValidate` contract
   were verified against this repo's real base class).
-- `examples.json` currently has one example (the unscored/valid path,
-  reproducible against the live public API right now). A second example
-  demonstrating the `DROP` path needs a real address SybilShield has already
-  scored as DROP — happy to add one if a maintainer points to a suitable
-  test fixture, or we can seed one on a public sandbox address before
-  merging.
+- `examples.json` currently has one example (a real KEEP-decision address,
+  reproducible against the live public API right now — verified 2026-07-17).
+  Two more would round this out: a genuinely never-analyzed address (to
+  exercise `unscoredIsValid`) and a DROP-decision address — happy to add
+  both if a maintainer points to suitable test fixtures, or we can seed them
+  on the public sandbox before merging. (An earlier draft of this example
+  mislabeled this same address as "unscored" — it wasn't; double-check
+  addresses against the live API before trusting a label in a diff.)
 
 ## Source
 

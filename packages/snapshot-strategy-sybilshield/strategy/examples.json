@@ -1,6 +1,6 @@
 [
   {
-    "name": "Unscored address defaults to valid (unscoredIsValid)",
+    "name": "KEEP decision -> valid (verified live against api.sybilshield.org, 2026-07-17)",
     "author": "0xd8da6bf26964af9d7eed9e03e53415d37aa96045",
     "space": "fabien.eth",
     "network": "1",
