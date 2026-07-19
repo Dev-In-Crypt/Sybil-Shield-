@@ -6,6 +6,7 @@
   <url><loc>https://www.sybilshield.org/docs</loc><priority>0.8</priority></url>
   <url><loc>https://www.sybilshield.org/docs/quickstart</loc><priority>0.7</priority></url>
   <url><loc>https://www.sybilshield.org/docs/api-playground</loc><priority>0.7</priority></url>
+  <url><loc>https://www.sybilshield.org/docs/widget</loc><priority>0.7</priority></url>
   <url><loc>https://www.sybilshield.org/compare</loc><priority>0.8</priority></url>
   <url><loc>https://www.sybilshield.org/lookup</loc><priority>0.8</priority></url>
   <url><loc>https://www.sybilshield.org/trust</loc><priority>0.8</priority></url>
