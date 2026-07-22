@@ -28,28 +28,37 @@ const NOW: Item[] = [
   { title: "Auto-deploy + monitoring", desc: "Push to main → CI → deploy → health check. Discord pings on deploy result, uptime probes, worker exceptions.", status: "available" },
   { title: "Daily Postgres backup", desc: "pg_dump cron with 7-day local rotation. Off-site B2 sync wired but awaiting credentials.", status: "available" },
   { title: "Open-source MIT", desc: "All detection code, presets, audit-log schema, appeal protocol on GitHub. Reproducible from public methodology.", status: "available" },
+  { title: "Per-analysis threshold overrides", desc: "Tune any preset's drop/review score or cluster-size knobs for a single analysis — via the API (threshold_overrides) or a dashboard UI on /dashboard/new. No database access needed.", status: "available" },
+  { title: "ENS name resolution", desc: "GET /v1/resolve/:name resolves *.eth names server-side. /dashboard/new detects .eth cells and resolves them on an explicit click.", status: "available" },
+  { title: "Cluster network graph", desc: "Analysis detail page renders a star-topology view of detected clusters (hub + one node per cluster, sized by cluster size).", status: "available" },
+  { title: "Embeddable score-badge widget", desc: "A copy-paste <script> badge for third-party claim pages — shows the cached decision for an address SybilShield has already scored. Display-only; doesn't gate the host page's own form, and doesn't score addresses it's never seen (see /docs/widget).", status: "available" },
+  { title: "Snapshot governance-strategy plugin", desc: "A validation for snapshot-labs/score-api that gates proposal/vote eligibility on a wallet's real DROP/REVIEW/KEEP decision. Built + tested against the live API; publication to Snapshot's repo is a pending human step.", status: "beta" },
+  { title: "Self-host / white-label guide", desc: "A consolidated guide from git clone to a working local instance — mock and real-Alchemy-key paths both documented. MIT means anyone can run their own copy.", status: "available" },
+  { title: "Quota-approaching banner", desc: "Dashboard shows a banner once a customer's monthly fair-use usage crosses 80%, before the hard cap hits.", status: "available" },
 ];
 
 // Active work — most of these are blocked on one specific thing (credentials,
 // pilot data, incorporation). Listed honestly with what unblocks each.
 const NEXT: Item[] = [
   { title: "Pilot calibration on real labelled corpus", desc: "Run scorer on a recent airdrop's address set + their post-hoc verified list. Tune presets to that domain. Needs: one airdrop team that'll share data.", status: "coming-soon" },
-  { title: "Exchange-wallet entity table", desc: "Exclude known-CEX hot wallets from the funding clusterer so shared-Binance-funder doesn't create false clusters. Workaround in place via threshold bump.", status: "coming-soon" },
-  { title: "Per-customer preset overrides", desc: "Pilots will get cluster_size_gte + score_gte overrides in their analysis config. Manual psql UPDATE today.", status: "coming-soon" },
+  { title: "Per-customer default threshold overrides", desc: "Remember a customer's preferred thresholds so future analyses use them automatically, without resubmitting threshold_overrides each time. Per-analysis overrides already ship self-serve (see Now) — this is the persistent-default layer on top, needs a small database migration.", status: "coming-soon" },
+  { title: "QF pairwise-coordination defense (grant preset)", desc: "A signal grant committees can use to catch pairwise-coordinated funding-splitting, beyond plain cluster-size. Design note done; implementation not started.", status: "coming-soon" },
+  { title: "Real-time first-sight scoring", desc: "Score an address SybilShield has never seen, synchronously, fast enough for a claim-page widget — today's embeddable widget only shows addresses already analyzed. Capacity/rate-limiting design done; implementation not started.", status: "coming-soon" },
   { title: "Wild-traffic drift cron", desc: "Weekly PSI check on prod feature distribution vs training set. Currently manual. Auto-retrain triggered by drift is on roadmap.", status: "coming-soon" },
   { title: "Off-site B2 backup activation", desc: "rclone + Backblaze B2 — env placeholders ready, awaiting B2 application key. Local pg_dump rotation works today.", status: "coming-soon" },
   { title: "Gitcoin Passport G1 source", desc: "Strongest 'verified human' signal available. Endpoint is per-address — needs a caching layer. Bumps genuine pool from ~1,700 → ~50,000.", status: "coming-soon" },
 ];
 
-// Blocked or large-scale work — most depends on incorporation or a first
-// enterprise customer.
+// Larger initiatives — gated on legal incorporation or a specific grant/
+// partner requirement, not on any paying customer (there are none;
+// SybilShield is a free public good, funded by grants).
 const LATER: Item[] = [
   { title: "Resend email integration", desc: "Account confirmations, analysis-complete notifications, monthly usage. Needs Resend account + DNS.", status: "roadmap" },
   { title: "TypeScript + Python SDK", desc: "Auto-generated from OpenAPI. Removes raw-curl friction for developer-customers.", status: "roadmap" },
   { title: "Auto-retrain on drift alert", desc: "PSI > 0.25 → kick off retrain pipeline automatically + ship new model with audit-log entry.", status: "roadmap" },
-  { title: "Cluster network visualization", desc: "Interactive D3/Sigma graph of detected Sybil clusters in the analysis detail page.", status: "roadmap" },
+  { title: "Force-directed cluster graph", desc: "An address-level-edge upgrade over the current star-topology cluster view (see Now). Needs a new clusters-edges endpoint; not built, not blocking.", status: "roadmap" },
   { title: "Self-hosted Erigon/Reth node", desc: "For >100K-address analyses. Removes Alchemy quota dependency — only when CU bill justifies the ops cost.", status: "roadmap" },
-  { title: "SOC 2 Type I + pentest", desc: "After first enterprise customer asks for it. Not before — paid certs without paying customers is theatre.", status: "roadmap" },
+  { title: "SOC 2 Type I + pentest", desc: "Pursued only if a specific grant or partner requires it — not tied to a paying customer, since SybilShield doesn't have any. Paid certs nobody asked for would be theatre.", status: "roadmap" },
   { title: "Galxe / Gitcoin Passport credential", desc: "Score-as-a-credential embedded in major airdrop campaign platforms. Requires partnerships.", status: "roadmap" },
 ];
 
@@ -83,7 +92,7 @@ export default function RoadmapPage() {
         />
         <Phase
           title="Later"
-          subtitle="After legal entity / after first enterprise customer"
+          subtitle="Gated on incorporation or a specific grant/partner need — not on a paying customer"
           tone="zinc"
           items={LATER}
         />

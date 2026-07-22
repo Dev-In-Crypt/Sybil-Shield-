@@ -13,6 +13,85 @@ interface Entry {
 
 const ENTRIES: Entry[] = [
   {
+    version: "0.11.0",
+    date: "2026-07-19",
+    title: "embeddable_widget",
+    changes: [
+      { tag: "added", body: "widget.js — a copy-paste embeddable score badge for third-party claim pages. Display-only: shows the cached decision for an address SybilShield has already analyzed, or an honest \"not yet scored\" — never gates the host page's own form, never scores an address it's never seen. See /docs/widget." },
+    ],
+  },
+  {
+    version: "0.10.0",
+    date: "2026-07-17",
+    title: "snapshot_governance_strategy",
+    changes: [
+      { tag: "added", body: "A Snapshot governance-strategy validation (MIT, open source) that gates proposal/vote eligibility on a wallet's real DROP/REVIEW/KEEP decision. Built + tested against the live production API; publication to snapshot-labs/score-api is a pending human step." },
+      { tag: "changed", body: "GET /v1/score/:address now publicly returns decision, decision_confidence, and rationale_codes (previously stored, not returned)." },
+    ],
+  },
+  {
+    version: "0.9.2",
+    date: "2026-07-16",
+    title: "ops_hardening",
+    changes: [
+      { tag: "fixed", body: "The documented backup-restore procedure was silently broken (piped into a socket nothing was listening on) — replaced with a real, tested restore drill, verified against a local dump and a deliberately corrupted one." },
+      { tag: "changed", body: "Consolidated the self-host / white-label deployment guide into one section — anyone can run their own copy, MIT licensed." },
+    ],
+  },
+  {
+    version: "0.9.1",
+    date: "2026-07-14",
+    title: "rate_limit_fix + quota_banner",
+    changes: [
+      { tag: "added", body: "Dashboard banner at ≥80% of the monthly fair-use quota, before the hard cap hits." },
+      { tag: "fixed", body: "The authenticated per-minute rate limit was silently returning 500 instead of 429 past the cap — found via a real concurrency load test, fixed, now guarded by a permanent regression test." },
+    ],
+  },
+  {
+    version: "0.9.0",
+    date: "2026-07-12",
+    title: "ens_resolution",
+    changes: [
+      { tag: "added", body: "Server-side ENS name resolution — GET /v1/resolve/:name (20/min rate limit). /dashboard/new detects *.eth cells and resolves them on an explicit click, never automatically." },
+    ],
+  },
+  {
+    version: "0.8.1",
+    date: "2026-07-11",
+    title: "cluster_viz + preset_drift_guard",
+    changes: [
+      { tag: "added", body: "Cluster network graph on the analysis detail page — star-topology view of detected clusters. A force-directed, address-level-edge upgrade is a later idea, not built yet." },
+      { tag: "added", body: "Analysis responses now echo the canonical preset drop/review rule text, removing a second hand-typed copy on the dashboard that had drifted (a real bug, since fixed)." },
+      { tag: "added", body: "CI now fails if the TS and Python preset definitions diverge on any threshold or description." },
+    ],
+  },
+  {
+    version: "0.8.0",
+    date: "2026-07-01",
+    title: "free_public_good",
+    changes: [
+      { tag: "changed", body: "SybilShield is now a free public good, funded by grants, not customer revenue. Pricing/plans/checkout removed from the site, docs, and dashboard. Fair-use limits stay as anti-abuse, not a paywall. Stripe/Atlos billing code stays in the repo, dormant." },
+    ],
+  },
+  {
+    version: "0.7.0",
+    date: "2026-07-01",
+    title: "threshold_override_controls",
+    changes: [
+      { tag: "added", body: "POST /v1/analyses accepts threshold_overrides — tune a preset's drop/review score or cluster-size knobs per analysis." },
+      { tag: "added", body: "/dashboard/new: advanced per-analysis threshold-override UI, and a paste-addresses textarea alternative to file upload." },
+    ],
+  },
+  {
+    version: "0.6.1",
+    date: "2026-06-25",
+    title: "exchange_set_fix + observability",
+    changes: [
+      { tag: "fixed", body: "Known-exchange set expanded from 12 to 66 curated CEX/bridge wallets — the actual fix for CEX-shared-funding false positives, previously only mitigated with a cluster-size threshold bump." },
+      { tag: "added", body: "model_version exposed on GET /health." },
+    ],
+  },
+  {
     version: "0.6.0",
     date: "2026-06-01",
     title: "free_tier_enforcement",

@@ -4,6 +4,70 @@ All notable changes to SybilShield are documented here.
 
 Format: [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) · Versioning: [SemVer](https://semver.org/).
 
+## [0.11.0] — 2026-07-19
+
+### Added
+- `apps/web/public/widget.js` — a copy-paste embeddable score badge for third-party claim pages. Display-only: shows the cached decision for an address SybilShield has already analyzed, or an honest "not yet scored" — does not gate the host page's own form, and does not score addresses it's never seen. See `/docs/widget`.
+
+## [0.10.0] — 2026-07-17
+
+### Added
+- A Snapshot governance-strategy validation (MIT-licensed, `packages/snapshot-strategy-sybilshield`) that gates proposal/vote eligibility on a wallet's real DROP/REVIEW/KEEP decision. Built and tested against the live production API; publication to `snapshot-labs/score-api` is pending (a deliberate human step, not automated).
+
+### Changed
+- `GET /v1/score/:address` now publicly returns `decision`, `decision_confidence`, and `rationale_codes` (previously stored, not returned).
+
+## [0.9.2] — 2026-07-16
+
+### Fixed
+- The documented backup-restore procedure was silently broken (piped into a socket nothing was listening on) — replaced with a real, tested restore drill (`scripts/restore-drill.sh`), verified against a locally-generated dump and a deliberately corrupted one.
+
+### Changed
+- Consolidated the self-host / white-label deployment guide into one section in `README.md`; removed duplicated, conflicting instructions.
+
+## [0.9.1] — 2026-07-14
+
+### Added
+- Dashboard banner at ≥80% of the monthly fair-use quota, before the hard cap hits.
+
+### Fixed
+- The authenticated per-minute rate limit was silently returning `500` instead of `429` past the cap for every customer's 31st+ request/minute — found via a real concurrency load test, fixed, and guarded by a permanent regression test.
+
+## [0.9.0] — 2026-07-12
+
+### Added
+- Server-side ENS name resolution: `GET /v1/resolve/:name` (20/min rate limit, Alchemy-backed, key never reaches the browser).
+- `/dashboard/new` detects `*.eth` cells and resolves them on an explicit "Resolve" click — never automatically.
+
+## [0.8.1] — 2026-07-11
+
+### Added
+- Cluster network graph on the analysis detail page (star-topology SVG — hub + one node per cluster, radius ∝ size, colour ∝ avg score). A force-directed, address-level-edge upgrade is a later idea, not built.
+- Analysis responses now echo the canonical preset drop/review rule text (`preset_rules`), removing a second hand-typed copy on the dashboard that had drifted before (a real bug: the `grant` preset's review rule was rendered in the wrong order).
+- `preset-sync.test.ts` — CI now fails if the TS and Python preset definitions diverge on any threshold or description.
+
+## [0.8.0] — 2026-07-01
+
+### Changed
+- **Free public good.** SybilShield is now funded by grants, not customer revenue. Removed pricing/plans/checkout from the public site, docs, and dashboard. Fair-use limits stay in place as anti-abuse, not a paywall. Stripe/Atlos billing code stays in the repo, dormant, for a possible future pivot.
+
+## [0.7.0] — 2026-07-01
+
+### Added
+- `POST /v1/analyses` accepts `threshold_overrides` — tune a preset's drop/review score or cluster-size knobs per analysis, on top of the four named presets.
+- `/dashboard/new`: advanced per-analysis threshold-override controls, and a paste-addresses textarea alternative to file upload.
+
+## [0.6.1] — 2026-06-25
+
+### Fixed
+- Known-exchange set expanded from 12 to 66 curated CEX/bridge wallets — the actual fix for CEX-shared-funding false positives, previously only mitigated with a cluster-size threshold bump.
+
+### Added
+- `model_version` exposed on `GET /health` so ops can confirm the deployed model without SSHing in.
+
+### Changed
+- Homepage marquee: replaced the mock-telemetry ticker with a real capability ticker.
+
 ## [0.6.0] — 2026-06-01
 
 ### Added
