@@ -70,13 +70,13 @@ export default function TrustPage() {
             </div>
             <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
               <h3 className="font-mono text-sm text-emerald-400">Encryption</h3>
-              <p className="mt-2 text-sm text-emerald-400">Active</p>
-              <p className="mt-2 text-sm text-zinc-400">TLS 1.3 in transit, AES-256 at rest (Postgres + filesystem). Secrets in env, not source.</p>
+              <p className="mt-2 text-sm text-amber-400">Partial</p>
+              <p className="mt-2 text-sm text-zinc-400">TLS 1.3 in transit — active. At-rest encryption (Postgres + filesystem) is not yet configured; secrets stay in env, not source, either way.</p>
             </div>
             <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
               <h3 className="font-mono text-sm text-emerald-400">SDLC</h3>
               <p className="mt-2 text-sm text-emerald-400">Active</p>
-              <p className="mt-2 text-sm text-zinc-400">Public repo + signed commits + CI test gates. Secret scanning via GitGuardian on push.</p>
+              <p className="mt-2 text-sm text-zinc-400">Public repo + signed commits + CI test gates. Secret scanning + push protection via GitHub, on every push.</p>
             </div>
           </div>
         </section>
