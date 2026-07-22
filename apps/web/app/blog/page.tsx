@@ -74,9 +74,8 @@ export default function BlogPage() {
         <p className="mt-3 text-zinc-400">
           Technical posts on detection methodology + public retros on completed airdrops.
         </p>
-        <p className="mt-2 text-xs text-amber-300">
-          Posts are scheduled to drop together with the first hosted public-good deployment.
-          Drafts are in <code className="font-mono">/content/blog</code> in the repo.
+        <p className="mt-2 text-xs text-zinc-500">
+          Unpublished drafts are in <code className="font-mono">/content/blog</code> in the repo.
         </p>
 
         <ul className="mt-10 space-y-6">

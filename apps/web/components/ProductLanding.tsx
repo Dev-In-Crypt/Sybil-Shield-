@@ -51,9 +51,13 @@ export function ProductLanding({ spec }: { spec: ProductSpec }) {
       </section>
 
       <section className="rounded border border-zinc-800 bg-zinc-900 p-8">
-        <p className="font-mono text-xs uppercase tracking-widest text-zinc-500">// mini case study</p>
+        <p className="font-mono text-xs uppercase tracking-widest text-zinc-500">// mini case study (illustrative)</p>
         <h2 className="mt-2 text-2xl font-semibold">{spec.miniCase.title}</h2>
         <p className="mt-4 text-zinc-300">{spec.miniCase.body}</p>
+        <p className="mt-3 text-xs text-zinc-500">
+          Illustrative scenario built from public data + anonymized patterns — not a customer
+          attestation. SybilShield has no paying customers yet.
+        </p>
         <Link href="/customers" className="mt-4 inline-block text-sm text-emerald-400 hover:underline">
           See more case studies →
         </Link>

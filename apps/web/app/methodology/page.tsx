@@ -59,7 +59,7 @@ export default function MethodologyPage() {
           title="Cross-chain identity linking"
           file="apps/ml/sybilshield/clustering/cross_chain.py"
           rules={[
-            "Deterministic: bridge tx from address A on chain X to address B on chain Y → same entity by construction (Stargate, Hop, Across, Wormhole)",
+            "Deterministic: bridge tx from address A on chain X to address B on chain Y → same entity by construction (Stargate + Hop wired today; Across, others planned)",
             "Probabilistic: same funder + same timestamp window (±10min) across chains → likely-same entity",
             "Union-find aggregates into entity components",
             "Cluster fires when ≥3 chain-nodes belong to one entity",

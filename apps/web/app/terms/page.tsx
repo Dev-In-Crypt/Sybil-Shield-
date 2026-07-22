@@ -15,7 +15,7 @@ export default function TermsPage() {
       <main className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="text-3xl font-bold">Terms of service</h1>
         <p className="mt-2 text-xs uppercase tracking-widest text-zinc-500">
-          Last updated 2026-05-25 · sandbox version
+          Last updated 2026-07-22 · sandbox version
         </p>
 
         <section className="mt-10 space-y-4 text-sm text-zinc-300">

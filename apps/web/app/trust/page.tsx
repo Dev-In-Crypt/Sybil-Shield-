@@ -6,8 +6,8 @@ import { SiteHeader } from "../../components/SiteHeader";
 export const metadata = { title: "Trust Center · SybilShield" };
 
 const COMPLIANCE = [
-  { fw: "GDPR", scope: "EU users / EU PII", status: "Compliant", color: "text-emerald-400", art: ["/privacy", "Privacy notice"] },
-  { fw: "CCPA", scope: "California users", status: "Compliant", color: "text-emerald-400", art: ["/privacy", "Privacy notice §8"] },
+  { fw: "GDPR", scope: "EU users / EU PII", status: "Self-assessed", color: "text-emerald-400", art: ["/privacy", "Privacy notice"] },
+  { fw: "CCPA", scope: "California users", status: "Self-assessed", color: "text-emerald-400", art: ["/privacy", "Privacy notice §6"] },
   { fw: "SOC 2 Type I", scope: "Service org controls", status: "Not started", color: "text-zinc-500", art: [null, "Planned after incorporation"] },
   { fw: "SOC 2 Type II", scope: "Operating effectiveness", status: "Planned", color: "text-zinc-500", art: [null, "After SOC 2 Type I"] },
   { fw: "ISO 27001", scope: "InfoSec mgmt", status: "Backlog", color: "text-zinc-500", art: [null, "2027+"] },

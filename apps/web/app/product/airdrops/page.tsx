@@ -15,7 +15,7 @@ export default function AirdropsPage() {
         title: "Protect your airdrop from coordinated farmers.",
         lead: "Pre-TGE Sybil filtering with evidence-backed scores in hours, not weeks. Six detection methods. Public appeal flow. Your community sees the methodology — no black box.",
         stats: [
-          { value: "23%", label: "median sybil rate in recent L2 airdrops" },
+          { value: "23%", label: "sybil rate in our illustrative L2 airdrop retro" },
           { value: "11h", label: "typical turnaround on 1M addresses" },
           { value: "free", label: "vs $50k-$200k for a Big 4 audit" },
           { value: "0.4%", label: "median false-positive rate in retros" },

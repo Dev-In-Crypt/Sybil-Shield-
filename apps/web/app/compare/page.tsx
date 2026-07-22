@@ -58,7 +58,7 @@ export default function ComparePage() {
           </table>
         </div>
 
-        <p className="mt-6 font-mono text-xs text-zinc-600">// data current as of 2026-05-24</p>
+        <p className="mt-6 font-mono text-xs text-zinc-600">// competitor figures are approximate, sourced from public pricing pages — verify independently before quoting</p>
       </main>
       <SiteFooter />
     </>

@@ -15,7 +15,7 @@ export default function GovernancePage() {
         title: "One-vote-per-entity, not per-wallet.",
         lead: "Pre-vote Sybil scans on Snapshot or on-chain proposals. We score every voting wallet and tell you how many unique entities are actually behind them. Use the scores as input to your weighting algorithm.",
         stats: [
-          { value: "~33%", label: "median wallet-to-entity ratio in DAO votes" },
+          { value: "~33%", label: "wallet-to-entity ratio in our illustrative DAO vote case" },
           { value: "4h", label: "turnaround on typical proposal voter set" },
           { value: "free", label: "the public sandbox covers most DAO votes" },
           { value: "open", label: "scores publishable for community review" },

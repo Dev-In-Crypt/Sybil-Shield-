@@ -250,9 +250,9 @@ curl -X POST ${API}/v1/analyses \\
           <Code lang="bash">{`curl -H "Authorization: Bearer $KEY" \\
   "${API}/v1/analyses/$ID/results/export" \\
   -o analysis-$ID.csv`}</Code>
-          <Code lang="csv">{`address,chain,sybil_score,label,confidence,cluster_id,cluster_size
-0xd8da6bf26964af9d7eed9e03e53415d37aa96045,ethereum,0,genuine,0.000,,
-0xab5801a7d398351b8be11c439e05c5b3259aec9b,ethereum,0,genuine,0.000,,`}</Code>
+          <Code lang="csv">{`address,chain,sybil_score,label,decision,decision_confidence,confidence,cluster_id,cluster_size,rationale_codes
+0xd8da6bf26964af9d7eed9e03e53415d37aa96045,ethereum,0,genuine,KEEP,high,0.000,,,
+0xab5801a7d398351b8be11c439e05c5b3259aec9b,ethereum,0,genuine,KEEP,high,0.000,,,`}</Code>
         </Section>
 
         <Section title="8 · Webhook behavior">

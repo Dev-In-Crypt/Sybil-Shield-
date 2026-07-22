@@ -16,7 +16,7 @@ export default function DaoTreasuryPage() {
         lead: "Score grant applicants, builder retros, contributor rewards. Make sure your treasury is funding real contributors — not entities running 30 wallets to extract a 30× share.",
         stats: [
           { value: "12%", label: "of grant recipients in recent retros flagged sybil" },
-          { value: "$2M+", label: "median DAO treasury saved per audit" },
+          { value: "$2M+", label: "sybil weight caught in our illustrative DAO case" },
           { value: "human", label: "every flag goes through a 48h appeal window" },
           { value: "evidence", label: "you defend the cuts with on-chain proof" },
         ],

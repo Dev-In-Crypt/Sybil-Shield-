@@ -6,15 +6,11 @@ export const metadata = { title: "Sub-processors · SybilShield" };
 
 const VENDORS = [
   ["Vercel", "Frontend hosting", "HTTP logs, IP", "USA · global edge", "https://vercel.com/legal/dpa"],
-  ["Railway", "API + worker hosting", "App data, logs", "USA (us-west-2)", "https://railway.com/legal/dpa"],
-  ["Supabase", "Managed Postgres", "All customer records", "EU (Frankfurt)", "https://supabase.com/legal/dpa"],
-  ["Upstash", "Managed Redis (queue)", "Job payloads", "EU (Frankfurt)", "https://upstash.com/dpa"],
-  ["Cloudflare", "CDN, DNS, WAF", "Request metadata", "Global edge", "https://www.cloudflare.com/cloudflare-customer-dpa/"],
+  ["Hetzner", "API + worker + ML + Postgres + Redis hosting (single VPS)", "All customer records, app data, logs", "Germany (Nuremberg)", "https://www.hetzner.com/AV/DPA_en.pdf"],
+  ["Cloudflare", "DNS + email routing (support@ / security@ forwarding)", "Request metadata, forwarded email headers", "Global edge", "https://www.cloudflare.com/cloudflare-customer-dpa/"],
   ["Alchemy", "RPC provider", "Public on-chain queries", "USA", "https://www.alchemy.com/policies/dpa"],
-  ["Postmark", "Transactional email", "Email addr, subject", "USA", "https://postmarkapp.com/eu-privacy"],
-  ["GitGuardian", "Secret leak scanning", "Public repo content", "EU (France)", "https://www.gitguardian.com/legal"],
-  ["PostHog", "Product analytics", "Pseudonymous events", "EU (Germany)", "https://posthog.com/dpa"],
-  ["Sentry", "Error tracking", "Stack traces, hash", "USA", "https://sentry.io/legal/dpa/"],
+  ["Discord", "Ops alerts (deploy, uptime, worker errors)", "Alert messages only — no customer data", "USA", "https://discord.com/privacy"],
+  ["Atlos", "Crypto checkout — dormant, unconfigured under the free public-good model", "None (not live)", "N/A", "#"],
 ] as const;
 
 export default function SubProcessorsPage() {
@@ -52,9 +48,13 @@ export default function SubProcessorsPage() {
                   <td className="px-4 py-2 text-zinc-400">{data}</td>
                   <td className="px-4 py-2 text-zinc-400">{region}</td>
                   <td className="px-4 py-2">
-                    <a href={dpa} className="text-emerald-400 hover:underline">
-                      DPA
-                    </a>
+                    {dpa === "#" ? (
+                      <span className="text-zinc-600">— (dormant)</span>
+                    ) : (
+                      <a href={dpa} className="text-emerald-400 hover:underline">
+                        DPA
+                      </a>
+                    )}
                   </td>
                 </tr>
               ))}
@@ -67,7 +67,7 @@ export default function SubProcessorsPage() {
           <div className="mt-6 grid gap-4 sm:grid-cols-3">
             <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
               <h3 className="font-mono text-sm text-emerald-400">PRIMARY</h3>
-              <p className="mt-2 text-sm text-zinc-400">Customer records — EU (Frankfurt). Supabase + Upstash.</p>
+              <p className="mt-2 text-sm text-zinc-400">Customer records — Germany (Hetzner, Nuremberg). Postgres + Redis on the same VPS.</p>
             </div>
             <div className="rounded border border-zinc-800 bg-zinc-900 p-4">
               <h3 className="font-mono text-sm text-emerald-400">EDGE</h3>

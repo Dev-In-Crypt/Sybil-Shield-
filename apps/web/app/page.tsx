@@ -23,7 +23,7 @@ export default function HomePage() {
           >
             <div className="inline-flex items-center gap-2 border border-lime/30 bg-lime/5 px-3 py-1 font-mono text-[10px] uppercase tracking-[0.2em] text-lime">
               <span className="neon-pulse h-1.5 w-1.5 rounded-full bg-lime shadow-[0_0_10px_#c0ff00]" />
-              v2.0 // public beta // MIT
+              public beta // MIT
             </div>
 
             <h1 className="mt-8 max-w-5xl font-sans text-6xl font-bold leading-[0.95] tracking-tight md:text-[110px]">
@@ -106,7 +106,7 @@ export default function HomePage() {
             { i: "02", t: "BEHAVIORAL_HDBSCAN", d: "Density clustering over 10-dim feature vectors. Scripts surface as tight blobs." },
             { i: "03", t: "GRAPH_LEIDEN", d: "Community detection on the tx graph. Isolated dense subgraphs = farms." },
             { i: "04", t: "TEMPORAL_ENTROPY", d: "Hour/day entropy + autocorrelation. Humans are messy; bots are not." },
-            { i: "05", t: "CROSS_CHAIN_LINK", d: "Bridge events deterministically link wallet IDs across 8 chains." },
+            { i: "05", t: "CROSS_CHAIN_LINK", d: "Bridge events deterministically link wallet IDs across chains — Ethereum + Arbitrum wired today, more bridges planned." },
             { i: "06", t: "ML_ENSEMBLE", d: "LightGBM weighted by label-tier confidence. Honest holdout-only metrics." },
           ].map((m, i) => (
             <motion.div

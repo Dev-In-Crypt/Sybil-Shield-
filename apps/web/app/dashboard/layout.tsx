@@ -3,6 +3,8 @@ import { SandboxBanner } from "../../components/SandboxBanner";
 import { StatusBadge } from "../../components/StatusBadge";
 import { type FeatureKey, getStatus } from "../../lib/feature-status";
 
+export const metadata = { title: "Dashboard · SybilShield" };
+
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   // Sidebar reads status from the single source of truth (lib/feature-status.ts).
   // Don't hardcode badges here — they'll drift the moment a feature ships.

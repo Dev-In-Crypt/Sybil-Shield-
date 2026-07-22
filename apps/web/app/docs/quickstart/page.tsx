@@ -6,8 +6,8 @@ export const metadata = { title: "Quickstart · SybilShield" };
 
 const STEPS = [
   { t: "register an account", d: "No card. Free public sandbox — 100 calls/month (fair use).", c: `curl -X POST http://localhost:3001/v1/account/register \\\n  -H 'content-type: application/json' \\\n  -d '{"email":"you@example.com"}'`, n: "response includes api_key shown ONCE — save it" },
-  { t: "score a single address", d: "Cached lookup against any address SybilShield has scored before.", c: `curl http://localhost:3001/v1/score/0xa12b00000000000000000000000000000000c4d7 \\\n  -H "Authorization: Bearer $YOUR_KEY"`, n: "" },
-  { t: "create a batch analysis", d: "Submit 10K–1M addresses → scores + clusters + evidence.", c: `curl -X POST http://localhost:3001/v1/analyses \\\n  -H "Authorization: Bearer $YOUR_KEY" \\\n  -H 'content-type: application/json' \\\n  -d '{"name":"first","chains":["ethereum"],"addresses":["0x...","0x..."]}'`, n: "status: pending → ingesting → analyzing → scoring → complete" },
+  { t: "score a single address", d: "Cached lookup against any address SybilShield has scored before. Public — no key required.", c: `curl http://localhost:3001/v1/score/0xa12b00000000000000000000000000000000c4d7`, n: "" },
+  { t: "create a batch analysis", d: "Submit up to 1,000 addresses on the free sandbox → scores + clusters + evidence.", c: `curl -X POST http://localhost:3001/v1/analyses \\\n  -H "Authorization: Bearer $YOUR_KEY" \\\n  -H 'content-type: application/json' \\\n  -d '{"name":"first","chains":["ethereum"],"addresses":["0x...","0x..."]}'`, n: "status: pending → ingesting → complete (or complete_over_budget / failed)" },
   { t: "poll or use webhook", d: "For longer analyses configure webhook URL at /dashboard/api-keys.", c: `curl http://localhost:3001/v1/analyses/$ID \\\n  -H "Authorization: Bearer $YOUR_KEY"`, n: "" },
   { t: "fetch scored results", d: "Paginated. Filter by label.", c: `curl "http://localhost:3001/v1/analyses/$ID/results?label=sybil&limit=100" \\\n  -H "Authorization: Bearer $YOUR_KEY"`, n: "or export full CSV: /v1/analyses/:id/results/export" },
 ];

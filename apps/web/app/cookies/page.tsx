@@ -15,7 +15,7 @@ export default function CookiesPage() {
       <main className="mx-auto max-w-3xl px-6 py-16">
         <h1 className="text-3xl font-bold">Cookie policy</h1>
         <p className="mt-2 text-xs uppercase tracking-widest text-zinc-500">
-          Last updated 2026-05-25
+          Last updated 2026-07-22
         </p>
 
         <section className="mt-10 space-y-4 text-sm text-zinc-300">
@@ -38,16 +38,10 @@ export default function CookiesPage() {
             </thead>
             <tbody className="text-zinc-300">
               <tr className="border-b border-zinc-900">
-                <td className="py-3 pr-4 font-mono text-emerald-400">api_key</td>
+                <td className="py-3 pr-4 font-mono text-emerald-400">sybilshield_api_key</td>
                 <td className="py-3 pr-4">localStorage</td>
                 <td className="py-3 pr-4">Holds your API key so the dashboard can make authed requests on your behalf</td>
                 <td className="py-3 pr-4">Until you sign out or clear browser data</td>
-              </tr>
-              <tr className="border-b border-zinc-900">
-                <td className="py-3 pr-4 font-mono text-emerald-400">theme</td>
-                <td className="py-3 pr-4">localStorage</td>
-                <td className="py-3 pr-4">Remembers your color-scheme preference (we ship one — cyber dark — but the slot exists)</td>
-                <td className="py-3 pr-4">Persists across sessions</td>
               </tr>
             </tbody>
           </table>
@@ -64,15 +58,15 @@ export default function CookiesPage() {
 
         <h2 className="mt-10 text-xl font-semibold">No banner needed</h2>
         <p className="mt-3 text-sm text-zinc-300">
-          Because both items are <strong>strictly necessary</strong> for the dashboard to work,
+          Because it&apos;s <strong>strictly necessary</strong> for the dashboard to work,
           GDPR and ePrivacy do not require us to show a consent banner. If you don&apos;t want
-          them set, simply don&apos;t sign in.
+          it set, simply don&apos;t sign in.
         </p>
 
         <h2 className="mt-10 text-xl font-semibold">Removing</h2>
         <p className="mt-3 text-sm text-zinc-300">
           Click <span className="font-mono text-emerald-400">Sign out</span> in the dashboard to
-          clear <code className="font-mono text-emerald-400">api_key</code>. Use your
+          clear <code className="font-mono text-emerald-400">sybilshield_api_key</code>. Use your
           browser&apos;s &quot;clear site data&quot; for everything.
         </p>
 
