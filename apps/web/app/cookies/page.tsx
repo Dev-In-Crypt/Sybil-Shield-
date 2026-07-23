@@ -21,7 +21,7 @@ export default function CookiesPage() {
         <section className="mt-10 space-y-4 text-sm text-zinc-300">
           <p>
             Short version: <strong>we don&apos;t use tracking cookies.</strong> The site uses
-            two pieces of client-side storage, both first-party and both strictly functional.
+            one piece of client-side storage, first-party and strictly functional.
           </p>
         </section>
 
