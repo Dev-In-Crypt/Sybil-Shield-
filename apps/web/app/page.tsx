@@ -299,6 +299,12 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+        <p className="border-t border-white/5 bg-black px-8 py-6 text-sm text-zinc-500">
+          Already using a different Sybil filter?{" "}
+          <Link href="/product/appeals" className="text-lime hover:underline">
+            Our appeal infrastructure works standalone, alongside it →
+          </Link>
+        </p>
       </SectionCyber>
 
       {/* CTA */}

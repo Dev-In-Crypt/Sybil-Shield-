@@ -76,7 +76,12 @@ export default function AboutPage() {
           <p className="mt-3 text-zinc-300">
             An open, grant-funded public-good project — free to use, MIT-licensed, no
             monetization. Anyone using SybilShield scores in a public filter list is
-            expected to provide an appeal flow so scored parties can dispute a result.
+            expected to provide an appeal flow so scored parties can dispute a result. That
+            appeal infrastructure (public endpoint, 48h SLA, immutable audit log) is usable{" "}
+            <a href="/product/appeals" className="text-emerald-400 hover:underline">
+              standalone, alongside any filter
+            </a>{" "}
+            — not only SybilShield&apos;s own scoring.
           </p>
         </section>
       </main>

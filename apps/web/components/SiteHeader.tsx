@@ -17,6 +17,7 @@ const PRODUCT: { href: string; label: string }[] = [
   { href: "/product/governance", label: "governance" },
   { href: "/product/defi-farming", label: "defi farming" },
   { href: "/product/dao-treasury", label: "dao treasury" },
+  { href: "/product/appeals", label: "appeal infra" },
 ];
 
 export function SiteHeader() {
