@@ -100,7 +100,10 @@ export default function DocsPage() {
             <code className="rounded bg-zinc-900 px-1 font-mono text-xs">mode: "cluster_only"</code>{" "}
             to skip per-address ML scoring entirely and return only multi-wallet farm groupings.
             Useful when you care more about &quot;these 47 wallets are one entity&quot; than about
-            per-address risk scoring.
+            per-address risk scoring — and cheap enough to run repeatedly. Most teams only filter
+            after the snapshot, once the reward budget is already committed. Point this at your
+            current quest/campaign participant list mid-campaign instead of waiting until the end
+            — you&apos;ll see coordinated farming while there&apos;s still budget left to protect.
           </p>
           <Code lang="bash">{`# Submit with a preset + mode
 curl -X POST ${API}/v1/analyses \\

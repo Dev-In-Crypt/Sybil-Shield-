@@ -408,7 +408,8 @@ export default function NewAnalysisPage() {
               />
             </div>
             <p className="mt-1 text-xs text-zinc-400">
-              Skip ML; return only multi-wallet farm groupings. Strongest signal, no per-address noise.
+              Skip ML; return only multi-wallet farm groupings. Strongest signal, no per-address
+              noise — cheap enough to re-run mid-campaign, before the snapshot, not just after.
             </p>
           </label>
         </div>

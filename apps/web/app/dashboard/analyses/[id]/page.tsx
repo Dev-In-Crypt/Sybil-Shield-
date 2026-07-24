@@ -199,7 +199,29 @@ export default function AnalysisDetail({ params }: { params: { id: string } }) {
               />
             </section>
           )}
-          {analysis.summary && !hasDecisionSummary && (
+          {analysis.summary && analysis.mode === "cluster_only" && (
+            <section className="mt-8 grid gap-4 sm:grid-cols-2">
+              <Stat
+                label="In a cluster"
+                value={analysis.summary.total_scored}
+                pct={analysis.address_count}
+                subtitle={`of ${analysis.address_count.toLocaleString()} submitted`}
+                tone="amber"
+              />
+              <Stat
+                label="Clusters"
+                value={analysis.summary.cluster_count}
+                subtitle={`largest: ${analysis.summary.largest_cluster_size}`}
+                tone="zinc"
+              />
+              <p className="col-span-full text-xs text-zinc-500">
+                Coordinated wallets found before any reward has gone out. Re-run this
+                mid-campaign — not just after the snapshot — to catch farming while there&apos;s
+                still budget left to protect.
+              </p>
+            </section>
+          )}
+          {analysis.summary && !hasDecisionSummary && analysis.mode !== "cluster_only" && (
             <section className="mt-8 grid gap-4 sm:grid-cols-4">
               <Stat label="Genuine" value={analysis.summary.genuine_count} pct={analysis.summary.total_scored} tone="emerald" />
               <Stat label="Suspicious" value={analysis.summary.suspicious_count} pct={analysis.summary.total_scored} tone="amber" />
