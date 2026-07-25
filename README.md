@@ -105,6 +105,22 @@ cd apps/api && npm install && npm test
 cd apps/ml  && pip install -e ".[dev]" && pytest -q
 ```
 
+### End-to-end (web)
+
+A single golden-path spec — register, submit a batch analysis, poll, see
+decisions, export CSV — via [Playwright](https://playwright.dev):
+
+```bash
+cd apps/web
+npx playwright install chromium   # one-time
+npm run test:e2e
+```
+
+Defaults to the live public sandbox (`https://www.sybilshield.org`), so it
+needs no local backend. Point it at a local stack instead with
+`E2E_BASE_URL=http://localhost:3000` (after `docker compose up -d --build`
++ `npm --workspace apps/web run dev`).
+
 ## Preview the website
 
 Static HTML previews of all marketing & dashboard pages:
