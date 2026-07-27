@@ -121,7 +121,7 @@ just a "we think these are fine" list), email
 [support@sybilshield.org](mailto:support@sybilshield.org). A pilot
 analysis on your real corpus, with full evidence per address and a
 public methodology brief, is the fastest way for both sides to know
-whether the system actually works at your scale. Pricing on
+whether the system actually works at your scale. Free — see
 [/pricing](/pricing).
 
 ## What's next

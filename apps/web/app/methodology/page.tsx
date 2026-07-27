@@ -137,6 +137,14 @@ export default function MethodologyPage() {
             <code className="font-mono">training_manifest_hash</code>. If you can't reproduce a
             score from the published artifact + manifest hashes, the score is invalid.
           </p>
+          <p className="mt-3 text-zinc-300">
+            For the actual precision/recall/false-positive numbers this methodology produces —
+            self-reported, no competitor comparisons — see{" "}
+            <a href="/benchmark" className="text-emerald-400 hover:underline">
+              /benchmark
+            </a>
+            .
+          </p>
         </section>
       </main>
       <SiteFooter />

@@ -59,6 +59,10 @@ export default function ComparePage() {
         </div>
 
         <p className="mt-6 font-mono text-xs text-zinc-600">// competitor figures are approximate, sourced from public pricing pages — verify independently before quoting</p>
+        <p className="mt-2 font-mono text-xs text-zinc-600">
+          // this is a feature comparison, not an accuracy one — for our own honest-holdout
+          numbers see <a href="/benchmark" className="text-emerald-400 hover:underline">/benchmark</a>
+        </p>
       </main>
       <SiteFooter />
     </>
