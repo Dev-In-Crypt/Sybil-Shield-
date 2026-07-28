@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeDecision, PRESETS, presetRuleText } from "../src/lib/presets.js";
+import { computeDecision, evidenceToCodes, PRESETS, presetRuleText } from "../src/lib/presets.js";
 
 describe("computeDecision — preset baseline", () => {
   it("airdrop drops a high score", () => {
@@ -112,5 +112,50 @@ describe("presetRuleText — canonical rule strings (no dashboard drift)", () =>
       if (cfg.drop.cluster_size_gte !== null)
         expect(text.drop).toContain(`cluster_size ≥ ${cfg.drop.cluster_size_gte}`);
     }
+  });
+});
+
+describe("computeDecision — QF pairwise signal (TODO-310, grant preset only)", () => {
+  it("REVIEWs a zero-score, no-cluster grant address that carries the pairwise code", () => {
+    // The whole point: the ML score is untrained on this signal and may be
+    // near 0, with no cluster_size to speak of either — only the pairwise
+    // code should be able to move this off KEEP.
+    const d = computeDecision(0, null, "grant", ["qf_pairwise_coordinated_pair"]);
+    expect(d.decision).toBe("REVIEW");
+    expect(d.confidence).toBe("medium");
+    expect(d.rationale_codes).toContain("qf_pairwise_coordinated_pair");
+  });
+
+  it("does not fire without the code — grant preset baseline is unaffected", () => {
+    const d = computeDecision(0, null, "grant");
+    expect(d.decision).toBe("KEEP");
+  });
+
+  it("never DROPs on the pairwise code alone — REVIEW-tier only by design", () => {
+    const d = computeDecision(0, null, "grant", ["qf_pairwise_coordinated_pair"]);
+    expect(d.decision).not.toBe("DROP");
+  });
+
+  it("is scoped to the grant preset — the same code on another preset does nothing", () => {
+    const d = computeDecision(0, null, "airdrop", ["qf_pairwise_coordinated_pair"]);
+    expect(d.decision).toBe("KEEP");
+  });
+
+  it("does not disturb the existing 5/20 cluster-size thresholds", () => {
+    // A grant address hitting the real cluster_size_gte=20 DROP rule must
+    // still DROP exactly as before — the pairwise branch is additive only.
+    const withoutPairwise = computeDecision(0, 20, "grant");
+    const withPairwise = computeDecision(0, 20, "grant", ["qf_pairwise_coordinated_pair"]);
+    expect(withoutPairwise.decision).toBe("DROP");
+    expect(withPairwise.decision).toBe("DROP");
+  });
+});
+
+describe("evidenceToCodes — pairwise_funding_link mapping", () => {
+  it("maps the ML pairwise evidence type to the rationale code", () => {
+    const codes = evidenceToCodes([
+      { type: "pairwise_funding_link", description: "shares a funder", confidence: 0.95 },
+    ]);
+    expect(codes).toContain("qf_pairwise_coordinated_pair");
   });
 });

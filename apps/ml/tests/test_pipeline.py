@@ -83,3 +83,64 @@ def test_pipeline_cu_consumption_tracked() -> None:
     pipe = SybilShieldPipeline(provider=provider, model=None)
     result = pipe.run("test-cu", addrs, ["ethereum"])
     assert result.cu_consumed > 0
+
+
+# ---------- QF pairwise signal (TODO-310) ----------
+
+
+def test_grant_preset_flags_a_two_wallet_funding_pair() -> None:
+    """
+    The exact gap TODO-307's design note identified: a pair of exactly 2
+    addresses sharing a funder within a 1h window never reaches the normal
+    funding_cluster.py's default min_cluster_size=3, so it's invisible to
+    every other preset. The grant preset's dedicated pairwise pass (min
+    size 2) must still surface it as pairwise_funding_link evidence.
+    """
+    addrs = _addrs(2, prefix=500)
+    scenarios = {a: "sybil_shared_funder" for a in addrs}
+    provider = MockProvider(scenarios=scenarios)
+    pipe = SybilShieldPipeline(provider=provider, model=None)
+    result = pipe.run("test-pairwise", addrs, ["ethereum"], preset="grant")
+
+    # Not caught by the normal (size>=3) clustering pass — cluster_id/size
+    # on the per-address result must be untouched by the pairwise signal.
+    for addr in addrs:
+        assert result.scores[addr]["cluster_id"] is None
+        assert result.scores[addr]["cluster_size"] is None
+
+    # But both addresses get the new evidence type, high confidence
+    # (funded within 1h -> funding_cluster.py's 0.95 tier).
+    for addr in addrs:
+        evidence = result.scores[addr]["evidence"]
+        pairwise = [e for e in evidence if e["type"] == "pairwise_funding_link"]
+        assert len(pairwise) == 1, f"expected exactly one pairwise item for {addr}"
+        assert pairwise[0]["confidence"] >= 0.80
+
+
+def test_pairwise_signal_is_scoped_to_grant_preset_only() -> None:
+    """Same 2-address shared-funder pair, but preset=None (e.g. balanced/
+    airdrop/dao) -- must NOT produce pairwise_funding_link evidence. This
+    is the other half of the design's scope boundary: not a global
+    min_cluster_size change."""
+    addrs = _addrs(2, prefix=501)
+    scenarios = {a: "sybil_shared_funder" for a in addrs}
+    provider = MockProvider(scenarios=scenarios)
+    pipe = SybilShieldPipeline(provider=provider, model=None)
+    result = pipe.run("test-pairwise-scoped", addrs, ["ethereum"], preset="balanced")
+
+    for addr in addrs:
+        evidence = result.scores[addr]["evidence"]
+        assert not any(e["type"] == "pairwise_funding_link" for e in evidence)
+
+
+def test_pairwise_signal_absent_without_a_shared_funder() -> None:
+    """Grant preset, but genuine addresses with no shared funder -- the
+    pairwise pass must not manufacture a signal that isn't there."""
+    addrs = _addrs(4, prefix=502)
+    provider = MockProvider()  # default genuine, independent funders
+    pipe = SybilShieldPipeline(provider=provider, model=None)
+    result = pipe.run("test-pairwise-none", addrs, ["ethereum"], preset="grant")
+
+    for addr in addrs:
+        evidence = result.scores[addr]["evidence"]
+        assert not any(e["type"] == "pairwise_funding_link" for e in evidence)

@@ -63,6 +63,7 @@ class SybilShieldPipeline:
         analysis_id: str,
         addresses: list[str],
         chains: list[str],
+        preset: str | None = None,
     ) -> AnalysisResult:
         # Normalize / dedupe
         addresses = sorted({a.lower() for a in addresses})
@@ -92,6 +93,35 @@ class SybilShieldPipeline:
         )
         clusters_by_id = {c.id: c for c in all_clusters}
 
+        # 3.5. QF pairwise-coordination signal (TODO-307/310) — grant preset
+        # only. funding_cluster.py's default min_cluster_size=3 makes a pair
+        # of exactly 2 addresses structurally invisible to the normal
+        # clustering pass above; a 2-wallet QF funding split is already
+        # profitable (see docs/design/qf-pairwise-grant-preset.md §3). Kept
+        # entirely separate from addr_to_clusters/all_clusters so it cannot
+        # change cluster_id/cluster_size or affect any other preset's
+        # calibration — this is an additive evidence signal only.
+        # Prototype scope: funding-source pairwise only (the one method with
+        # a ready-made, directly-reusable confidence tier); extending
+        # behavior/graph/cross-chain to pairwise-2 is a reasonable follow-up
+        # but touches each method's own algorithmic min-size semantics
+        # (HDBSCAN, Leiden) differently and is not attempted here.
+        pairwise_addr_to_clusters: dict[str, list[str]] = {}
+        pairwise_clusters_by_id: dict[str, Cluster] = {}
+        if preset == "grant":
+            pairwise_funding = cluster_by_funding_source(primary_batch, min_cluster_size=2)
+            # size<=4 only: size>=5 pairs are already caught by the existing
+            # review.cluster_size_gte=5 threshold via the normal clustering
+            # pass above — re-flagging them here would duplicate evidence,
+            # not add a new signal. confidence>=0.80 mirrors the design's
+            # own conservative bar (funding_cluster.py's <7d-or-better tier).
+            for c in pairwise_funding:
+                if c.size > 4 or c.confidence < 0.80:
+                    continue
+                pairwise_clusters_by_id[c.id] = c
+                for addr in c.addresses:
+                    pairwise_addr_to_clusters.setdefault(addr, []).append(c.id)
+
         # 4. Augment features with cluster memberships
         for addr, feats in features.items():
             ids = addr_to_clusters.get(addr, [])
@@ -119,6 +149,21 @@ class SybilShieldPipeline:
                 default=None,
             )
             evidence = generate_evidence(addr, score, features[addr], ids, clusters_by_id)
+            # Appended AFTER generate_evidence() deliberately — that function
+            # gates on score >= 40, but QF pairwise coordination is exactly
+            # the kind of address the ML score (untrained on this signal)
+            # may score near 0. Never gated on score.
+            for cid in pairwise_addr_to_clusters.get(addr, []):
+                c = pairwise_clusters_by_id[cid]
+                evidence.append(
+                    {
+                        "type": "pairwise_funding_link",
+                        "description": c.evidence,
+                        "cluster_id": c.id,
+                        "cluster_size": c.size,
+                        "confidence": c.confidence,
+                    }
+                )
             result_scores[addr] = {
                 "address": addr,
                 "sybil_score": score,

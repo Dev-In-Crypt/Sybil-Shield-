@@ -27,6 +27,7 @@ class RunRequest(BaseModel):
     analysis_id: str = Field(..., min_length=1)
     addresses: list[str]
     chains: list[str] = Field(default_factory=lambda: ["ethereum"])
+    preset: str | None = None
 
 
 def _build_pipeline() -> SybilShieldPipeline:
@@ -103,7 +104,7 @@ def run(req: RunRequest) -> dict[str, Any]:
     if not req.addresses:
         raise HTTPException(status_code=400, detail="addresses must not be empty")
     pipe = get_pipeline()
-    result = pipe.run(req.analysis_id, req.addresses, req.chains)
+    result = pipe.run(req.analysis_id, req.addresses, req.chains, preset=req.preset)
     # Trim large fields for HTTP transport
     compact_scores = [
         {

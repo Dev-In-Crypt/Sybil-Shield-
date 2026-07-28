@@ -118,6 +118,10 @@ async function runAnalysis(job: AnalysisJob): Promise<void> {
       analysis_id: job.analysisId,
       addresses,
       chains: job.chains,
+      // Only meaningful in full mode (drives the grant-preset QF pairwise
+      // pass, TODO-310) — harmless to send for cluster_only too, since
+      // run_clusters_only() never reads it.
+      preset: job.preset ?? "balanced",
     }),
   });
   if (!resp.ok) {

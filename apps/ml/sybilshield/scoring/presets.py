@@ -81,6 +81,9 @@ def compute_decision(
     cluster_drops = cfg.drop.cluster_size_gte is not None and cs >= cfg.drop.cluster_size_gte
     score_reviews = cfg.review.score_gte is not None and score >= cfg.review.score_gte
     cluster_reviews = cfg.review.cluster_size_gte is not None and cs >= cfg.review.cluster_size_gte
+    # QF pairwise-coordination signal (TODO-307/310) — grant preset only,
+    # REVIEW-tier only. See apps/api/src/lib/presets.ts's mirror + comment.
+    pairwise_reviews = preset == "grant" and "qf_pairwise_coordinated_pair" in codes
 
     if score_drops:
         codes.append(f"score_ge_{cfg.drop.score_gte}")
@@ -91,7 +94,7 @@ def compute_decision(
         confidence: Confidence = "high" if score_drops and cluster_drops else "medium"
         return DecisionResult("DROP", confidence, _dedupe(codes))
 
-    if score_reviews or cluster_reviews:
+    if score_reviews or cluster_reviews or pairwise_reviews:
         if score_reviews:
             codes.append(f"score_ge_{cfg.review.score_gte}")
         if cluster_reviews:
@@ -128,6 +131,7 @@ EVIDENCE_TO_CODE: dict[str, str] = {
     "cross_chain_link": "cross_chain_link",
     "thin_account": "thin_account",
     "model_classification": "model_classification",
+    "pairwise_funding_link": "qf_pairwise_coordinated_pair",
 }
 
 

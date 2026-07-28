@@ -155,6 +155,12 @@ export function computeDecision(
   const scoreReviews = cfg.review.score_gte !== null && score >= cfg.review.score_gte;
   const clusterReviews =
     cfg.review.cluster_size_gte !== null && (clusterSize ?? 0) >= cfg.review.cluster_size_gte;
+  // QF pairwise-coordination signal (TODO-307/310) — grant preset only, and
+  // deliberately REVIEW-tier only (never DROP): a 2-4 wallet funding link is
+  // real signal but below the confidence the DROP-tier score/cluster rules
+  // require. Additive OR-branch; the existing 5/20 cluster thresholds above
+  // are untouched. See docs/design/qf-pairwise-grant-preset.md §5.
+  const pairwiseReviews = preset === "grant" && extraCodes.includes("qf_pairwise_coordinated_pair");
 
   if (scoreDrops) codes.push(`score_ge_${cfg.drop.score_gte}`);
   if (clusterDrops) codes.push(`cluster_size_ge_${cfg.drop.cluster_size_gte}`);
@@ -164,7 +170,7 @@ export function computeDecision(
       scoreDrops && clusterDrops ? "high" : "medium";
     return { decision: "DROP", confidence, rationale_codes: dedupe(codes) };
   }
-  if (scoreReviews || clusterReviews) {
+  if (scoreReviews || clusterReviews || pairwiseReviews) {
     if (scoreReviews) codes.push(`score_ge_${cfg.review.score_gte}`);
     if (clusterReviews) codes.push(`cluster_size_ge_${cfg.review.cluster_size_gte}`);
     const confidence: DecisionConfidence =
@@ -209,6 +215,9 @@ export function evidenceToCodes(evidence: unknown): string[] {
         break;
       case "model_classification":
         codes.push("model_classification");
+        break;
+      case "pairwise_funding_link":
+        codes.push("qf_pairwise_coordinated_pair");
         break;
     }
   }
