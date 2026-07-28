@@ -27,6 +27,13 @@ export default function TrustPage() {
             Honest current state. We&apos;d rather under-promise here than over-claim
             compliance posture we haven&apos;t actually shipped yet.
           </p>
+          <p className="mt-3 max-w-2xl text-sm text-zinc-500">
+            Disputing a result from a different filter entirely? See{" "}
+            <a href="/about#neutral-second-opinion" className="text-emerald-400 hover:underline">
+              why an open, no-commercial-stake second opinion is the point
+            </a>
+            .
+          </p>
         </header>
 
         <section>

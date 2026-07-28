@@ -32,6 +32,27 @@ export default function AboutPage() {
           </p>
         </section>
 
+        <section id="neutral-second-opinion" className="mt-12">
+          <h2 className="text-2xl font-semibold">A neutral second opinion</h2>
+          <p className="mt-3 text-zinc-300">
+            When a project&apos;s chosen filter — anyone&apos;s, not just ours — flags a real
+            contributor and the community pushes back, there&apos;s rarely a neutral party either
+            side can point to. The filter vendor made the call; disputing it usually means
+            disputing the same vendor.
+          </p>
+          <p className="mt-3 text-zinc-300">
+            SybilShield is structurally suited to be that second opinion: MIT-licensed detection
+            code anyone can read line by line, an{" "}
+            <a href="/benchmark" className="text-emerald-400 hover:underline">
+              honest-holdout accuracy record
+            </a>{" "}
+            published with its own caveats rather than a marketing number, and no commercial stake
+            in any one project&apos;s outcome — the whole thing is free. Not a replacement for
+            whichever filter a team already runs; an independent read anyone can check, including
+            the people it flags.
+          </p>
+        </section>
+
         <section className="mt-12">
           <h2 className="text-2xl font-semibold">Team <StatusBadge status="beta" /></h2>
           <p className="mt-2 text-sm text-zinc-500">
