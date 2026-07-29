@@ -144,3 +144,62 @@ def test_pairwise_signal_absent_without_a_shared_funder() -> None:
     for addr in addrs:
         evidence = result.scores[addr]["evidence"]
         assert not any(e["type"] == "pairwise_funding_link" for e in evidence)
+
+
+# ---------- Real-time first-sight scoring (TODO-312 Phase 1) ----------
+
+
+def test_first_sight_scores_a_single_never_seen_address() -> None:
+    addrs = _addrs(1, prefix=600)
+    provider = MockProvider()  # default genuine pattern
+    pipe = SybilShieldPipeline(provider=provider, model=None)
+    result = pipe.run_first_sight(addrs[0], "ethereum")
+
+    assert result.address == addrs[0]
+    assert result.chain == "ethereum"
+    assert 0 <= result.sybil_score <= 100
+    assert result.label in {"genuine", "suspicious", "sybil"}
+    assert result.cu_consumed > 0
+
+
+def test_first_sight_scripted_singleton_scores_above_genuine_baseline() -> None:
+    """Temporal signals (tight, near-uniform inter-tx timing) contribute to
+    the rule-based score even for a single address with no batch to compare
+    against -- confirming _rule_based_scoring's per-address terms
+    (min_inter_tx_seconds, activity_regularity, ...) don't silently depend
+    on cluster membership. Note: rule-based single-address scoring is
+    intentionally conservative (see docs/design/realtime-first-sight-scoring.md
+    §5, "confidence: low always") -- this does not assert a DROP/REVIEW-grade
+    score, only that the scripted pattern measurably outscores a genuine one."""
+    addrs = _addrs(1, prefix=601)
+    provider = MockProvider(scenarios={addrs[0]: "sybil_scripted"})
+    pipe = SybilShieldPipeline(provider=provider, model=None)
+    result = pipe.run_first_sight(addrs[0], "ethereum")
+
+    baseline_addr = _addrs(1, prefix=650)[0]
+    baseline = SybilShieldPipeline(provider=MockProvider(), model=None).run_first_sight(
+        baseline_addr, "ethereum"
+    )
+    assert result.sybil_score > baseline.sybil_score
+
+    types = {e["type"] for e in result.evidence}
+    # Cluster-based evidence types must be structurally absent -- there is
+    # no batch for them to have been computed from.
+    assert "shared_funding" not in types
+    assert "behavioral_clone" not in types
+    assert "graph_cluster" not in types
+
+
+def test_first_sight_never_produces_cluster_based_evidence() -> None:
+    """Even a shared-funder scenario can't produce cluster evidence for a
+    batch of one -- there's no second address to share it with. This is
+    the structural guarantee, not a coincidence of the mock data."""
+    addrs = _addrs(1, prefix=602)
+    provider = MockProvider(scenarios={addrs[0]: "sybil_shared_funder"})
+    pipe = SybilShieldPipeline(provider=provider, model=None)
+    result = pipe.run_first_sight(addrs[0], "ethereum")
+
+    types = {e["type"] for e in result.evidence}
+    assert "shared_funding" not in types
+    assert "shared_funding_weak" not in types
+    assert "pairwise_funding_link" not in types  # grant-only, and needs a peer regardless

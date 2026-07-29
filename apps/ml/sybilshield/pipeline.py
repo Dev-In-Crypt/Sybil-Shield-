@@ -25,7 +25,7 @@ from sybilshield.clustering import (
 )
 from sybilshield.evidence import generate_evidence
 from sybilshield.features.combine import extract_all_features
-from sybilshield.ingest import ingest_batch
+from sybilshield.ingest import ingest_address, ingest_batch
 from sybilshield.providers.base import OnChainProvider
 from sybilshield.scoring.model import SybilModel, label_from_score
 from sybilshield.scoring.predict import predict_batch
@@ -42,6 +42,21 @@ class AnalysisResult:
     clusters: list[Cluster] = field(default_factory=list)
     summary: dict[str, int] = field(default_factory=dict)
     cu_consumed: int = 0
+
+
+@dataclass
+class FirstSightResult:
+    """Result of a synchronous single-address, single-chain score — TODO-312
+    Phase 1. Deliberately NOT an AnalysisResult: there's no analysis_id, no
+    clusters, no summary. See docs/design/realtime-first-sight-scoring.md."""
+
+    address: str
+    chain: str
+    sybil_score: int
+    label: str
+    confidence: float
+    evidence: list[dict[str, Any]]
+    cu_consumed: int
 
 
 class SybilShieldPipeline:
@@ -223,6 +238,48 @@ class SybilShieldPipeline:
             funding_clusters, behavior_clusters, graph_clusters, cross_chain_clusters
         )
         return all_clusters, addr_to_clusters, self.provider.quota.cu_consumed
+
+    def run_first_sight(self, address: str, chain: str) -> FirstSightResult:
+        """
+        Synchronous single-address, single-chain score — TODO-312 Phase 1.
+        See docs/design/realtime-first-sight-scoring.md §4-5.
+
+        Deliberately does NOT call any of the four clustering methods — all
+        of them are relative (they compare addresses against each other
+        within a batch) and structurally cannot produce a signal for a
+        batch of one. `extract_all_features` and `predict_batch` reuse
+        cleanly (a model needs one address's own feature vector, not a
+        batch) with zero new code. `generate_evidence` is called with an
+        empty cluster context, which is exactly correct here, not a
+        workaround — there genuinely are no clusters for this call to cite.
+
+        Caller (apps/api/src/routes/first-sight.ts) owns the write-through
+        cache check, rate limiting, and persistence — this method only
+        does the real work: one address, one Alchemy round-trip, one score.
+        """
+        address = address.lower()
+        raw = ingest_address(self.provider, address, chain)
+        features = extract_all_features([raw], self.contract_labels)
+        addr_features = features[address]
+
+        if self.model is None:
+            preds = _rule_based_scoring(features, {})
+        else:
+            preds = predict_batch(self.model, features)
+        pred = preds[address]
+        score = int(pred["sybil_score"])
+
+        evidence = generate_evidence(address, score, addr_features, [], {})
+
+        return FirstSightResult(
+            address=address,
+            chain=chain,
+            sybil_score=score,
+            label=label_from_score(score),
+            confidence=float(pred.get("confidence", 0.0)),
+            evidence=evidence,
+            cu_consumed=self.provider.quota.cu_consumed,
+        )
 
 
 def _summarize(scores: dict[str, dict[str, Any]], clusters: list[Cluster]) -> dict[str, int]:

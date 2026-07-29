@@ -9,6 +9,7 @@ import { auditLogRoutes } from "./routes/audit-log.js";
 import { authedAccountRoutes, publicAuthRoutes } from "./routes/auth.js";
 import { billingRoutes } from "./routes/billing.js";
 import { feedbackRoutes } from "./routes/feedback.js";
+import { firstSightRoutes } from "./routes/first-sight.js";
 import { notificationsRoutes } from "./routes/notifications.js";
 import { publicResolveRoutes } from "./routes/resolve.js";
 import { publicScoringRoutes, scoringRoutes } from "./routes/scoring.js";
@@ -53,6 +54,7 @@ export async function buildServer() {
   await app.register(appealsRoutes);
   await app.register(publicTeamRoutes);
   await app.register(publicScoringRoutes);
+  await app.register(firstSightRoutes);
   await app.register(publicResolveRoutes);
 
   // Authenticated routes

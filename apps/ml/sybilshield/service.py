@@ -30,6 +30,16 @@ class RunRequest(BaseModel):
     preset: str | None = None
 
 
+class FirstSightRequest(BaseModel):
+    """TODO-312 Phase 1 — single address, single chain. No `chains: list[]`
+    on purpose (docs/design/realtime-first-sight-scoring.md §3: multi-chain
+    on the synchronous path multiplies cost 1:1 per chain for zero added
+    rate-limit protection)."""
+
+    address: str = Field(..., min_length=1)
+    chain: str = Field(default="ethereum")
+
+
 def _build_pipeline() -> SybilShieldPipeline:
     use_mock = os.environ.get("USE_MOCK_PROVIDERS", "true") == "true"
     if use_mock:
@@ -96,6 +106,42 @@ def cluster_only(req: RunRequest) -> dict[str, Any]:
         ],
         "addr_to_clusters": addr_to_clusters,
         "cu_consumed": cu_consumed,
+    }
+
+
+@app.post("/first-sight")
+def first_sight(req: FirstSightRequest) -> dict[str, Any]:
+    """
+    Synchronous single-address, single-chain score — TODO-312 Phase 1.
+
+    Deliberately on the SAME FastAPI process as /run and /cluster-only,
+    reusing get_pipeline()'s singleton (and therefore its AlchemyProvider's
+    RateLimiter) rather than a separate service — this is a hard
+    requirement from docs/design/realtime-first-sight-scoring.md §4: a
+    second process would get its own independent rate limiter with no
+    knowledge of this one's concurrent usage, silently letting the account
+    exceed its real Alchemy throughput ceiling.
+
+    Caller (apps/api/src/routes/first-sight.ts) owns the write-through
+    cache check and rate limiting *before* calling this — every call here
+    is real Alchemy spend.
+    """
+    if not req.address:
+        raise HTTPException(status_code=400, detail="address must not be empty")
+    pipe = get_pipeline()
+    try:
+        result = pipe.run_first_sight(req.address, req.chain)
+    except Exception as e:  # noqa: BLE001 - ingest/provider failures degrade to 502, not a raw 500
+        log.warning("first-sight failed for %s/%s: %s", req.address, req.chain, e)
+        raise HTTPException(status_code=502, detail="first_sight_ingest_failed") from e
+    return {
+        "address": result.address,
+        "chain": result.chain,
+        "sybil_score": result.sybil_score,
+        "label": result.label,
+        "confidence": result.confidence,
+        "evidence": result.evidence,
+        "cu_consumed": result.cu_consumed,
     }
 
 
