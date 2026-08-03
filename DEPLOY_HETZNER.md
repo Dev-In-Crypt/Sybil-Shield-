@@ -55,7 +55,25 @@ chmod 700 /home/sybil/.ssh && chmod 600 /home/sybil/.ssh/authorized_keys
 
 # disable root SSH login (optional but recommended)
 sed -i 's/^#*PermitRootLogin.*/PermitRootLogin no/' /etc/ssh/sshd_config
-systemctl reload ssh
+
+# disable SSH password authentication (key-only login)
+# IMPORTANT: Ubuntu's cloud-init ships /etc/ssh/sshd_config.d/50-cloud-init.conf,
+# which is loaded via an `Include` near the TOP of sshd_config -- earlier than
+# your own edits below it. sshd applies the FIRST match per keyword, so if that
+# drop-in still says "PasswordAuthentication yes" (the Ubuntu default), editing
+# only the main sshd_config silently does nothing -- you'll believe password
+# auth is off when it isn't. Patch both:
+if [ -f /etc/ssh/sshd_config.d/50-cloud-init.conf ]; then
+  sed -i 's/^PasswordAuthentication.*/PasswordAuthentication no/' \
+    /etc/ssh/sshd_config.d/50-cloud-init.conf
+fi
+sed -i 's/^#*PasswordAuthentication.*/PasswordAuthentication no/' /etc/ssh/sshd_config
+
+sshd -t                # syntax check before reloading (reload, not restart --
+systemctl reload ssh   # keeps your current SSH session alive if something's wrong)
+
+# verify it actually took effect -- must print "passwordauthentication no"
+sshd -T | grep -i passwordauthentication
 ```
 
 From now on, log in as `sybil`:
