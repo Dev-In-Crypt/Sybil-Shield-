@@ -33,7 +33,14 @@ def extract_temporal_features(data: RawAddressData) -> dict[str, float | int]:
     deltas = np.diff(timestamps)
     hours = [datetime.fromtimestamp(ts, tz=UTC).hour for ts in timestamps]
     hour_counts = np.bincount(hours, minlength=24)
-    hour_ent = float(entropy(hour_counts + 1))
+    # Small additive (Lidstone) smoothing, not full Laplace (+1 per bucket):
+    # +1 across 24 buckets adds +24 smoothing mass, which dominates and washes
+    # out concentration for addresses with realistic-but-low tx counts (e.g.
+    # ~20) -- a 21-tx address entirely within one hour was scoring ~2.3
+    # instead of near-0. +0.01 barely dilutes the real signal at any tx count
+    # while still avoiding an exact-zero collision with the "no data" 0.0
+    # sentinel (DEFAULTS) that downstream `hour_ent > 0` checks rely on.
+    hour_ent = float(entropy(hour_counts + 0.01))
     days = [datetime.fromtimestamp(ts, tz=UTC).weekday() for ts in timestamps]
     day_counts = np.bincount(days, minlength=7)
     day_ent = float(entropy(day_counts + 1))

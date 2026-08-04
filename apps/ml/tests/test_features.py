@@ -71,6 +71,37 @@ def test_genuine_wallet_high_entropy() -> None:
     assert feats["active_days"] > 3
 
 
+def test_hour_entropy_low_for_realistic_low_tx_count_single_hour() -> None:
+    """Regression test for TODO-324: a low-tx-count address whose activity is
+    entirely within one hour-of-day must score near-zero hour_entropy, not be
+    washed out by smoothing (previously scored ~2.3 for a 21-tx address)."""
+    from sybilshield.types import RawAddressData, Transaction
+
+    addr = "0x" + "42" * 20
+    # 21 txs, 30s apart, entirely inside one hour (10.5 min span) -- fixed
+    # start well clear of an hour boundary so the whole run stays in one hour.
+    base_ts = 1_700_000_000  # 2023-11-14 22:13:20 UTC
+    txs = [
+        Transaction(
+            tx_hash=f"0x{i:064x}",
+            from_addr=addr,
+            to_addr="0x" + "aa" * 20,
+            value_wei=int(0.01 * 1e18),
+            timestamp=base_ts + i * 30,
+            chain="ethereum",
+            category="external",
+        )
+        for i in range(21)
+    ]
+    data = RawAddressData(address=addr, chain="ethereum", transactions=txs)
+    feats = extract_temporal_features(data)
+    assert feats["hour_entropy"] < 1.0
+    # Still distinguishable from the "insufficient data" 0.0 DEFAULTS sentinel,
+    # which downstream `hour_ent > 0` checks (evidence generator, rule-based
+    # scoring) rely on to tell "no data" apart from "real, concentrated data".
+    assert feats["hour_entropy"] > 0.0
+
+
 def test_behavioral_features_capture_contract_diversity() -> None:
     addr = _scripted_addrs(60)[59]
     provider = MockProvider()
