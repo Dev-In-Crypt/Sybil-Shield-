@@ -64,6 +64,49 @@ describeMaybe("billing quota enforcement", () => {
     expect(row!.apiCallsThisMonth).toBeGreaterThanOrEqual(1);
   });
 
+  it("sets an approaching-quota header at >=80% usage, without triggering the hard cap (TODO-304)", async () => {
+    const email = `quota-warn-${Date.now()}@test.com`;
+    const reg = await app.inject({
+      method: "POST",
+      url: "/v1/account/register",
+      payload: { email },
+    });
+    const { api_key } = reg.json() as { api_key: string };
+
+    // Free plan limit is 100 -> 81 is >=80% but well under the hard cap.
+    await db.update(customers).set({ apiCallsThisMonth: 81 }).where(eq(customers.email, email));
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/v1/account",
+      headers: { authorization: `Bearer ${api_key}` },
+    });
+    expect(res.statusCode).toBe(200); // hard cap unaffected
+    expect(res.headers["x-quota-warning"]).toBe("approaching-limit");
+    expect(res.headers["x-quota-used"]).toBe("81");
+    expect(res.headers["x-quota-limit"]).toBe("100");
+  });
+
+  it("does not set the approaching-quota header below 80% usage", async () => {
+    const email = `quota-nowarn-${Date.now()}@test.com`;
+    const reg = await app.inject({
+      method: "POST",
+      url: "/v1/account/register",
+      payload: { email },
+    });
+    const { api_key } = reg.json() as { api_key: string };
+
+    await db.update(customers).set({ apiCallsThisMonth: 50 }).where(eq(customers.email, email));
+
+    const res = await app.inject({
+      method: "GET",
+      url: "/v1/account",
+      headers: { authorization: `Bearer ${api_key}` },
+    });
+    expect(res.statusCode).toBe(200);
+    expect(res.headers["x-quota-warning"]).toBeUndefined();
+  });
+
   it("returns 429 with monthly_quota_exceeded when counter >= limit", async () => {
     const email = `quota-cap-${Date.now()}@test.com`;
     const reg = await app.inject({

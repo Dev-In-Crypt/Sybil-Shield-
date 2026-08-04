@@ -97,6 +97,17 @@ export async function requireApiKey(request: FastifyRequest, reply: FastifyReply
         "Email support@sybilshield.org for research access.",
     });
   }
+  // Approaching-quota signal (TODO-304) — read-only, does not change the
+  // hard-cap behavior above (that block already returned for >=100%). Lets
+  // an API consumer react to rising usage from response headers alone,
+  // without a separate GET /v1/account poll — the dashboard's own banner
+  // (TODO-103) already covers the equivalent user-facing need client-side;
+  // this is the same signal for programmatic API consumers.
+  if (customer.apiCallsThisMonth >= plan.monthlyCalls * 0.8) {
+    reply.header("x-quota-warning", "approaching-limit");
+    reply.header("x-quota-used", String(customer.apiCallsThisMonth));
+    reply.header("x-quota-limit", String(plan.monthlyCalls));
+  }
   request.customer = customer;
 }
 
