@@ -22,16 +22,17 @@
  *   docker compose up -d --build
  *   cd apps/api && npx tsx src/scripts/load-test-first-sight.ts
  *
- * STATUS AS OF 2026-07-30 (TODO-325): written but NOT YET EXECUTED. Docker
- * was unavailable this session (`docker info` failed) and this endpoint's
- * handler does a real DB read before either limiter even applies (see
- * routes/first-sight.ts's numbered comments) plus a real call to the ML
- * service on the ML-first-sight-scoring path — there is no way to exercise
- * any of this without a running Postgres + ml service, unlike TODO-312's
- * own ML-side tests which could fall back to MockProvider with zero
- * infrastructure. Whoever runs this next (a Docker-available session) should
- * update TODO-324... TODO-325's status in TODO.md from "in progress" to
- * "done" (or file a bug if a test below fails) rather than assume it passes.
+ * STATUS AS OF 2026-07-30 (TODO-325): executed against a local
+ * docker-compose stack (MockProvider, no real Alchemy spend) — global
+ * budget and per-Origin cap both PASS. The bonus same-address race check
+ * (below) found a REAL bug on the first properly-isolated run: two
+ * concurrent first-sight requests for the same never-before-scored address
+ * BOTH returned `first_sight: true`, meaning the write-through cache check
+ * and the DB persist are not atomic with each other — a real double-spend
+ * of Alchemy budget under concurrent load. Filed as TODO-327; not fixed
+ * here (needs a real design decision — a DB unique constraint + upsert, or
+ * an in-process per-address in-flight lock — out of scope for a load-test
+ * script). See TODO.md's TODO-325/TODO-327 entries for the full run output.
  */
 
 const RAW_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:3001";
@@ -92,19 +93,25 @@ async function testGlobalBudget(): Promise<{ passed: boolean; statuses: number[]
 
 /** Fire more requests from ONE origin than its per-minute cap allows, spaced
  * out enough (700ms) to stay clear of the global budget so this isolates the
- * per-Origin limiter specifically. */
+ * per-Origin limiter specifically. Explicitly distinguishes a per-Origin 429
+ * from a global-budget 429 (different error bodies) rather than accepting
+ * either as "pass" — an early global-budget 429 would prove nothing about
+ * the per-Origin cap at all. */
 async function testPerOriginCap(): Promise<{ passed: boolean; firstBlockedAt: number | null }> {
   const origin = "https://load-test-origin.example";
   const attempts = PER_ORIGIN_RPM + 5;
   for (let i = 1; i <= attempts; i++) {
     const { status, body } = await callFirstSight(randomAddress(20_000 + i), origin);
-    if (status === 429) {
-      console.log(`[per-origin] request ${i}/${attempts} -> 429`, body);
+    if (status === 429 && body.error !== "first_sight_budget_exceeded") {
+      console.log(`[per-origin] request ${i}/${attempts} -> 429 (per-origin limiter)`, body);
       return { passed: true, firstBlockedAt: i };
+    }
+    if (status === 429) {
+      console.log(`[per-origin] request ${i}/${attempts} -> 429 but from the GLOBAL budget, not the per-origin cap -- ignoring, still counts toward the per-minute total`, body);
     }
     await new Promise((resolve) => setTimeout(resolve, 700));
   }
-  console.log(`[per-origin] all ${attempts} requests succeeded — cap never fired`);
+  console.log(`[per-origin] all ${attempts} requests completed — per-origin cap never fired`);
   return { passed: false, firstBlockedAt: null };
 }
 
@@ -138,9 +145,23 @@ async function main(): Promise<void> {
     `[load-test] target: ${BASE_URL} (global budget=${GLOBAL_BUDGET_PER_WINDOW}/1000ms, per-origin=${PER_ORIGIN_RPM}/min)`,
   );
 
-  const globalResult = await testGlobalBudget();
-  const originResult = await testPerOriginCap();
+  // Run the same-address race check FIRST, before anything else has touched
+  // the global budget window -- it fires exactly 2 concurrent calls, which
+  // must both fit under MAX_PER_WINDOW=2 to actually reach the DB/ML path
+  // this check cares about (not get pre-empted by the throttle itself).
   const raceResult = await testConcurrentSameAddressCacheRace();
+
+  // Let the global window fully clear (it's 1000ms) before deliberately
+  // exceeding it -- otherwise leftover state from the race check above
+  // could trip the throttle early for the wrong reason.
+  await new Promise((resolve) => setTimeout(resolve, 1100));
+  const globalResult = await testGlobalBudget();
+
+  // Same reasoning: let testGlobalBudget's deliberate over-budget burst age
+  // out of the 1000ms window before testing the per-Origin cap, so its first
+  // 429 (if any) is provably the per-Origin limiter, not the global one.
+  await new Promise((resolve) => setTimeout(resolve, 1100));
+  const originResult = await testPerOriginCap();
 
   console.log("\n=== summary ===");
   console.log(`Global budget (${GLOBAL_BUDGET_PER_WINDOW}/1000ms) 429s:  ${globalResult.passed ? "PASS" : "FAIL"}`);
