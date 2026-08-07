@@ -76,6 +76,27 @@ describeMaybe("POST /v1/score/first-sight", () => {
     expect(row?.sybilScore).toBe(85);
   });
 
+  it("de-dupes two truly concurrent requests for the same never-scored address — only one real ML call (TODO-327)", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(mlResponse({ sybil_score: 42 }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    const addr = "0x" + Date.now().toString(16).padStart(40, "9").slice(-40);
+    const [a, b] = await Promise.all([
+      app.inject({ method: "POST", url: "/v1/score/first-sight", payload: { address: addr, chain: "ethereum" } }),
+      app.inject({ method: "POST", url: "/v1/score/first-sight", payload: { address: addr, chain: "ethereum" } }),
+    ]);
+
+    expect(a.statusCode).toBe(200);
+    expect(b.statusCode).toBe(200);
+    // Exactly one real ML ingestion call for the concurrent burst -- the
+    // race TODO-325's load test found (both showing first_sight: true)
+    // must no longer double-spend it.
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    // Only one row persisted for this address.
+    const rows = await db.select().from(addressScores).where(eq(addressScores.address, addr));
+    expect(rows.length).toBe(1);
+  });
+
   it("does not call the ML service twice for the same address — cache hit is free", async () => {
     const fetchMock = vi.fn().mockResolvedValue(mlResponse({ sybil_score: 10 }));
     vi.stubGlobal("fetch", fetchMock);

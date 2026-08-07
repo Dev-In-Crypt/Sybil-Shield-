@@ -1,7 +1,8 @@
 import { and, desc, eq } from "drizzle-orm";
-import type { FastifyInstance } from "fastify";
+import type { FastifyBaseLogger, FastifyInstance } from "fastify";
 import { z } from "zod";
 import { addressScores, analyses, customers, db } from "../db/index.js";
+import { dedupeInFlight } from "../lib/first-sight-inflight.js";
 import { checkGlobalFirstSightBudget } from "../lib/first-sight-throttle.js";
 import { computeDecision, evidenceToCodes } from "../lib/presets.js";
 
@@ -87,6 +88,100 @@ function formatResponse(row: AddressScoreRow, firstSight: boolean) {
   };
 }
 
+type ScoreOutcome =
+  | { kind: "row"; row: AddressScoreRow; firstSight: boolean }
+  | { kind: "throttled" }
+  | { kind: "scoring_failed" };
+
+/**
+ * The full check-then-act sequence (cache check → throttle → real ML
+ * ingestion → persist) for one address+chain, factored out so it can be
+ * wrapped in `dedupeInFlight` (TODO-327) — two concurrent callers for the
+ * SAME key share this exact call rather than each racing through it
+ * independently, which is what let a concurrent burst double-spend real
+ * Alchemy budget on one address before the fix.
+ */
+async function scoreAddress(address: string, chain: string, log: FastifyBaseLogger): Promise<ScoreOutcome> {
+  // 1. Write-through cache FIRST — never spend Alchemy budget on an
+  // address already scored by this call, a prior first-sight call, or
+  // any real batch analysis. Same table + same "most recent row wins"
+  // rule GET /v1/score/:address already reads.
+  const [existing] = await db
+    .select()
+    .from(addressScores)
+    .where(and(eq(addressScores.address, address), eq(addressScores.chain, chain)))
+    .orderBy(desc(addressScores.createdAt))
+    .limit(1);
+  if (existing) {
+    return { kind: "row", row: existing, firstSight: false };
+  }
+
+  // 2. Global throughput reservation — protects the batch worker's
+  // share of the shared Alchemy account ceiling from a first-sight
+  // burst, independent of the per-origin cap above (many different
+  // origins could otherwise still exhaust it together).
+  if (!checkGlobalFirstSightBudget()) {
+    return { kind: "throttled" };
+  }
+
+  // 3. Real ingestion — single address, single chain, same process as
+  // the batch worker's ML service (reuses its Alchemy rate limiter;
+  // see docs/design/realtime-first-sight-scoring.md §4 for why a
+  // separate process would be unsafe here).
+  let mlResult: {
+    sybil_score: number;
+    label: string;
+    confidence: number;
+    evidence: unknown[];
+  };
+  try {
+    const resp = await fetch(`${ML_SERVICE_URL}/first-sight`, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ address, chain }),
+    });
+    if (!resp.ok) {
+      const text = await resp.text();
+      log.warn({ status: resp.status, text }, "first-sight ML call failed");
+      return { kind: "scoring_failed" };
+    }
+    mlResult = (await resp.json()) as typeof mlResult;
+  } catch (err) {
+    log.warn({ err }, "first-sight ML call errored");
+    return { kind: "scoring_failed" };
+  }
+
+  // 4. Decision + write-through persistence. No preset context exists
+  // for a public first-sight call (no analysis, no customer choice) —
+  // "balanced" is the documented default ("pick this if unsure").
+  // clusterSize is always null here: no batch, no clustering, by
+  // design (Phase 2, not this task) — computeDecision() needs zero
+  // changes for this, its own confidence tiers already cover the
+  // "model-only, no structural signal" case.
+  const extraCodes = evidenceToCodes(mlResult.evidence);
+  const decision = computeDecision(mlResult.sybil_score, null, "balanced", extraCodes);
+  const analysisId = await ensureSystemAnalysisId();
+
+  const [inserted] = await db
+    .insert(addressScores)
+    .values({
+      analysisId,
+      address,
+      chain,
+      sybilScore: mlResult.sybil_score,
+      confidence: mlResult.confidence.toFixed(3),
+      label: mlResult.label,
+      decision: decision.decision,
+      decisionConfidence: decision.confidence,
+      rationaleCodes: decision.rationale_codes,
+      features: {},
+      evidence: mlResult.evidence,
+    })
+    .returning();
+
+  return { kind: "row", row: inserted!, firstSight: true };
+}
+
 export async function firstSightRoutes(app: FastifyInstance): Promise<void> {
   app.post<{ Body: { address: string; chain?: string } }>(
     "/v1/score/first-sight",
@@ -113,88 +208,23 @@ export async function firstSightRoutes(app: FastifyInstance): Promise<void> {
       const address = parsed.data.address.toLowerCase();
       const chain = parsed.data.chain;
 
-      // 1. Write-through cache FIRST — never spend Alchemy budget on an
-      // address already scored by this call, a prior first-sight call, or
-      // any real batch analysis. Same table + same "most recent row wins"
-      // rule GET /v1/score/:address already reads.
-      const [existing] = await db
-        .select()
-        .from(addressScores)
-        .where(and(eq(addressScores.address, address), eq(addressScores.chain, chain)))
-        .orderBy(desc(addressScores.createdAt))
-        .limit(1);
-      if (existing) {
-        return reply.send(formatResponse(existing, false));
-      }
+      // TODO-327: de-dupe concurrent requests for the SAME address+chain
+      // so at most one of them actually runs scoreAddress's real ingestion
+      // — every waiter shares that one call's result instead of each
+      // racing through the cache-check independently.
+      const outcome = await dedupeInFlight(`${address}:${chain}`, () => scoreAddress(address, chain, request.log));
 
-      // 2. Global throughput reservation — protects the batch worker's
-      // share of the shared Alchemy account ceiling from a first-sight
-      // burst, independent of the per-origin cap above (many different
-      // origins could otherwise still exhaust it together).
-      if (!checkGlobalFirstSightBudget()) {
+      if (outcome.kind === "throttled") {
         return reply.code(429).send({
           error: "first_sight_budget_exceeded",
           message:
             "Real-time scoring is at capacity right now. Try again shortly, or run a batch analysis instead.",
         });
       }
-
-      // 3. Real ingestion — single address, single chain, same process as
-      // the batch worker's ML service (reuses its Alchemy rate limiter;
-      // see docs/design/realtime-first-sight-scoring.md §4 for why a
-      // separate process would be unsafe here).
-      let mlResult: {
-        sybil_score: number;
-        label: string;
-        confidence: number;
-        evidence: unknown[];
-      };
-      try {
-        const resp = await fetch(`${ML_SERVICE_URL}/first-sight`, {
-          method: "POST",
-          headers: { "content-type": "application/json" },
-          body: JSON.stringify({ address, chain }),
-        });
-        if (!resp.ok) {
-          const text = await resp.text();
-          request.log.warn({ status: resp.status, text }, "first-sight ML call failed");
-          return reply.code(502).send({ error: "scoring_failed" });
-        }
-        mlResult = (await resp.json()) as typeof mlResult;
-      } catch (err) {
-        request.log.warn({ err }, "first-sight ML call errored");
+      if (outcome.kind === "scoring_failed") {
         return reply.code(502).send({ error: "scoring_failed" });
       }
-
-      // 4. Decision + write-through persistence. No preset context exists
-      // for a public first-sight call (no analysis, no customer choice) —
-      // "balanced" is the documented default ("pick this if unsure").
-      // clusterSize is always null here: no batch, no clustering, by
-      // design (Phase 2, not this task) — computeDecision() needs zero
-      // changes for this, its own confidence tiers already cover the
-      // "model-only, no structural signal" case.
-      const extraCodes = evidenceToCodes(mlResult.evidence);
-      const decision = computeDecision(mlResult.sybil_score, null, "balanced", extraCodes);
-      const analysisId = await ensureSystemAnalysisId();
-
-      const [inserted] = await db
-        .insert(addressScores)
-        .values({
-          analysisId,
-          address,
-          chain,
-          sybilScore: mlResult.sybil_score,
-          confidence: mlResult.confidence.toFixed(3),
-          label: mlResult.label,
-          decision: decision.decision,
-          decisionConfidence: decision.confidence,
-          rationaleCodes: decision.rationale_codes,
-          features: {},
-          evidence: mlResult.evidence,
-        })
-        .returning();
-
-      return reply.send(formatResponse(inserted!, true));
+      return reply.send(formatResponse(outcome.row, outcome.firstSight));
     },
   );
 }
