@@ -1,17 +1,25 @@
 /**
- * SybilShield embeddable score badge (TODO-308 MVP).
+ * SybilShield embeddable score badge (TODO-308 MVP + TODO-326 opt-in
+ * first-sight fallback).
  *
  * Intentionally plain ES2017+ JS, no build step, no dependency — this file
  * is served as a static asset and loaded directly by third-party pages, so
  * it must work with a single <script> tag and never break the host page.
  *
- * WHAT THIS IS: a read-only display widget. It shows whatever decision
- * SybilShield's public GET /v1/score/:address already has on record for an
- * address — it does NOT run a fresh analysis and does NOT block anything on
- * the host page itself (no form submission is prevented). An address that
- * has never been part of a SybilShield analysis shows "not yet scored", not
- * a false "clean" result — see the docs page for the full MVP/stretch split
- * (TODO.md TODO-308).
+ * WHAT THIS IS BY DEFAULT: a read-only display widget. It shows whatever
+ * decision SybilShield's public GET /v1/score/:address already has on
+ * record for an address — it does NOT run a fresh analysis and does NOT
+ * block anything on the host page itself (no form submission is
+ * prevented). An address that has never been part of a SybilShield
+ * analysis shows "not yet scored", not a false "clean" result.
+ *
+ * OPT-IN: an element with the `data-sybilshield-first-sight` attribute
+ * falls back to a real synchronous scoring call (POST
+ * /v1/score/first-sight, TODO-312) when the cache lookup above comes back
+ * unscored, instead of always showing "not yet scored". This is opt-in,
+ * NOT the default, because it can trigger real on-chain ingestion cost —
+ * see /docs/widget for the tradeoff. Existing embeds without the
+ * attribute are byte-identical to before this feature existed.
  *
  * Usage:
  *   <span data-sybilshield-address="0x...">
@@ -19,6 +27,7 @@
  *
  * Optional attributes on the element:
  *   data-sybilshield-api="https://api.example.com"   (self-hosted override)
+ *   data-sybilshield-first-sight                     (opt-in, see above)
  *
  * Multiple badges on one page are supported — every element with
  * [data-sybilshield-address] on the page at load time gets its own badge.
@@ -79,18 +88,22 @@
     return { variant: "unknown", label: "Not yet scored" };
   }
 
-  function loadOne(el) {
-    var address = el.getAttribute("data-sybilshield-address");
-    if (!address || !/^0x[0-9a-fA-F]{40}$/.test(address)) {
-      render(el, "unknown", "Invalid address");
-      return;
-    }
-    var apiBase = (el.getAttribute("data-sybilshield-api") || DEFAULT_API).replace(/\/$/, "");
-    render(el, "loading", "Checking…");
-
-    fetch(apiBase + "/v1/score/" + address)
+  // TODO-326: opt-in fallback for an address the cache lookup doesn't know
+  // about yet. Only called when the element has [data-sybilshield-first-sight]
+  // — never triggered by default, since this can drive real on-chain
+  // ingestion cost the widget's original MVP scope explicitly avoided.
+  function runFirstSight(el, apiBase, address) {
+    render(el, "loading", "Scoring…");
+    return fetch(apiBase + "/v1/score/first-sight", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ address: address }),
+    })
       .then(function (res) {
-        if (res.status === 404) {
+        if (res.status === 429) {
+          // Global/per-origin throughput budget is spent right now — same
+          // honest "not yet scored" as a plain cache miss, never a false
+          // "clean" result.
           render(el, "unknown", "Not yet scored");
           return null;
         }
@@ -98,7 +111,39 @@
         return res.json();
       })
       .then(function (score) {
-        if (!score) return; // already handled the 404 case above
+        if (!score) return;
+        var c = classify(score);
+        render(el, c.variant, c.label);
+      })
+      .catch(function () {
+        render(el, "unknown", "Unable to check");
+      });
+  }
+
+  function loadOne(el) {
+    var address = el.getAttribute("data-sybilshield-address");
+    if (!address || !/^0x[0-9a-fA-F]{40}$/.test(address)) {
+      render(el, "unknown", "Invalid address");
+      return;
+    }
+    var apiBase = (el.getAttribute("data-sybilshield-api") || DEFAULT_API).replace(/\/$/, "");
+    var firstSightEnabled = el.hasAttribute("data-sybilshield-first-sight");
+    render(el, "loading", "Checking…");
+
+    fetch(apiBase + "/v1/score/" + address)
+      .then(function (res) {
+        if (res.status === 404) {
+          if (firstSightEnabled) {
+            return runFirstSight(el, apiBase, address);
+          }
+          render(el, "unknown", "Not yet scored");
+          return null;
+        }
+        if (!res.ok) throw new Error("http " + res.status);
+        return res.json();
+      })
+      .then(function (score) {
+        if (!score) return; // already handled above (cache 404, or first-sight already rendered)
         var c = classify(score);
         render(el, c.variant, c.label);
       })

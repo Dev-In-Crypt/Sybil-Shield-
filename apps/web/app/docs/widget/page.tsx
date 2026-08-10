@@ -10,6 +10,12 @@ const EMBED_SNIPPET = `<!-- Put this where you want the badge to appear -->
 <!-- Once per page, anywhere -->
 <script src="https://www.sybilshield.org/widget.js" async></script>`;
 
+const FIRST_SIGHT_SNIPPET = `<!-- Opt-in: score a never-before-seen address on the spot -->
+<span
+  data-sybilshield-address="0xd8da6bf26964af9d7eed9e03e53415d37aa96045"
+  data-sybilshield-first-sight
+></span>`;
+
 const STATES: Array<{ label: string; meaning: string; color: string }> = [
   { label: "Looks clean", meaning: "Decision is KEEP, or no decision on record but sybil_score is low", color: "text-emerald-400" },
   { label: "Under review", meaning: "Decision is REVIEW — uncertain, not confirmed", color: "text-amber-400" },
@@ -32,12 +38,12 @@ export default function WidgetDocsPage() {
         </p>
 
         <div className="mt-10 rounded border border-amber-700/40 bg-amber-900/10 p-5 text-sm text-amber-200">
-          <strong>MVP scope — read this first.</strong> The widget shows whatever decision SybilShield already
-          has on record for an address. It does <strong>not</strong> run a fresh analysis on first sight, and it
-          does <strong>not</strong> block anything on your page — it&apos;s a display badge, not a gate. An
-          address nobody has ever submitted to SybilShield shows honestly as &quot;Not yet scored&quot;, never a
-          false &quot;clean&quot; result. Real-time first-sight scoring is a tracked stretch goal (TODO-308), not
-          built yet.
+          <strong>Scope — read this first.</strong> By default the widget shows whatever decision SybilShield
+          already has on record for an address; it does <strong>not</strong> run a fresh analysis and does{" "}
+          <strong>not</strong> block anything on your page — it&apos;s a display badge, not a gate. An address
+          nobody has ever submitted to SybilShield shows honestly as &quot;Not yet scored&quot;, never a false
+          &quot;clean&quot; result. An opt-in <code className="font-mono">data-sybilshield-first-sight</code>{" "}
+          attribute (below) changes that for addresses with it set — see that section before enabling it.
         </div>
 
         <section className="mt-12">
@@ -46,6 +52,26 @@ export default function WidgetDocsPage() {
           <p className="mt-3 text-sm text-zinc-500">
             Every element with <code className="font-mono text-emerald-300">data-sybilshield-address</code> on the
             page gets its own badge — safe to use in a list of many addresses.
+          </p>
+        </section>
+
+        <section className="mt-12">
+          <h2 className="font-mono text-xl font-bold">// opt-in: score on first sight</h2>
+          <p className="mt-3 text-sm text-zinc-400">
+            Add <code className="font-mono text-emerald-300">data-sybilshield-first-sight</code> to an element and
+            an unscored address gets a real, synchronous scoring call instead of always showing &quot;Not yet
+            scored&quot;:
+          </p>
+          <pre className="mt-4 overflow-x-auto border border-white/10 bg-zinc-950 p-4 font-mono text-xs text-zinc-300">{FIRST_SIGHT_SNIPPET}</pre>
+          <p className="mt-3 text-sm text-zinc-400">
+            This runs real on-chain ingestion (Ethereum mainnet only) the first time any given address is seen —
+            it costs real time (typically a couple of seconds, shown as &quot;Scoring…&quot;) and real capacity, so
+            it&apos;s rate-limited per-origin and globally shared with SybilShield&apos;s batch analysis capacity.
+            If the budget is spent, it degrades to the same honest &quot;Not yet scored&quot; state rather than
+            erroring. Because a fresh address has no batch of peers to compare against yet, its confidence is
+            capped lower than a full analysis&apos;s — treat it as an early signal, same caveat as any other
+            SybilShield score. <strong>Off by default</strong> for exactly this reason: existing embeds that
+            copy-pasted the plain snippet above don&apos;t silently start driving this cost.
           </p>
         </section>
 
@@ -79,6 +105,10 @@ export default function WidgetDocsPage() {
               SybilShield API instead of the public sandbox. Defaults to{" "}
               <code className="font-mono text-zinc-400">https://api.sybilshield.org</code>.
             </li>
+            <li>
+              <code className="font-mono text-emerald-300">data-sybilshield-first-sight</code> — opt-in real-time
+              scoring for unscored addresses. See the section above before enabling it.
+            </li>
           </ul>
         </section>
 
@@ -87,9 +117,10 @@ export default function WidgetDocsPage() {
           <p className="mt-3 text-sm text-zinc-400">
             One <code className="font-mono text-emerald-300">GET /v1/score/:address</code> call per badge, against
             the same free, unauthenticated, public endpoint documented on{" "}
-            <a className="text-emerald-400 hover:underline" href="/docs">/docs</a>. No API key, no cookies, no
-            tracking — the widget only talks to the SybilShield API (or your self-hosted override) and nothing
-            else.
+            <a className="text-emerald-400 hover:underline" href="/docs">/docs</a> — falling back to a{" "}
+            <code className="font-mono text-emerald-300">POST /v1/score/first-sight</code> call only when the
+            opt-in attribute is set and the address is unscored. No API key, no cookies, no tracking — the widget
+            only talks to the SybilShield API (or your self-hosted override) and nothing else.
           </p>
         </section>
 
