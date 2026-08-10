@@ -4,7 +4,9 @@ Target: full SybilShield backend (api + worker + ml + postgres + redis) on a sin
 Hetzner CX22 VPS (€4.59/mo), TLS via Let's Encrypt, fronted by Cloudflare DNS.
 Frontend stays on Vercel.
 
-**Server:** `178.105.176.105` (Nuremberg)
+**Server:** `YOUR_SERVER_IP` — replace with your own VPS's IPv4 address
+throughout this guide (e.g. `95.216.xxx.xxx`); it's the same value
+everywhere it appears below.
 **Domain:** `sybilshield.org`
 **Subdomain for API:** `api.sybilshield.org`
 
@@ -16,7 +18,7 @@ Cloudflare → `sybilshield.org` → DNS → Records → Add:
 
 | Type | Name | Content              | Proxy   | TTL  |
 |------|------|----------------------|---------|------|
-| A    | `api`  | `178.105.176.105`    | DNS only (grey cloud) | Auto |
+| A    | `api`  | `YOUR_SERVER_IP`    | DNS only (grey cloud) | Auto |
 
 ⚠️ Keep proxy OFF — we use Let's Encrypt directly on the VPS. You can flip it
 to orange-proxy later once you've confirmed the cert works.
@@ -26,7 +28,7 @@ to orange-proxy later once you've confirmed the cert works.
 ## 1. First SSH + harden the box
 
 ```bash
-ssh root@178.105.176.105
+ssh root@YOUR_SERVER_IP
 
 # update + install everything we need
 apt update && apt upgrade -y
@@ -78,7 +80,7 @@ sshd -T | grep -i passwordauthentication
 
 From now on, log in as `sybil`:
 ```bash
-ssh sybil@178.105.176.105
+ssh sybil@YOUR_SERVER_IP
 ```
 
 ---
@@ -264,7 +266,7 @@ curl -X POST https://api.sybilshield.org/v1/analyses \
 curl -H "Authorization: Bearer $KEY" https://api.sybilshield.org/v1/analyses
 
 # Confirm audit log row was written
-ssh sybil@178.105.176.105 \
+ssh sybil@YOUR_SERVER_IP \
   "cd sybilshield && docker compose exec -T postgres \
    psql -U sybilshield -c 'SELECT count(*) FROM evidence_audit_log'"
 ```
@@ -277,7 +279,7 @@ Open `https://sybilshield.org` and the dashboard should be live.
 
 Once you have an Alchemy key:
 ```bash
-ssh sybil@178.105.176.105
+ssh sybil@YOUR_SERVER_IP
 cd sybilshield
 nano .env
 # Set:
@@ -293,7 +295,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d ml worker
 ## 9. Updating the deploy when you push to GitHub
 
 ```bash
-ssh sybil@178.105.176.105
+ssh sybil@YOUR_SERVER_IP
 cd sybilshield
 git pull
 docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
