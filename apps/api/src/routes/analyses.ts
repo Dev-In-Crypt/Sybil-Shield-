@@ -2,7 +2,7 @@ import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { addressScores, analyses, clusters, db } from "../db/index.js";
-import { presetRuleText } from "../lib/presets.js";
+import { presetRuleText, ThresholdOverridesSchema } from "../lib/presets.js";
 import { planLimits } from "../middleware/auth.js";
 import { enqueueAnalysis } from "../services/pipeline-client.js";
 
@@ -22,22 +22,9 @@ const CreateAnalysisSchema = z.object({
   // Optional per-analysis threshold overrides on top of the preset (pilot
   // tuning). Each key is optional; a numeric value tightens/loosens that
   // knob, `null` disables it, omitting it keeps the preset's value.
-  threshold_overrides: z
-    .object({
-      drop: z
-        .object({
-          score_gte: z.number().min(0).max(100).nullable().optional(),
-          cluster_size_gte: z.number().int().min(0).nullable().optional(),
-        })
-        .optional(),
-      review: z
-        .object({
-          score_gte: z.number().min(0).max(100).nullable().optional(),
-          cluster_size_gte: z.number().int().min(0).nullable().optional(),
-        })
-        .optional(),
-    })
-    .optional(),
+  // Omitting this field entirely (not just an empty object) falls back to
+  // the customer's stored default (TODO-102), if any.
+  threshold_overrides: ThresholdOverridesSchema.optional(),
 });
 
 export async function analysesRoutes(app: FastifyInstance): Promise<void> {
@@ -105,6 +92,16 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
       });
     }
 
+    // TODO-102: an explicit per-analysis threshold_overrides always wins;
+    // only when the request omits the field entirely do we fall back to
+    // the customer's stored default (if any). `body.threshold_overrides`
+    // is `undefined`, never `null`, when omitted — zod's `.optional()`
+    // doesn't accept an explicit null here, so this check is unambiguous.
+    const effectiveThresholdOverrides =
+      body.threshold_overrides !== undefined
+        ? body.threshold_overrides
+        : (request.customer!.defaultThresholdOverrides as typeof body.threshold_overrides | null) ?? undefined;
+
     const [created] = await db
       .insert(analyses)
       .values({
@@ -117,7 +114,7 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
         includeEvidence: body.include_evidence,
         preset: body.preset,
         mode: body.mode,
-        thresholdOverrides: body.threshold_overrides ?? null,
+        thresholdOverrides: effectiveThresholdOverrides ?? null,
         status: "pending",
       })
       .returning();
@@ -129,7 +126,7 @@ export async function analysesRoutes(app: FastifyInstance): Promise<void> {
       chains: body.chains,
       sensitivity: body.sensitivity,
       preset: body.preset,
-      thresholdOverrides: body.threshold_overrides,
+      thresholdOverrides: effectiveThresholdOverrides,
       mode: body.mode,
     });
 

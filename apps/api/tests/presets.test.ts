@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { computeDecision, evidenceToCodes, PRESETS, presetRuleText } from "../src/lib/presets.js";
+import { computeDecision, evidenceToCodes, PRESETS, presetRuleText, ThresholdOverridesSchema } from "../src/lib/presets.js";
 
 describe("computeDecision — preset baseline", () => {
   it("airdrop drops a high score", () => {
@@ -157,5 +157,36 @@ describe("evidenceToCodes — pairwise_funding_link mapping", () => {
       { type: "pairwise_funding_link", description: "shares a funder", confidence: 0.95 },
     ]);
     expect(codes).toContain("qf_pairwise_coordinated_pair");
+  });
+});
+
+describe("ThresholdOverridesSchema — shared validation (TODO-102)", () => {
+  it("accepts an empty object (no overrides)", () => {
+    expect(ThresholdOverridesSchema.safeParse({}).success).toBe(true);
+  });
+
+  it("accepts a partial drop-only override", () => {
+    const r = ThresholdOverridesSchema.safeParse({ drop: { cluster_size_gte: 12 } });
+    expect(r.success).toBe(true);
+  });
+
+  it("accepts an explicit null to disable a threshold", () => {
+    const r = ThresholdOverridesSchema.safeParse({ drop: { score_gte: null } });
+    expect(r.success).toBe(true);
+  });
+
+  it("rejects a non-numeric threshold value", () => {
+    const r = ThresholdOverridesSchema.safeParse({ drop: { cluster_size_gte: "twelve" } });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects a score out of 0-100 range", () => {
+    const r = ThresholdOverridesSchema.safeParse({ review: { score_gte: 150 } });
+    expect(r.success).toBe(false);
+  });
+
+  it("rejects an unknown top-level key", () => {
+    const r = ThresholdOverridesSchema.safeParse({ keep: { score_gte: 10 } });
+    expect(r.success).toBe(false);
   });
 });

@@ -11,6 +11,8 @@
  *   - `low`    = only the model classifier nudged us across the threshold
  *                with no supporting structural signal
  */
+import { z } from "zod";
+
 export type DecisionPreset = "airdrop" | "dao" | "grant" | "balanced";
 export type Decision = "DROP" | "REVIEW" | "KEEP";
 export type DecisionConfidence = "high" | "medium" | "low";
@@ -41,6 +43,25 @@ export interface PresetOverrides {
   drop?: Partial<ThresholdRule>;
   review?: Partial<ThresholdRule>;
 }
+
+/**
+ * Runtime validation for `PresetOverrides` — single source of truth so
+ * `POST /v1/analyses`'s per-analysis `threshold_overrides` and the
+ * per-customer default (TODO-102, `PUT /v1/account/default-thresholds`)
+ * can't drift into two independently-typed copies of the same shape.
+ */
+const ThresholdRuleSchema = z
+  .object({
+    score_gte: z.number().min(0).max(100).nullable().optional(),
+    cluster_size_gte: z.number().int().min(0).nullable().optional(),
+  })
+  .strict();
+export const ThresholdOverridesSchema = z
+  .object({
+    drop: ThresholdRuleSchema.optional(),
+    review: ThresholdRuleSchema.optional(),
+  })
+  .strict();
 
 // Threshold calibration history:
 //   v1 (initial): cluster_size thresholds were 3-10. Pre-pilot retro on 200

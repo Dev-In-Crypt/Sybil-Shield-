@@ -3,6 +3,7 @@ import type { FastifyInstance } from "fastify";
 import { z } from "zod";
 import { customers, db } from "../db/index.js";
 import { generateApiKey } from "../lib/api-keys.js";
+import { ThresholdOverridesSchema } from "../lib/presets.js";
 import { generateWebhookSecret } from "../services/webhooks.js";
 
 const RegisterSchema = z.object({
@@ -86,6 +87,30 @@ export async function authedAccountRoutes(app: FastifyInstance): Promise<void> {
     return reply.code(204).send();
   });
 
+  // TODO-102: a stored default for POST /v1/analyses's threshold_overrides,
+  // applied when a create-analysis request omits its own. Same shape/
+  // validation as the per-analysis field (ThresholdOverridesSchema) so the
+  // two can't drift.
+  app.put("/v1/account/default-thresholds", async (request, reply) => {
+    const parsed = ThresholdOverridesSchema.safeParse(request.body);
+    if (!parsed.success) {
+      return reply.code(400).send({ error: "invalid_body", details: parsed.error.flatten() });
+    }
+    await db
+      .update(customers)
+      .set({ defaultThresholdOverrides: parsed.data })
+      .where(eq(customers.id, request.customer!.id));
+    return reply.send({ default_threshold_overrides: parsed.data });
+  });
+
+  app.delete("/v1/account/default-thresholds", async (request, reply) => {
+    await db
+      .update(customers)
+      .set({ defaultThresholdOverrides: null })
+      .where(eq(customers.id, request.customer!.id));
+    return reply.code(204).send();
+  });
+
   app.get("/v1/account", async (request, reply) => {
     const c = request.customer!;
     return reply.send({
@@ -94,6 +119,7 @@ export async function authedAccountRoutes(app: FastifyInstance): Promise<void> {
       plan: c.plan,
       api_key_prefix: c.apiKeyPrefix,
       webhook_configured: Boolean(c.webhookUrl),
+      default_threshold_overrides: c.defaultThresholdOverrides,
       usage: {
         calls_this_month: c.apiCallsThisMonth,
         limit: c.apiCallsLimit,

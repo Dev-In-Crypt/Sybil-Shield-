@@ -28,6 +28,11 @@ export const customers = pgTable("customers", {
   apiKeyPrefix: text("api_key_prefix"),
   apiCallsThisMonth: integer("api_calls_this_month").notNull().default(0),
   apiCallsLimit: integer("api_calls_limit").notNull().default(100),
+  // Per-customer default threshold overrides (TODO-102) — same shape as
+  // analyses.threshold_overrides. Applied to a new analysis only when the
+  // create-analysis request omits its own threshold_overrides; an explicit
+  // per-analysis override always wins over this default.
+  defaultThresholdOverrides: jsonb("default_threshold_overrides"),
   webhookUrl: text("webhook_url"),
   webhookSecret: text("webhook_secret"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
