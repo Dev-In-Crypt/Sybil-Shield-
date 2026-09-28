@@ -1,3 +1,4 @@
+import { pathToFileURL } from "node:url";
 import cors from "@fastify/cors";
 import rateLimit from "@fastify/rate-limit";
 import Fastify from "fastify";
@@ -109,6 +110,8 @@ async function main() {
   }
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// pathToFileURL, not `file://${argv[1]}`: on Windows argv[1] is `C:\...` while
+// import.meta.url is `file:///C:/...`, so the naive compare never matched.
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   void main();
 }

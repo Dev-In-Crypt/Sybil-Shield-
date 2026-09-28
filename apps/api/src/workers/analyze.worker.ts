@@ -5,6 +5,7 @@
  *
  * Run: tsx src/workers/analyze.worker.ts
  */
+import { pathToFileURL } from "node:url";
 import { Worker } from "bullmq";
 import { eq } from "drizzle-orm";
 import IORedis from "ioredis";
@@ -335,7 +336,8 @@ export function startWorker(): Worker {
   return worker;
 }
 
-if (import.meta.url === `file://${process.argv[1]}`) {
+// pathToFileURL: the `file://${argv[1]}` compare never matches on Windows (see index.ts).
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   startWorker();
   console.log("[worker] started, draining sybilshield:analyses");
 }
