@@ -175,7 +175,7 @@ export default function StatusPage() {
         <p className="mt-3 text-zinc-400">
           What's live, what's beta, what's synthetic-sandbox, what's coming. Updated alongside
           each deploy. Source of truth:{" "}
-          <code className="font-mono text-emerald-300">/STATUS.md</code> in the repo.
+          <code className="font-mono text-emerald-300">apps/web/lib/feature-status.ts</code> in the repo.
         </p>
 
         <div className="mt-12 space-y-10">

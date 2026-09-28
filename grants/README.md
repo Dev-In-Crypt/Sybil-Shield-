@@ -24,8 +24,8 @@ Six target programs. Each file is a ready-to-submit draft sized to the specific 
 
 All grants reference:
 - README.md (project overview)
-- STATUS.md (honest feature state)
-- previews/methodology.html (technical depth)
+- https://www.sybilshield.org/status (honest feature state)
+- https://www.sybilshield.org/methodology (technical depth)
 - content/blog/linea-retro.md (shipped value evidence)
 - GitHub repo (https://github.com/USER/sybilshield) — must be public before submitting
 

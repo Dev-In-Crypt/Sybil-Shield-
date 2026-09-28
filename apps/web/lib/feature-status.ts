@@ -1,6 +1,5 @@
 /**
  * Single source of truth for feature status, imported by all pages.
- * Keep in sync with /STATUS.md at the repo root.
  */
 
 export type Status = "available" | "beta" | "sandbox" | "coming-soon" | "roadmap";

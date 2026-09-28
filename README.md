@@ -5,7 +5,7 @@
 
 [![CI](https://github.com/Dev-In-Crypt/Sybil-Shield-/actions/workflows/ci.yml/badge.svg)](https://github.com/Dev-In-Crypt/Sybil-Shield-/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-c0ff00.svg)](LICENSE)
-[![Public sandbox](https://img.shields.io/badge/status-public%20sandbox-c0ff00)](STATUS.md)
+[![Public sandbox](https://img.shields.io/badge/status-public%20sandbox-c0ff00)](https://www.sybilshield.org/status)
 [![Decision API](https://img.shields.io/badge/API-DROP%2FREVIEW%2FKEEP-c0ff00)](https://www.sybilshield.org/docs)
 
 ---
@@ -15,8 +15,6 @@
 Airdrops lose 20–40% of value to industrial Sybil farming. Every project either overspends on detection consulting ($150K+) or underspends and ships broken filters.
 
 **SybilShield is the open-source detection engine.** Submit wallet addresses, get back a decision-ready verdict — `DROP` / `REVIEW` / `KEEP` per address — computed from a named preset (airdrop / dao / grant / balanced), with per-address evidence and rationale codes. Six independent detection methods. Open methodology. Public appeal flow. Immutable audit log. Live sandbox at [sybilshield.org](https://www.sybilshield.org).
-
-See [project description](SybilShield_Project_Description.md) for context. See [technical spec](SybilShield_Technical_Spec.md) for design rationale.
 
 ## Detection methods
 
@@ -121,18 +119,6 @@ needs no local backend. Point it at a local stack instead with
 `E2E_BASE_URL=http://localhost:3000` (after `docker compose up -d --build`
 + `npm --workspace apps/web run dev`).
 
-## Preview the website
-
-Static HTML previews of all marketing & dashboard pages:
-
-```bash
-docker run --rm -d --name sybilshield-preview -p 8080:80 \
-  -v "$PWD/previews:/usr/share/nginx/html:ro" nginx:alpine
-open http://localhost:8080
-```
-
-16 pages: landing, pricing, methodology, docs, roadmap, status, about, security, appeal, blog, dashboard + 5 dashboard subpages.
-
 ## Project layout
 
 ```
@@ -142,7 +128,6 @@ apps/
   web/                     Next.js production frontend
 packages/
   shared/                  Shared TS types
-previews/                  Static HTML mockups (Genesis design system)
 grants/                    Grant application materials
 content/blog/              Blog post drafts
 docker-compose.yml         Full stack for local dev
@@ -151,7 +136,7 @@ docker-compose.test.yml    Test runner
 
 ## Open methodology
 
-Every detection rule is documented in [`previews/methodology.html`](previews/methodology.html). Source code under [`apps/ml/`](apps/ml/). Reproducible from the published artifact + manifest hashes.
+Every detection rule is documented in [sybilshield.org/methodology](https://www.sybilshield.org/methodology). Source code under [`apps/ml/`](apps/ml/). Reproducible from the published artifact + manifest hashes.
 
 We use a tiered confidence system for labels:
 
@@ -175,11 +160,11 @@ Holdout uses T1+T2+G1 only — honest evaluation, no agreement-with-other-detect
 | Production model | Baseline trained, calibration pending |
 | Legal entity | Pre-incorporation |
 
-Full [STATUS.md](STATUS.md).
+Full status at [sybilshield.org/status](https://www.sybilshield.org/status).
 
 ## Roadmap
 
-[STATUS.md](STATUS.md) tracks feature flags. The product roadmap lives at [previews/roadmap.html](previews/roadmap.html).
+Feature status: [sybilshield.org/status](https://www.sybilshield.org/status). Product roadmap: [sybilshield.org/roadmap](https://www.sybilshield.org/roadmap).
 
 ## Contributing
 
@@ -277,7 +262,7 @@ Pages shipped:
 | `/dashboard/billing` | Usage view (free public sandbox — fair-use limits, no billing) |
 | `/dashboard/settings` | Roadmap placeholder |
 
-Feature flags live at `apps/web/lib/feature-status.ts` and rendered as badges throughout. Update both that file and `STATUS.md` when shipping a feature.
+Feature flags live at `apps/web/lib/feature-status.ts` and rendered as badges throughout. Update that file when shipping a feature.
 
 A sandbox banner appears on every page making clear we're running synthetic on-chain data until the first grant or paid analysis lands. Honest > shiny.
 
@@ -342,4 +327,4 @@ A bootstrap pipeline has already run with 100 real ENS-veteran addresses + synth
 11. Real Etherscan/Dune integration for contract labels — currently `contract_labels` is empty when not passed, which degrades behavioral feature richness.
 12. Replace the inline label map in `derive_power_users.py` with a live Etherscan label fetch (it currently uses ~20 hardcoded top contracts).
 
-Everything else from the original 24-week plan in `SybilShield_Technical_Spec.md` is shipped.
+Everything else from the original 24-week plan is shipped.

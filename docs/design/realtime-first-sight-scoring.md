@@ -34,7 +34,7 @@ separating before doing any capacity math with them:
   for this design, just don't let the estimate silently go stale.
 - **The account-level ceiling is a throughput limit, not a monthly total**:
   the code's own comment states Scale tier ($199/mo — confirmed in
-  `README.md`, `DEPLOY.md`, `.env.example`) sustains **1500 CU/sec ≈ 10
+  `README.md`, `.env.example`) sustains **1500 CU/sec ≈ 10
   req/sec**, and `AlchemyProvider`'s `RateLimiter` is configured at exactly
   `rps=10.0` by default (`ALCHEMY_RATE_LIMIT_RPS` env var) — the code's own
   throttle **is** the CU-derived cap, already correctly tuned (10 req/sec ×
@@ -216,4 +216,4 @@ All figures above are read directly from the repo, not assumed:
   existing cache-read path this design's write-through cache converges to.
 - `apps/ml/sybilshield/pipeline.py`, `clustering/*.py` — confirms the
   batch-relative nature of the four clustering methods.
-- `README.md`, `DEPLOY.md`, `.env.example` — Alchemy Scale tier, $199/mo.
+- `README.md`, `.env.example` — Alchemy Scale tier, $199/mo.
